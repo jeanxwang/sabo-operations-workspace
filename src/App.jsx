@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import StudentBuddyDashboard from "./pages/StudentBuddyDashboard";
+import StudentBuddyStudents from "./pages/StudentBuddyStudents";
 
 export default function App() {
   const navigate = useNavigate();
@@ -36,6 +37,15 @@ export default function App() {
               user={currentUser}
               onLogout={handleLogout}
             />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/student-buddy/students"
+        element={
+          <ProtectedRoute allowedRoles={["student-buddy"]}>
+            <StudentBuddyStudents user={currentUser} onLogout={handleLogout} />
           </ProtectedRoute>
         }
       />

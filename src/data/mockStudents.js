@@ -1,0 +1,61 @@
+export const mockStudents = [
+  {
+    id: "STU-1001",
+    name: "Hermione Granger",
+    package: "IELTS",
+    action: "Greet",
+    actionDone: ["Buat grup"],
+    recentActivity: [
+      {
+        type: "group",
+        title: "Anda membuat grup baru",
+        time: "1 hari yang lalu",
+      },
+      {
+        type: "tag",
+        title: "CX menandai Anda sebagai Student Buddy",
+        time: "1 hari yang lalu",
+      },
+    ],
+  },
+  {
+    id: "STU-1002",
+    name: "Luna Lovegood",
+    package: "IELTS + SAT",
+    action: "Guide aktivasi",
+    actionDone: [],
+    recentActivity: [],
+  },
+  {
+    id: "STU-1003",
+    name: "Martin Edwards",
+    package: "Bundling",
+    action: "Guide aktivasi",
+    actionDone: [],
+    recentActivity: [],
+  },
+  {
+    id: "STU-1004",
+    name: "Draco Malfoy",
+    package: "TOEFL + IELTS",
+    action: "Guide aktivasi",
+    actionDone: [],
+    recentActivity: [],
+  },
+  {
+    id: "STU-1005",
+    name: "Jennie Ruby Jane Kim",
+    package: "TOEFL + IELTS",
+    action: "Respon tiket",
+    actionDone: [],
+    recentActivity: [],
+  },
+  {
+    id: "STU-1006",
+    name: "Chiharu Shida",
+    package: "Bundling",
+    action: "Respon tiket",
+    actionDone: [],
+    recentActivity: [],
+  },
+];

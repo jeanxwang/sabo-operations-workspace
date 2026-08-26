@@ -1,154 +1,5 @@
-// import {
-//   Grid2X2,
-//   Users,
-//   Ticket,
-//   Plus,
-//   List,
-//   LogOut,
-//   Send,
-//   ClipboardList,
-// } from "lucide-react";
-// import "./StudentBuddyDashboard.css";
-// import schotersLogo from "../assets/schoters-logo.png";
-
-// export default function StudentBuddyDashboard({ user, onLogout }) {
-//   const displayName = getDisplayName(user?.name);
-//   const initials = getInitials(user?.name);
-
-//   return (
-//     <main className="dashboard-page">
-//       <aside className="sidebar">
-//         <header className="sidebar-brand">
-//           <img className="sidebar-brand-logo" src={schotersLogo} alt="Schoters" />
-//           <span>SABO</span>
-//         </header>
-
-//         <nav className="sidebar-nav" aria-label="Main navigation">
-//           <a href="#" className="sidebar-link active">
-//             <Grid2X2 size={22} />
-//             <span>Dashboard</span>
-//           </a>
-
-//           <a href="#" className="sidebar-link">
-//             <Users size={22} />
-//             <span>Students</span>
-//           </a>
-
-//           <a href="#" className="sidebar-link">
-//             <Ticket size={22} />
-//             <span>Tickets</span>
-//           </a>
-//         </nav>
-
-//         <footer className="sidebar-profile">
-//           <span className="profile-avatar">{initials}</span>
-//           <span>
-//             <strong>{user?.name || "Eom Sean"}</strong>
-//             <small>CX - Student Buddy</small>
-//           </span>
-//         </footer>
-//       </aside>
-
-//       <section className="dashboard-main">
-//         <header className="topbar">
-//           <div className="breadcrumbs">
-//             <span>SABO Operations</span>
-//             <span className="breadcrumb-separator">›</span>
-//             <strong>Student Buddy</strong>
-//           </div>
-
-//           <div className="topbar-actions">
-//             <button type="button" aria-label="Menu">
-//               <List size={24} />
-//             </button>
-
-//             <button type="button" aria-label="Logout" onClick={onLogout}>
-//               <LogOut size={24} />
-//             </button>
-//           </div>
-//         </header>
-
-//         <section className="dashboard-content">
-//           <div className="dashboard-heading">
-//             <h1>Welcome back, {displayName}!</h1>
-
-//             <button type="button" className="outline-button create-ticket-button">
-//               <Plus size={20} />
-//               Buat tiket
-//             </button>
-//           </div>
-
-//           <section className="student-summary" aria-label="Total student aktif">
-//             <h2>Total Student Aktif</h2>
-//             <p>yang sedang dipegang oleh {displayName} sebagai Student Buddy</p>
-//             <strong>49</strong>
-
-//             <button type="button" className="outline-button view-students-button">
-//               <Users size={20} />
-//               Lihat semua student
-//             </button>
-//           </section>
-
-//           <section className="today-section">
-//             <h2>Tugas Hari Ini</h2>
-
-//             <div className="task-grid">
-//               <article className="task-card">
-//                 <h3>Student Baru</h3>
-//                 <strong>1</strong>
-
-//                 <button type="button" className="outline-button task-button">
-//                   <Send size={20} />
-//                   Greet student baru
-//                 </button>
-//               </article>
-
-//               <article className="task-card">
-//                 <h3>Student Belum Aktivasi</h3>
-//                 <strong>3</strong>
-
-//                 <button type="button" className="outline-button task-button">
-//                   <ClipboardList size={20} />
-//                   Guide aktivasi
-//                 </button>
-//               </article>
-
-//               <article className="task-card">
-//                 <h3>Tiket Perlu Ditangani</h3>
-//                 <strong>5</strong>
-
-//                 <button type="button" className="outline-button task-button">
-//                   <Ticket size={20} />
-//                   Lihat tiket
-//                 </button>
-//               </article>
-//             </div>
-//           </section>
-//         </section>
-//       </section>
-//     </main>
-//   );
-// }
-
-// function getDisplayName(name) {
-//   if (!name) return "Sean";
-
-//   const nameParts = name.trim().split(" ");
-//   return nameParts[nameParts.length - 1];
-// }
-
-// function getInitials(name) {
-//   if (!name) return "ES";
-
-//   return name
-//     .split(" ")
-//     .map((word) => word[0])
-//     .join("")
-//     .slice(0, 2)
-//     .toUpperCase();
-// }
-
 import { useEffect, useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   Grid2X2,
   Users,
@@ -212,6 +63,7 @@ const TASKS = [
 ];
 
 export default function StudentBuddyDashboard({ user, onLogout }) {
+  const navigate = useNavigate();
   const displayName = getDisplayName(user?.name);
   const initials = getInitials(user?.name);
   const totalStudents = useCountUp(49);
@@ -225,15 +77,25 @@ export default function StudentBuddyDashboard({ user, onLogout }) {
         </header>
 
         <nav className="sidebar-nav" aria-label="Main navigation">
-          <a href="#" className="sidebar-link active">
-            <Grid2X2 size={22} />
-            <span>Dashboard</span>
-          </a>
+            <NavLink
+                to="/student-buddy/dashboard"
+                className={({ isActive }) =>
+                    `sidebar-link ${isActive ? "active" : ""}`
+                }
+            >
+                <Grid2X2 size={22} />
+                <span>Dashboard</span>
+            </NavLink>
 
-          <a href="#" className="sidebar-link">
-            <Users size={22} />
-            <span>Students</span>
-          </a>
+            <NavLink
+                to="/student-buddy/students"
+                className={({ isActive }) =>
+                    `sidebar-link ${isActive ? "active" : ""}`
+                }
+            >
+                <Users size={22} />
+                <span>Students</span>
+            </NavLink>
 
           <a href="#" className="sidebar-link">
             <Ticket size={22} />
@@ -288,9 +150,13 @@ export default function StudentBuddyDashboard({ user, onLogout }) {
             <p>yang sedang dipegang oleh {displayName} sebagai Student Buddy</p>
             <strong className="summary-count">{totalStudents}</strong>
 
-            <button type="button" className="outline-button view-students-button">
-              <Users size={20} />
-              Lihat semua student
+            <button
+                type="button"
+                className="outline-button view-students-button"
+                onClick={() => navigate("/student-buddy/students")}
+            >
+                <Users size={20} />
+                Lihat semua student
             </button>
           </section>
 
