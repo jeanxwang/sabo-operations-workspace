@@ -1,19 +1,19 @@
 import { useState } from "react";
 import { mockUsers } from "../data/mockUsers";
+import { useNavigate } from "react-router-dom";
 import "./LoginPage.css";
+import schotersLogo from "../assets/schoters-logo.png";
 
-export default function LoginPage() {
+export default function LoginPage({ onLoginSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
 
   function handleLogin(event) {
     event.preventDefault();
 
     setErrorMessage("");
-    setSuccessMessage("");
 
     const normalizedEmail = email.trim().toLowerCase();
 
@@ -33,23 +33,24 @@ export default function LoginPage() {
       return;
     }
 
-    localStorage.setItem(
-      "sabo_current_user",
-      JSON.stringify({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      })
-    );
+    const loggedInUser = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    };
 
-    console.log(`Berhasil masuk sebagai ${user.name}`, user);
+    localStorage.setItem("sabo_current_user", JSON.stringify(loggedInUser));
+
+    console.log(`Berhasil masuk sebagai ${user.name}`, loggedInUser);
+
+    onLoginSuccess(loggedInUser);
   }
 
   return (
     <main className="login-page">
       <header className="login-brand">
-        <span className="brand-mark" aria-hidden="true">S</span>
+        <img className="login-brand-logo" src={schotersLogo} alt="Schoters" />
         <span>SABO Operations Workspace</span>
       </header>
 
@@ -110,12 +111,6 @@ export default function LoginPage() {
             {errorMessage && (
               <p className="form-message form-message-error">{errorMessage}</p>
             )}
-
-            {/* {successMessage && (
-              <p className="form-message form-message-success">
-                {successMessage}
-              </p>
-            )} */}
 
             <div className="login-button-wrapper">
               <button type="submit">Masuk</button>
