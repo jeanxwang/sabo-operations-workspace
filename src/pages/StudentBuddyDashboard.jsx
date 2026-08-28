@@ -43,6 +43,7 @@ const TASKS = [
     urgency: "low",
     icon: Send,
     label: "Greet student baru",
+    route: "/student-buddy/students",
   },
   {
     id: "not-activated",
@@ -51,6 +52,7 @@ const TASKS = [
     urgency: "medium",
     icon: ClipboardList,
     label: "Guide aktivasi",
+    route: "/student-buddy/students",
   },
   {
     id: "tickets",
@@ -59,6 +61,7 @@ const TASKS = [
     urgency: "high",
     icon: Ticket,
     label: "Lihat tiket",
+    route: "/student-buddy/tickets",
   },
 ];
 
@@ -77,30 +80,35 @@ export default function StudentBuddyDashboard({ user, onLogout }) {
         </header>
 
         <nav className="sidebar-nav" aria-label="Main navigation">
-            <NavLink
-                to="/student-buddy/dashboard"
-                className={({ isActive }) =>
-                    `sidebar-link ${isActive ? "active" : ""}`
-                }
-            >
-                <Grid2X2 size={22} />
-                <span>Dashboard</span>
-            </NavLink>
+          <NavLink
+            to="/student-buddy/dashboard"
+            className={({ isActive }) =>
+              `sidebar-link ${isActive ? "active" : ""}`
+            }
+          >
+            <Grid2X2 size={22} />
+            <span>Dashboard</span>
+          </NavLink>
 
-            <NavLink
-                to="/student-buddy/students"
-                className={({ isActive }) =>
-                    `sidebar-link ${isActive ? "active" : ""}`
-                }
-            >
-                <Users size={22} />
-                <span>Students</span>
-            </NavLink>
+          <NavLink
+            to="/student-buddy/students"
+            className={({ isActive }) =>
+              `sidebar-link ${isActive ? "active" : ""}`
+            }
+          >
+            <Users size={22} />
+            <span>Students</span>
+          </NavLink>
 
-          <a href="#" className="sidebar-link">
+          <NavLink
+            to="/student-buddy/tickets"
+            className={({ isActive }) =>
+              `sidebar-link ${isActive ? "active" : ""}`
+            }
+          >
             <Ticket size={22} />
             <span>Tickets</span>
-          </a>
+          </NavLink>
         </nav>
 
         <footer className="sidebar-profile">
@@ -135,7 +143,11 @@ export default function StudentBuddyDashboard({ user, onLogout }) {
           <div className="dashboard-heading fade-in-up" style={{ "--delay": "0ms" }}>
             <h1>Welcome back, {displayName}!</h1>
 
-            <button type="button" className="outline-button create-ticket-button">
+            <button
+              type="button"
+              className="outline-button create-ticket-button"
+              onClick={() => navigate("/student-buddy/tickets")}
+            >
               <Plus size={20} />
               Buat tiket
             </button>
@@ -151,12 +163,12 @@ export default function StudentBuddyDashboard({ user, onLogout }) {
             <strong className="summary-count">{totalStudents}</strong>
 
             <button
-                type="button"
-                className="outline-button view-students-button"
-                onClick={() => navigate("/student-buddy/students")}
+              type="button"
+              className="outline-button view-students-button"
+              onClick={() => navigate("/student-buddy/students")}
             >
-                <Users size={20} />
-                Lihat semua student
+              <Users size={20} />
+              Lihat semua student
             </button>
           </section>
 
@@ -165,7 +177,7 @@ export default function StudentBuddyDashboard({ user, onLogout }) {
 
             <div className="task-grid">
               {TASKS.map((task, index) => (
-                <TaskCard key={task.id} task={task} index={index} />
+                <TaskCard key={task.id} task={task} index={index} navigate={navigate} />
               ))}
             </div>
           </section>
@@ -175,7 +187,7 @@ export default function StudentBuddyDashboard({ user, onLogout }) {
   );
 }
 
-function TaskCard({ task, index }) {
+function TaskCard({ task, index, navigate }) {
   const Icon = task.icon;
   const count = useCountUp(task.count, 700);
 
@@ -192,7 +204,11 @@ function TaskCard({ task, index }) {
 
       <strong>{count}</strong>
 
-      <button type="button" className="outline-button task-button">
+      <button
+        type="button"
+        className="outline-button task-button"
+        onClick={() => task.route && navigate(task.route)}
+      >
         <Icon size={20} />
         {task.label}
       </button>
