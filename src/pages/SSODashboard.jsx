@@ -8,11 +8,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { useCountUp } from "../hooks/useCountUp";
-import {
-  ssoHighlights,
-  ssoPriorityStudents,
-  ssoCxUpdates,
-} from "../data/mockSsoDashboard";
+import { mockSsoDashboard } from "../data/mockSsoDashboard";
 import "./StudentBuddyDashboard.css";
 import "./SSODashboard.css";
 import schotersLogo from "../assets/schoters-logo.png";
@@ -21,11 +17,19 @@ function navLinkClass({ isActive }) {
   return `sidebar-link ${isActive ? "active" : ""}`;
 }
 
+function getStatusLevel(status) {
+  if (status === "high-risk") return "high";
+  if (status === "on-track") return "low";
+  return "neutral";
+}
+
 export default function SSODashboard({ user, onLogout }) {
   const navigate = useNavigate();
   const displayName = getDisplayName(user?.name);
   const initials = getInitials(user?.name);
-  const totalStudents = useCountUp(350);
+  const totalStudents = useCountUp(mockSsoDashboard.totalActiveStudents);
+
+  const { highlights, priorities, updates } = mockSsoDashboard;
 
   return (
     <main className="dashboard-page">
@@ -108,7 +112,7 @@ export default function SSODashboard({ user, onLogout }) {
             <h2>Sorotan</h2>
 
             <div className="sso-highlight-grid">
-              {ssoHighlights.map((item, index) => (
+              {highlights.map((item, index) => (
                 <HighlightCard key={item.id} item={item} index={index} />
               ))}
             </div>
@@ -131,7 +135,7 @@ export default function SSODashboard({ user, onLogout }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {ssoPriorityStudents.map((student) => (
+                  {priorities.map((student) => (
                     <tr key={student.id}>
                       <td>
                         <strong>{student.name}</strong>
@@ -140,8 +144,8 @@ export default function SSODashboard({ user, onLogout }) {
                       <td>{student.stage}</td>
                       <td>{student.issue}</td>
                       <td>
-                        <span className={`status-badge status-${student.statusLevel}`}>
-                          {student.status}
+                        <span className={`status-badge status-${getStatusLevel(student.status)}`}>
+                          {student.statusLabel}
                         </span>
                       </td>
                     </tr>
@@ -156,9 +160,9 @@ export default function SSODashboard({ user, onLogout }) {
               <h2>Update dari CX/Lainnya</h2>
 
               <div className="cx-updates-list">
-                {ssoCxUpdates.map((update) => (
+                {updates.map((update) => (
                   <article key={update.id} className="cx-update-item">
-                    <strong>{update.name}</strong>
+                    <strong>{update.studentName}</strong>
                     <p>{update.message}</p>
                     <span>{update.time}</span>
                   </article>
@@ -182,10 +186,10 @@ function HighlightCard({ item, index }) {
 
       {item.description && <p>{item.description}</p>}
 
-      {item.actionLabel && (
+      {item.action && (
         <button type="button" className="outline-button highlight-action-button">
           <MessageCircle size={18} />
-          {item.actionLabel}
+          {item.action}
         </button>
       )}
     </article>
