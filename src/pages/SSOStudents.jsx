@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   ArrowUpDown,
   Filter,
@@ -29,6 +30,7 @@ function navLinkClass({ isActive }) {
 }
 
 export default function SSOStudents({ user, onLogout }) {
+  const navigate = useNavigate();
   const [students, setStudents] = useState(mockSsoStudents);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedId, setSelectedId] = useState(mockSsoStudents[0]?.id ?? null);
@@ -190,7 +192,7 @@ export default function SSOStudents({ user, onLogout }) {
                           className="text-button"
                           onClick={(event) => {
                             event.stopPropagation();
-                            setSelectedId(student.id);
+                            navigate(`/sso/students/${student.id}`);
                           }}
                         >
                           Lihat
@@ -234,6 +236,7 @@ export default function SSOStudents({ user, onLogout }) {
                 student={selectedStudent}
                 onAddRecommendation={handleAddRecommendation}
                 onRemoveRecommendation={handleRemoveRecommendation}
+                navigate={navigate}
               />
             )}
           </aside>
@@ -252,6 +255,7 @@ function StudentDetailPanel({ student, onAddRecommendation, onRemoveRecommendati
   const [recipient, setRecipient] = useState("SB");
 
   const currentList = student.recommendations[activeTab];
+  const navigate = useNavigate();
 
   function handleAddSubmit(event) {
     event.preventDefault();
@@ -385,6 +389,14 @@ function StudentDetailPanel({ student, onAddRecommendation, onRemoveRecommendati
           )}
         </div>
       </div>
+
+      <button
+        type="button"
+        className="outline-button view-full-detail-button"
+        onClick={() => navigate(`/sso/students/${student.id}`)}
+      >
+        Lihat Detail Lengkap
+      </button>
 
       <form className="send-message-row" onSubmit={handleSendMessage}>
         <label className="send-message-input">

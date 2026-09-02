@@ -1,0 +1,155 @@
+.student-detail-page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 28px 28px 0;
+}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+.back-link:hover {
+  color: var(--ink);
+}
+.student-detail-page-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.student-detail-page-title h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+.student-detail-page-id {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 14px;
+  color: var(--muted);
+}
+.page-status-badge {
+  padding: 5px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.breadcrumb-link {
+  color: var(--muted);
+  text-decoration: none;
+}
+.breadcrumb-link:hover {
+  text-decoration: underline;
+}
+
+.detail-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 24px 28px 0;
+  padding-bottom: 0;
+  border-bottom: 1.5px solid var(--line);
+  overflow-x: auto;
+}
+.detail-tab {
+  position: relative;
+  padding: 12px 16px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.16s ease;
+}
+.detail-tab:hover {
+  color: var(--ink);
+}
+.detail-tab.active {
+  color: var(--ink);
+}
+.detail-tab.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1.5px;
+  height: 2px;
+  background: var(--accent);
+}
+
+.detail-tab-panel {
+  padding: 28px;
+  max-width: 960px;
+}
+
+.detail-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 18px 32px;
+}
+.detail-field {
+  display: grid;
+  gap: 4px;
+}
+.detail-field-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.detail-field-value {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.detail-field-value.empty {
+  color: #c4c4c8;
+  font-weight: 400;
+}
+
+.detail-subsection-title {
+  margin: 32px 0 16px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.detail-not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 60px 28px;
+}
+
+@media (max-width: 760px) {
+  .detail-field-grid {
+    grid-template-columns: 1fr;
+  }
+  .detail-tab-panel {
+    padding: 20px;
+  }
+  .detail-tabs {
+    margin: 20px 20px 0;
+  }
+  .student-detail-page-header {
+    padding: 20px 20px 0;
+  }
+}

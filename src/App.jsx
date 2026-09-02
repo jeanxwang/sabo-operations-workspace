@@ -5,6 +5,7 @@ import StudentBuddyStudents from "./pages/StudentBuddyStudents";
 import StudentBuddyTickets from "./pages/StudentBuddyTickets";
 import SSODashboard from "./pages/SSODashboard";
 import SSOStudents from "./pages/SSOStudents";
+import SSOStudentDetail from "./pages/SSOStudentDetail";
 
 export default function App() {
   const navigate = useNavigate();
@@ -76,6 +77,15 @@ export default function App() {
         element={
           <ProtectedRoute allowedRoles={["sso"]}>
             <SSOStudents user={currentUser} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/sso/students/:studentId"
+        element={
+          <ProtectedRoute allowedRoles={["sso"]}>
+            <SSOStudentDetail user={currentUser} onLogout={handleLogout} />
           </ProtectedRoute>
         }
       />
