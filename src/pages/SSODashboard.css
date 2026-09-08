@@ -1,4 +1,4 @@
-/* ---------- Sorotan (highlight cards) ---------- */
+/* ---------- Highlight ---------- */
 .sso-highlight-section {
   margin-bottom: 40px;
 }
@@ -11,11 +11,11 @@
 }
 .sso-highlight-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  grid-template-columns: 1.6fr 1fr;
   gap: 20px;
+  align-items: start;
 }
 .sso-highlight-card {
-  min-height: 170px;
   display: flex;
   flex-direction: column;
   padding: 22px;
@@ -57,6 +57,67 @@
   margin-top: auto;
   min-height: 42px;
   font-size: 14px;
+}
+
+/* ---------- Perlu Follow Up breakdown ---------- */
+.follow-up-card:hover {
+  transform: none;
+  box-shadow: none;
+}
+.follow-up-breakdown {
+  display: grid;
+  gap: 10px;
+  margin-top: 6px;
+}
+.follow-up-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  transition: border-color 0.16s ease, background-color 0.16s ease;
+}
+.follow-up-row:hover {
+  border-color: var(--ink);
+  background: var(--surface);
+}
+.follow-up-row-info {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+.follow-up-row-count {
+  flex-shrink: 0;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.follow-up-row-label {
+  font-size: 14px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.follow-up-row-action {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+.follow-up-row-action:hover {
+  text-decoration: underline;
 }
 
 /* ---------- Prioritas Hari Ini (table) ---------- */

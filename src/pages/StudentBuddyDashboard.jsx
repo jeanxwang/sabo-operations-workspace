@@ -8,10 +8,13 @@ import {
   LogOut,
   Send,
   ClipboardList,
+  CheckCircle2
 } from "lucide-react";
 import { useCountUp } from "../hooks/useCountUp";
 import "./StudentBuddyDashboard.css";
 import schotersLogo from "../assets/schoters-logo.png";
+import { useHandoverStore } from "../hooks/useHandoverStore";
+import { mockHandoverSeed } from "../data/mockHandover";
 
 const TASKS = [
   {
@@ -48,6 +51,8 @@ export default function StudentBuddyDashboard({ user, onLogout }) {
   const displayName = getDisplayName(user?.name);
   const initials = getInitials(user?.name);
   const totalStudents = useCountUp(49);
+  const { items: handoverItems } = useHandoverStore(mockHandoverSeed);
+  const handoverPendingCount = handoverItems.filter((item) => item.status === "belum").length;
 
   return (
     <main className="dashboard-page">
@@ -86,6 +91,11 @@ export default function StudentBuddyDashboard({ user, onLogout }) {
           >
             <Ticket size={22} />
             <span>Tickets</span>
+          </NavLink>
+
+          <NavLink to="/student-buddy/handover" className={({ isActive }) => `sidebar-link ${isActive ? "active" : ""}`}>
+            <CheckCircle2 size={22} />
+            <span>Handover</span>
           </NavLink>
         </nav>
 
@@ -157,6 +167,27 @@ export default function StudentBuddyDashboard({ user, onLogout }) {
               {TASKS.map((task, index) => (
                 <TaskCard key={task.id} task={task} index={index} navigate={navigate} />
               ))}
+
+              <article
+                className="task-card fade-in-up"
+                style={{ "--delay": "390ms" }}
+                data-urgency={handoverPendingCount > 0 ? "medium" : "low"}
+              >
+                <div className="task-card-top">
+                  <h3>Handover dari SSO</h3>
+                  <span className="urgency-dot" aria-hidden="true"></span>
+                </div>
+                <strong>{handoverPendingCount}</strong>
+                <button
+                  type="button"
+                  className="outline-button task-button"
+                  onClick={() => navigate("/student-buddy/handover")}
+                >
+                  <CheckCircle2 size={20} />
+                  Lihat handover
+                </button>
+              </article>
+
             </div>
           </section>
         </section>

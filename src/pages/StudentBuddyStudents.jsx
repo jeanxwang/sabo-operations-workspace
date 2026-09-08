@@ -15,6 +15,7 @@ import {
   Ticket,
   Users,
   X,
+  CheckCircle2
 } from "lucide-react";
 import schotersLogo from "../assets/schoters-logo.png";
 import { mockStudents } from "../data/mockStudents";
@@ -57,10 +58,15 @@ export default function StudentBuddyStudents({ user, onLogout }) {
             <span>Students</span>
           </NavLink>
 
-          <a href="#" className="sidebar-link">
+          <NavLink to="/student-buddy/tickets" className={navLinkClass}>
             <Ticket size={22} />
             <span>Tickets</span>
-          </a>
+          </NavLink>
+
+          <NavLink to="/student-buddy/handover" className={({ isActive }) => `sidebar-link ${isActive ? "active" : ""}`}>
+            <CheckCircle2 size={22} />
+            <span>Handover</span>
+          </NavLink>
         </nav>
 
         <footer className="sidebar-profile">

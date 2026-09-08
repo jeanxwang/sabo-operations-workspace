@@ -474,6 +474,139 @@
   border-color: var(--accent);
 }
 .view-full-detail-button { width: 100%; margin-top: 20px; }
+.handover-history-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1.5px solid var(--line);
+}
+.handover-history-list {
+  display: grid;
+  gap: 10px;
+}
+.handover-history-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+}
+.handover-history-item p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.handover-history-status {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+.handover-history-status.status-belum {
+  color: var(--accent-high);
+}
+.handover-history-status.status-done {
+  color: var(--accent-low);
+}
+.active-filter-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent-soft);
+  font-size: 13px;
+}
+.active-filter-banner strong {
+  font-weight: 700;
+}
+.active-filter-banner button {
+  flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.active-filter-banner button:hover {
+  text-decoration: underline;
+}
+.filter-popover-wrapper {
+  position: relative;
+}
+.small-toolbar-button {
+  position: relative;
+}
+.filter-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  margin-left: 4px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--paper);
+  font-size: 11px;
+  font-weight: 700;
+}
+.filter-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 10;
+  width: 220px;
+  padding: 16px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  box-shadow: 0 12px 28px rgba(11, 11, 12, 0.12);
+  animation: fadeInUp 0.16s ease both;
+}
+.filter-popover-section {
+  margin-bottom: 12px;
+}
+.filter-popover-label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.filter-checkbox-list {
+  display: grid;
+  gap: 10px;
+}
+.filter-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.filter-checkbox-item input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--ink);
+  cursor: pointer;
+}
+.filter-popover-reset {
+  width: 100%;
+  text-align: left;
+  padding: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.filter-popover-reset:hover {
+  color: var(--accent-high);
+}
 
 @media (max-width: 1300px) {
   .sso-students-content {

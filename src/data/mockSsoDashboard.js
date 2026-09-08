@@ -1,28 +1,20 @@
 export const mockSsoDashboard = {
   totalActiveStudents: 350,
-  highlights: [
-    {
-      id: "follow-up",
-      title: "Perlu Follow Up",
-      count: 24,
-      description:
-        "Student dengan progress mandek, deadline dekat, atau update belum dikirim.",
-    },
-    {
-      id: "strategic-reminder",
-      title: "Reminder Strategis",
-      count: 9,
-      description:
-        "OIT, simulation test, deadline dokumen, dan milestone penting.",
-    },
-    {
-      id: "cx-updates",
-      title: "Update dari CX/Lainnya",
-      count: 7,
-      description: "Informasi baru dari Student Buddy, Hotline, atau tim lain.",
-      action: "Lihat update",
-    },
-  ],
+  followUp: {
+    total: 24,
+    items: [
+      { id: "deadline-beasiswa-h7", count: 8 },
+      { id: "inactive-booking", count: 10 },
+      { id: "not-onboarded", count: 6 },
+    ],
+  },
+  cxUpdate: {
+    id: "cx-updates",
+    title: "Update dari CX/Lainnya",
+    count: 7,
+    description: "Informasi baru dari Student Buddy, Hotline, atau tim lain.",
+    action: "Lihat update",
+  },
   priorities: [
     {
       id: "STU-1001",

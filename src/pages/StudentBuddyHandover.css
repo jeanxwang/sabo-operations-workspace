@@ -1,0 +1,121 @@
+.handover-content {
+  padding: 32px 28px 40px;
+  max-width: 780px;
+}
+.handover-header-row {
+  margin-bottom: 24px;
+}
+.handover-header-row h1 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.handover-list {
+  display: grid;
+  gap: 16px;
+}
+.handover-card {
+  padding: 20px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+.handover-card[data-status="done"] {
+  background: var(--surface);
+}
+.handover-card:hover {
+  border-color: var(--ink);
+  box-shadow: 0 6px 16px rgba(11, 11, 12, 0.06);
+}
+
+.handover-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.handover-card-top strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: "Space Grotesk", sans-serif;
+}
+.handover-student-id {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--muted);
+  font-family: "JetBrains Mono", monospace;
+}
+
+.handover-status-badge {
+  flex-shrink: 0;
+  padding: 4px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.handover-status-badge.status-belum {
+  border-color: var(--accent-high);
+  color: var(--accent-high);
+}
+.handover-status-badge.status-done {
+  border-color: var(--accent-low);
+  color: var(--accent-low);
+}
+
+.handover-message {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.handover-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.handover-meta {
+  font-size: 12px;
+  color: var(--muted);
+  font-family: "JetBrains Mono", monospace;
+}
+.handover-done-button {
+  min-height: 38px;
+  padding: 0 16px;
+  font-size: 13px;
+  background: var(--ink);
+  color: var(--paper);
+}
+.handover-done-button:hover {
+  background: var(--accent-low);
+  border-color: var(--accent-low);
+}
+.handover-card .text-button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.handover-card .text-button:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+.handover-empty-text {
+  margin: 0;
+  padding: 40px 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}

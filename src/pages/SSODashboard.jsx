@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import {
+  ChevronRight,
   Grid2X2,
   Users,
   List,
@@ -9,6 +10,7 @@ import {
 } from "lucide-react";
 import { useCountUp } from "../hooks/useCountUp";
 import { mockSsoDashboard } from "../data/mockSsoDashboard";
+import { FOLLOW_UP_TAG_LABELS } from "../data/followUpTags";
 import "./StudentBuddyDashboard.css";
 import "./SSODashboard.css";
 import schotersLogo from "../assets/schoters-logo.png";
@@ -29,7 +31,7 @@ export default function SSODashboard({ user, onLogout }) {
   const initials = getInitials(user?.name);
   const totalStudents = useCountUp(mockSsoDashboard.totalActiveStudents);
 
-  const { highlights, priorities, updates } = mockSsoDashboard;
+  const { followUp, cxUpdate, priorities, updates } = mockSsoDashboard;
 
   return (
     <main className="dashboard-page">
@@ -109,12 +111,11 @@ export default function SSODashboard({ user, onLogout }) {
           </section>
 
           <section className="sso-highlight-section fade-in-up" style={{ "--delay": "140ms" }}>
-            <h2>Sorotan</h2>
+            <h2>Highlight</h2>
 
             <div className="sso-highlight-grid">
-              {highlights.map((item, index) => (
-                <HighlightCard key={item.id} item={item} index={index} />
-              ))}
+              <FollowUpCard followUp={followUp} navigate={navigate} />
+              <HighlightCard item={cxUpdate} index={1} />
             </div>
           </section>
 
@@ -173,6 +174,45 @@ export default function SSODashboard({ user, onLogout }) {
         </section>
       </section>
     </main>
+  );
+}
+
+function FollowUpCard({ followUp, navigate }) {
+  const total = useCountUp(followUp.total);
+
+  return (
+    <article className="sso-highlight-card follow-up-card">
+      <h3>Perlu Follow Up</h3>
+      <strong>{total}</strong>
+
+      <div className="follow-up-breakdown">
+        {followUp.items.map((item) => (
+          <FollowUpRow
+            key={item.id}
+            item={item}
+            onView={() => navigate(`/sso/students?tag=${item.id}`)}
+          />
+        ))}
+      </div>
+    </article>
+  );
+}
+
+function FollowUpRow({ item, onView }) {
+  const count = useCountUp(item.count, 600);
+
+  return (
+    <div className="follow-up-row">
+      <div className="follow-up-row-info">
+        <span className="follow-up-row-count">{count}</span>
+        <span className="follow-up-row-label">{FOLLOW_UP_TAG_LABELS[item.id]}</span>
+      </div>
+
+      <button type="button" className="follow-up-row-action" onClick={onView}>
+        Lihat
+        <ChevronRight size={16} />
+      </button>
+    </div>
   );
 }
 

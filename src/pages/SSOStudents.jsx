@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import {
@@ -18,12 +18,18 @@ import schotersLogo from "../assets/schoters-logo.png";
 import { mockSsoStudents } from "../data/mockSsoStudents";
 import "./StudentBuddyDashboard.css";
 import "./SSOStudents.css";
+import { useHandoverStore } from "../hooks/useHandoverStore";
+import { mockHandoverSeed } from "../data/mockHandover";
+import { useSearchParams } from "react-router-dom";
+import { FOLLOW_UP_TAG_LABELS } from "../data/followUpTags";
 
 const RECIPIENT_OPTIONS = [
   { value: "SB", label: "Student Buddy" },
   { value: "HL", label: "Hotline" },
   { value: "RN", label: "Rania" },
 ];
+
+const GRADE_OPTIONS = ["10", "11", "12"];
 
 function navLinkClass({ isActive }) {
   return `sidebar-link ${isActive ? "active" : ""}`;
@@ -34,19 +40,69 @@ export default function SSOStudents({ user, onLogout }) {
   const [students, setStudents] = useState(mockSsoStudents);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedId, setSelectedId] = useState(mockSsoStudents[0]?.id ?? null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filterOpen, setFilterOpen] = useState(false);
+  const filterRef = useRef(null);
 
-  const filteredStudents = students.filter((student) => {
-    const keyword = searchKeyword.toLowerCase();
-    return (
-      student.name.toLowerCase().includes(keyword) ||
-      student.id.toLowerCase().includes(keyword) ||
-      student.package.toLowerCase().includes(keyword) ||
-      student.packageName.toLowerCase().includes(keyword)
-    );
-  });
+  const activeTag = searchParams.get("tag");
+  const activeGrades = (searchParams.get("grade") ?? "")
+    .split(",")
+    .filter(Boolean);
+
+  const { items: handoverItems, addHandover } = useHandoverStore(mockHandoverSeed);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setFilterOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredStudents = students
+    .filter((student) => !activeTag || student.followUpTags?.includes(activeTag))
+    .filter(
+      (student) =>
+        activeGrades.length === 0 || activeGrades.includes(String(student.grade))
+    )
+    .filter((student) => {
+      const keyword = searchKeyword.toLowerCase();
+      return (
+        student.name.toLowerCase().includes(keyword) ||
+        student.id.toLowerCase().includes(keyword) ||
+        student.package.toLowerCase().includes(keyword) ||
+        student.packageName.toLowerCase().includes(keyword)
+      );
+    });
 
   const selectedStudent =
     students.find((student) => student.id === selectedId) ?? students[0];
+
+  function toggleGrade(grade) {
+    const next = new URLSearchParams(searchParams);
+    const current = new Set(activeGrades);
+
+    if (current.has(grade)) {
+      current.delete(grade);
+    } else {
+      current.add(grade);
+    }
+
+    if (current.size === 0) {
+      next.delete("grade");
+    } else {
+      next.set("grade", Array.from(current).join(","));
+    }
+    setSearchParams(next);
+  }
+
+  function clearGradeFilter() {
+    const next = new URLSearchParams(searchParams);
+    next.delete("grade");
+    setSearchParams(next);
+  }
 
   function handleAddRecommendation(studentId, category, item) {
     setStudents((prev) =>
@@ -81,6 +137,8 @@ export default function SSOStudents({ user, onLogout }) {
       )
     );
   }
+
+  const hasActiveFilters = activeTag || activeGrades.length > 0;
 
   return (
     <main className="dashboard-page">
@@ -138,16 +196,75 @@ export default function SSOStudents({ user, onLogout }) {
               <h1>Student Aktif ({students.length})</h1>
 
               <div className="sso-students-toolbar-actions">
-                <button type="button" className="outline-button small-toolbar-button">
-                  <Filter size={16} />
-                  Filter
-                </button>
+                <div className="filter-popover-wrapper" ref={filterRef}>
+                  <button
+                    type="button"
+                    className="outline-button small-toolbar-button"
+                    onClick={() => setFilterOpen((open) => !open)}
+                  >
+                    <Filter size={16} />
+                    Filter
+                    {activeGrades.length > 0 && (
+                      <span className="filter-count-badge">{activeGrades.length}</span>
+                    )}
+                  </button>
+
+                  {filterOpen && (
+                    <div className="filter-popover">
+                      <div className="filter-popover-section">
+                        <span className="filter-popover-label">Kelas</span>
+                        <div className="filter-checkbox-list">
+                          {GRADE_OPTIONS.map((grade) => (
+                            <label key={grade} className="filter-checkbox-item">
+                              <input
+                                type="checkbox"
+                                checked={activeGrades.includes(grade)}
+                                onChange={() => toggleGrade(grade)}
+                              />
+                              Kelas {grade}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      {activeGrades.length > 0 && (
+                        <button
+                          type="button"
+                          className="text-button filter-popover-reset"
+                          onClick={clearGradeFilter}
+                        >
+                          Reset filter kelas
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <button type="button" className="outline-button small-toolbar-button">
                   <ArrowUpDown size={16} />
                   Sort
                 </button>
               </div>
             </div>
+
+            {hasActiveFilters && (
+              <div className="active-filter-banner">
+                <span>
+                  Filter aktif:{" "}
+                  {activeTag && (
+                    <strong>{FOLLOW_UP_TAG_LABELS[activeTag] ?? activeTag}</strong>
+                  )}
+                  {activeTag && activeGrades.length > 0 && " • "}
+                  {activeGrades.length > 0 && (
+                    <strong>Kelas {activeGrades.join(", ")}</strong>
+                  )}{" "}
+                  ({filteredStudents.length})
+                </span>
+                <button type="button" onClick={() => setSearchParams({})}>
+                  Hapus semua filter
+                </button>
+              </div>
+            )}
 
             <label className="sso-students-search">
               <Search size={20} />
@@ -164,6 +281,7 @@ export default function SSOStudents({ user, onLogout }) {
                 <thead>
                   <tr>
                     <th>Student</th>
+                    <th>Kelas</th>
                     <th>Package</th>
                     <th>Package Name</th>
                     <th>Payment Date</th>
@@ -182,6 +300,7 @@ export default function SSOStudents({ user, onLogout }) {
                         <strong>{student.name}</strong>
                         <span>{student.id}</span>
                       </td>
+                      <td className="mono-cell">Kelas {student.grade}</td>
                       <td>{student.package}</td>
                       <td className="package-name-cell">{student.packageName}</td>
                       <td className="mono-cell">{student.paymentDate}</td>
@@ -203,7 +322,7 @@ export default function SSOStudents({ user, onLogout }) {
 
                   {filteredStudents.length === 0 && (
                     <tr className="empty-row">
-                      <td colSpan={6}>Tidak ada student yang cocok dengan pencarian.</td>
+                      <td colSpan={7}>Tidak ada student yang cocok dengan filter/pencarian.</td>
                     </tr>
                   )}
                 </tbody>
@@ -237,6 +356,9 @@ export default function SSOStudents({ user, onLogout }) {
                 onAddRecommendation={handleAddRecommendation}
                 onRemoveRecommendation={handleRemoveRecommendation}
                 navigate={navigate}
+                ssoName={user?.name || "Jung Kook"}
+                handoverForStudent={handoverItems.filter((t) => t.studentId === selectedStudent.id)}
+                onSendHandover={addHandover}
               />
             )}
           </aside>
@@ -246,7 +368,7 @@ export default function SSOStudents({ user, onLogout }) {
   );
 }
 
-function StudentDetailPanel({ student, onAddRecommendation, onRemoveRecommendation }) {
+function StudentDetailPanel({ student, onAddRecommendation, onRemoveRecommendation, navigate, ssoName, handoverForStudent, onSendHandover }) {
   const [activeTab, setActiveTab] = useState("kampus");
   const [addFormOpen, setAddFormOpen] = useState(false);
   const [nameInput, setNameInput] = useState("");
@@ -255,7 +377,6 @@ function StudentDetailPanel({ student, onAddRecommendation, onRemoveRecommendati
   const [recipient, setRecipient] = useState("SB");
 
   const currentList = student.recommendations[activeTab];
-  const navigate = useNavigate();
 
   function handleAddSubmit(event) {
     event.preventDefault();
@@ -276,14 +397,28 @@ function StudentDetailPanel({ student, onAddRecommendation, onRemoveRecommendati
     event.preventDefault();
     if (!messageText.trim()) return;
 
-    // Placeholder: belum terhubung ke backend/chat sungguhan.
+    if (recipient === "SB") {
+      onSendHandover({
+        id: `TTP-${Date.now()}`,
+        studentId: student.id,
+        studentName: student.name,
+        fromSso: ssoName,
+        toSb: "Student Buddy",
+        message: messageText.trim(),
+        status: "belum",
+        createdAt: "Baru saja",
+      });
+    }
+
     setMessageText("");
   }
 
   return (
     <section className="student-detail-card">
       <h2>{student.name}</h2>
-      <p className="student-detail-id">{student.id}</p>
+      <p className="student-detail-id">
+        {student.id} • Kelas {student.grade}
+      </p>
 
       <div className="info-box">
         <span className="info-label">Package</span>
@@ -398,6 +533,22 @@ function StudentDetailPanel({ student, onAddRecommendation, onRemoveRecommendati
         Lihat Detail Lengkap
       </button>
 
+      {handoverForStudent.length > 0 && (
+        <div className="handover-history-section">
+          <span className="section-label">Riwayat Handover ke SB</span>
+          <div className="handover-history-list">
+            {handoverForStudent.map((item) => (
+              <div key={item.id} className="handover-history-item">
+                <p>{item.message}</p>
+                <span className={`handover-history-status status-${item.status}`}>
+                  {item.status === "done" ? "Selesai" : "Belum"}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <form className="send-message-row" onSubmit={handleSendMessage}>
         <label className="send-message-input">
           <MessageCircle size={18} />
@@ -430,7 +581,6 @@ function StudentDetailPanel({ student, onAddRecommendation, onRemoveRecommendati
 
 function getInitials(name) {
   if (!name) return "JK";
-
   return name
     .split(" ")
     .map((word) => word[0])

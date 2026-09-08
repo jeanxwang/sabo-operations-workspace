@@ -1,0 +1,32 @@
+export const mockHandoverSeed = [
+  {
+    id: "TTP-001",
+    studentId: "STU-1002",
+    studentName: "Luna Lovegood",
+    fromSso: "Jung Kook",
+    toSb: "Eom Sean",
+    message: "Tolong follow up soal jadwal simulation test yang bentrok minggu ini.",
+    status: "belum",
+    createdAt: "Hari ini - 10.00",
+  },
+  {
+    id: "TTP-002",
+    studentId: "STU-1001",
+    studentName: "Hermione Granger",
+    fromSso: "Jung Kook",
+    toSb: "Eom Sean",
+    message: "Reminder ke student untuk submit pilihan kampus paling lambat akhir bulan ini.",
+    status: "belum",
+    createdAt: "Kemarin",
+  },
+  {
+    id: "TTP-003",
+    studentId: "STU-1004",
+    studentName: "Draco Malfoy",
+    fromSso: "Jung Kook",
+    toSb: "Eom Sean",
+    message: "Tolong konfirmasi ke mentor terkait sync submit LoA.",
+    status: "done",
+    createdAt: "3 hari lalu",
+  },
+];
