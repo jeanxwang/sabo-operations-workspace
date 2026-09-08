@@ -14,6 +14,7 @@ import { FOLLOW_UP_TAG_LABELS } from "../data/followUpTags";
 import "./StudentBuddyDashboard.css";
 import "./SSODashboard.css";
 import schotersLogo from "../assets/schoters-logo.png";
+import { mockSsoStudents } from "../data/mockSsoStudents";
 
 function navLinkClass({ isActive }) {
   return `sidebar-link ${isActive ? "active" : ""}`;
@@ -32,6 +33,8 @@ export default function SSODashboard({ user, onLogout }) {
   const totalStudents = useCountUp(mockSsoDashboard.totalActiveStudents);
 
   const { followUp, cxUpdate, priorities, updates } = mockSsoDashboard;
+  const grade12Students = mockSsoStudents.filter((student) => student.grade === 12);
+  const grade12Preview = grade12Students.slice(0, 4);
 
   return (
     <main className="dashboard-page">
@@ -116,6 +119,47 @@ export default function SSODashboard({ user, onLogout }) {
             <div className="sso-highlight-grid">
               <FollowUpCard followUp={followUp} navigate={navigate} />
               <HighlightCard item={cxUpdate} index={1} />
+            </div>
+          </section>
+
+          <section className="sso-grade12-section fade-in-up" style={{ "--delay": "180ms" }}>
+            <div className="grade12-card">
+              <header className="grade12-header">
+                <div>
+                  <h2>Fokus Kelas 12</h2>
+                  <p>{grade12Students.length} student sedang di tahap krusial menjelang deadline aplikasi.</p>
+                </div>
+                <button
+                  type="button"
+                  className="outline-button"
+                  onClick={() => navigate("/sso/students?grade=12")}
+                >
+                  Lihat Selengkapnya
+                  <ChevronRight size={18} />
+                </button>
+              </header>
+
+              <table className="grade12-table">
+                <thead>
+                  <tr>
+                    <th>Student</th>
+                    <th>Stage</th>
+                    <th>Next Deadline</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {grade12Preview.map((student) => (
+                    <tr key={student.id}>
+                      <td>
+                        <strong>{student.name}</strong>
+                        <span>{student.id}</span>
+                      </td>
+                      <td>{student.currentStage}</td>
+                      <td className="mono-cell">{student.nextDeadline}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </section>
 
