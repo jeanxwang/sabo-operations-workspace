@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowUpDown,
+  Download,
   Filter,
   Grid2X2,
   List,
@@ -13,6 +14,7 @@ import {
   Search,
   Send,
   Users,
+  X,
 } from "lucide-react";
 import schotersLogo from "../assets/schoters-logo.png";
 import { mockSsoStudents } from "../data/mockSsoStudents";
@@ -35,6 +37,32 @@ function navLinkClass({ isActive }) {
   return `sidebar-link ${isActive ? "active" : ""}`;
 }
 
+function downloadCsv(students) {
+  const headers = ["Nama", "ID", "Kelas", "Package", "Payment Date", "Phone Number"];
+  const rows = students.map((s) => [
+    s.name,
+    s.id,
+    s.grade,
+    s.package,
+    s.paymentDate,
+    s.phoneNumber,
+  ]);
+
+  const csvContent = [headers, ...rows]
+    .map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(","))
+    .join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `students-export-${Date.now()}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 export default function SSOStudents({ user, onLogout }) {
   const navigate = useNavigate();
   const [students, setStudents] = useState(mockSsoStudents);
@@ -43,6 +71,10 @@ export default function SSOStudents({ user, onLogout }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [filterOpen, setFilterOpen] = useState(false);
   const filterRef = useRef(null);
+
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [reminderFormOpen, setReminderFormOpen] = useState(false);
+  const [reminderText, setReminderText] = useState("");
 
   const activeTag = searchParams.get("tag");
   const activeGrades = (searchParams.get("grade") ?? "")
@@ -79,6 +111,10 @@ export default function SSOStudents({ user, onLogout }) {
 
   const selectedStudent =
     students.find((student) => student.id === selectedId) ?? students[0];
+
+  const allVisibleSelected =
+    filteredStudents.length > 0 &&
+    filteredStudents.every((student) => selectedIds.has(student.id));
 
   function toggleGrade(grade) {
     const next = new URLSearchParams(searchParams);
@@ -136,6 +172,65 @@ export default function SSOStudents({ user, onLogout }) {
           : student
       )
     );
+  }
+
+  function toggleSelectStudent(studentId) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(studentId)) {
+        next.delete(studentId);
+      } else {
+        next.add(studentId);
+      }
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    setSelectedIds((prev) => {
+      if (allVisibleSelected) {
+        const next = new Set(prev);
+        filteredStudents.forEach((student) => next.delete(student.id));
+        return next;
+      }
+      const next = new Set(prev);
+      filteredStudents.forEach((student) => next.add(student.id));
+      return next;
+    });
+  }
+
+  function clearSelection() {
+    setSelectedIds(new Set());
+    setReminderFormOpen(false);
+    setReminderText("");
+  }
+
+  function handleBulkReminderSubmit(event) {
+    event.preventDefault();
+    if (!reminderText.trim()) return;
+
+    const targets = students.filter((student) => selectedIds.has(student.id));
+    targets.forEach((student) => {
+      addHandover({
+        id: `TTP-${Date.now()}-${student.id}`,
+        studentId: student.id,
+        studentName: student.name,
+        fromSso: user?.name || "Jung Kook",
+        toSb: "Student Buddy",
+        message: reminderText.trim(),
+        status: "belum",
+        createdAt: "Baru saja",
+      });
+    });
+
+    setReminderText("");
+    setReminderFormOpen(false);
+    clearSelection();
+  }
+
+  function handleBulkExport() {
+    const targets = students.filter((student) => selectedIds.has(student.id));
+    downloadCsv(targets);
   }
 
   const hasActiveFilters = activeTag || activeGrades.length > 0;
@@ -276,10 +371,86 @@ export default function SSOStudents({ user, onLogout }) {
               />
             </label>
 
+            {selectedIds.size > 0 && (
+              <div className="bulk-action-bar">
+                {!reminderFormOpen ? (
+                  <>
+                    <span className="bulk-action-count">
+                      {selectedIds.size} student dipilih
+                    </span>
+
+                    <div className="bulk-action-buttons">
+                      <button
+                        type="button"
+                        className="outline-button bulk-action-button"
+                        onClick={() => setReminderFormOpen(true)}
+                      >
+                        <Send size={16} />
+                        Kirim Reminder ke SB
+                      </button>
+
+                      <button
+                        type="button"
+                        className="outline-button bulk-action-button"
+                        onClick={handleBulkExport}
+                      >
+                        <Download size={16} />
+                        Export CSV
+                      </button>
+
+                      <button
+                        type="button"
+                        className="bulk-action-clear"
+                        onClick={clearSelection}
+                        aria-label="Batalkan pilihan"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <form className="bulk-reminder-form" onSubmit={handleBulkReminderSubmit}>
+                    <input
+                      type="text"
+                      placeholder={`Tulis reminder untuk ${selectedIds.size} student...`}
+                      value={reminderText}
+                      onChange={(event) => setReminderText(event.target.value)}
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      className="text-button"
+                      onClick={() => {
+                        setReminderFormOpen(false);
+                        setReminderText("");
+                      }}
+                    >
+                      Batal
+                    </button>
+                    <button
+                      type="submit"
+                      className="outline-button bulk-action-button"
+                      disabled={!reminderText.trim()}
+                    >
+                      Kirim ke {selectedIds.size} SB
+                    </button>
+                  </form>
+                )}
+              </div>
+            )}
+
             <section className="sso-students-table-card">
               <table className="sso-students-table">
                 <thead>
                   <tr>
+                    <th className="checkbox-cell">
+                      <input
+                        type="checkbox"
+                        checked={allVisibleSelected}
+                        onChange={toggleSelectAll}
+                        aria-label="Pilih semua student"
+                      />
+                    </th>
                     <th>Student</th>
                     <th>Kelas</th>
                     <th>Package</th>
@@ -296,6 +467,17 @@ export default function SSOStudents({ user, onLogout }) {
                       className={selectedStudent?.id === student.id ? "selected-row" : ""}
                       onClick={() => setSelectedId(student.id)}
                     >
+                      <td
+                        className="checkbox-cell"
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(student.id)}
+                          onChange={() => toggleSelectStudent(student.id)}
+                          aria-label={`Pilih ${student.name}`}
+                        />
+                      </td>
                       <td>
                         <strong>{student.name}</strong>
                         <span>{student.id}</span>
@@ -322,7 +504,7 @@ export default function SSOStudents({ user, onLogout }) {
 
                   {filteredStudents.length === 0 && (
                     <tr className="empty-row">
-                      <td colSpan={7}>Tidak ada student yang cocok dengan filter/pencarian.</td>
+                      <td colSpan={8}>Tidak ada student yang cocok dengan filter/pencarian.</td>
                     </tr>
                   )}
                 </tbody>
