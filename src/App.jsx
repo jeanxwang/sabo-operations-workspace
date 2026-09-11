@@ -7,6 +7,8 @@ import SSODashboard from "./pages/SSODashboard";
 import SSOStudents from "./pages/SSOStudents";
 import SSOStudentDetail from "./pages/SSOStudentDetail";
 import StudentBuddyHandover from "./pages/StudentBuddyHandover";
+import AcademicDashboard from "./pages/AcademicDashboard";
+import AcademicMasterData from "./pages/AcademicMasterData";
 
 export default function App() {
   const navigate = useNavigate();
@@ -100,6 +102,24 @@ export default function App() {
         }
       />
 
+      <Route
+        path="/academic/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={["academic"]}>
+            <AcademicDashboard user={currentUser} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/academic/master-data"
+        element={
+          <ProtectedRoute allowedRoles={["academic"]}>
+            <AcademicMasterData user={currentUser} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
@@ -135,6 +155,7 @@ function getDefaultRouteByRole(role) {
     hotline: "/hotline/dashboard",
     sso: "/sso/dashboard",
     rania: "/rania/dashboard",
+    academic: "/academic/dashboard",
   };
 
   return routes[role] || "/";

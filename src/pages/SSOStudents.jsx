@@ -24,6 +24,12 @@ import { useHandoverStore } from "../hooks/useHandoverStore";
 import { mockHandoverSeed } from "../data/mockHandover";
 import { useSearchParams } from "react-router-dom";
 import { FOLLOW_UP_TAG_LABELS } from "../data/followUpTags";
+import { useCollectionStore } from "../hooks/useCollectionStore";
+import {
+  UNIVERSITY_PROGRAMS_KEY,
+  mockUniversityProgramsSeed,
+} from "../data/mockUniversityPrograms";
+import { SCHOLARSHIPS_KEY, mockScholarshipsSeed } from "../data/mockScholarships";
 
 const RECIPIENT_OPTIONS = [
   { value: "SB", label: "Student Buddy" },
@@ -82,6 +88,9 @@ export default function SSOStudents({ user, onLogout }) {
     .filter(Boolean);
 
   const { items: handoverItems, addHandover } = useHandoverStore(mockHandoverSeed);
+
+  const universityStore = useCollectionStore(UNIVERSITY_PROGRAMS_KEY, mockUniversityProgramsSeed);
+  const scholarshipStore = useCollectionStore(SCHOLARSHIPS_KEY, mockScholarshipsSeed);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -541,6 +550,8 @@ export default function SSOStudents({ user, onLogout }) {
                 ssoName={user?.name || "Jung Kook"}
                 handoverForStudent={handoverItems.filter((t) => t.studentId === selectedStudent.id)}
                 onSendHandover={addHandover}
+                universityOptions={universityStore.items}
+                scholarshipOptions={scholarshipStore.items}
               />
             )}
           </aside>
@@ -550,28 +561,56 @@ export default function SSOStudents({ user, onLogout }) {
   );
 }
 
-function StudentDetailPanel({ student, onAddRecommendation, onRemoveRecommendation, navigate, ssoName, handoverForStudent, onSendHandover }) {
+function StudentDetailPanel({
+  student,
+  onAddRecommendation,
+  onRemoveRecommendation,
+  navigate,
+  ssoName,
+  handoverForStudent,
+  onSendHandover,
+  universityOptions,
+  scholarshipOptions,
+}) {
   const [activeTab, setActiveTab] = useState("kampus");
   const [addFormOpen, setAddFormOpen] = useState(false);
-  const [nameInput, setNameInput] = useState("");
-  const [detailInput, setDetailInput] = useState("");
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [messageText, setMessageText] = useState("");
   const [recipient, setRecipient] = useState("SB");
 
   const currentList = student.recommendations[activeTab];
+  const searchPool = activeTab === "kampus" ? universityOptions : scholarshipOptions;
 
-  function handleAddSubmit(event) {
-    event.preventDefault();
-    if (!nameInput.trim()) return;
+  const searchResults = searchPool.filter((option) => {
+    const keyword = searchKeyword.toLowerCase();
+    if (activeTab === "kampus") {
+      return (
+        option.university.toLowerCase().includes(keyword) ||
+        option.program.toLowerCase().includes(keyword) ||
+        option.country.toLowerCase().includes(keyword)
+      );
+    }
+    return (
+      option.name.toLowerCase().includes(keyword) ||
+      option.provider.toLowerCase().includes(keyword)
+    );
+  });
 
-    onAddRecommendation(student.id, activeTab, {
-      id: `${activeTab}-${Date.now()}`,
-      name: nameInput.trim(),
-      detail: detailInput.trim(),
-    });
-
-    setNameInput("");
-    setDetailInput("");
+  function handleSelectOption(option) {
+    if (activeTab === "kampus") {
+      onAddRecommendation(student.id, "kampus", {
+        id: `kampus-${option.id}-${Date.now()}`,
+        name: option.university,
+        detail: `${option.country} - ${option.program}`,
+      });
+    } else {
+      onAddRecommendation(student.id, "beasiswa", {
+        id: `beasiswa-${option.id}-${Date.now()}`,
+        name: option.name,
+        detail: `${option.provider} - ${option.coverage}`,
+      });
+    }
+    setSearchKeyword("");
     setAddFormOpen(false);
   }
 
@@ -652,33 +691,54 @@ function StudentDetailPanel({ student, onAddRecommendation, onRemoveRecommendati
         </div>
 
         {addFormOpen && (
-          <form className="add-recommendation-form" onSubmit={handleAddSubmit}>
+          <div className="recommendation-search-form">
             <input
               type="text"
-              placeholder={activeTab === "kampus" ? "Nama kampus" : "Nama beasiswa"}
-              value={nameInput}
-              onChange={(event) => setNameInput(event.target.value)}
+              placeholder={
+                activeTab === "kampus"
+                  ? "Cari universitas/program dari master data..."
+                  : "Cari beasiswa dari master data..."
+              }
+              value={searchKeyword}
+              onChange={(event) => setSearchKeyword(event.target.value)}
               autoFocus
             />
-            <input
-              type="text"
-              placeholder="Detail (negara, program, dsb.)"
-              value={detailInput}
-              onChange={(event) => setDetailInput(event.target.value)}
-            />
-            <div className="add-recommendation-actions">
-              <button
-                type="button"
-                className="text-button"
-                onClick={() => setAddFormOpen(false)}
-              >
-                Batal
-              </button>
-              <button type="submit" className="outline-button" disabled={!nameInput.trim()}>
-                Tambah
-              </button>
+
+            <div className="recommendation-search-results">
+              {searchResults.length > 0 ? (
+                searchResults.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    className="recommendation-search-item"
+                    onClick={() => handleSelectOption(option)}
+                  >
+                    <strong>{activeTab === "kampus" ? option.university : option.name}</strong>
+                    <span>
+                      {activeTab === "kampus"
+                        ? `${option.country} - ${option.program}`
+                        : `${option.provider} - ${option.coverage}`}
+                    </span>
+                  </button>
+                ))
+              ) : (
+                <p className="recommendation-search-empty">
+                  Tidak ditemukan. Minta tim Academic menambahkan data ini di Master Data.
+                </p>
+              )}
             </div>
-          </form>
+
+            <button
+              type="button"
+              className="text-button"
+              onClick={() => {
+                setAddFormOpen(false);
+                setSearchKeyword("");
+              }}
+            >
+              Tutup
+            </button>
+          </div>
         )}
 
         <div className="recommendation-list">

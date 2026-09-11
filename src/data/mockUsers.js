@@ -27,4 +27,11 @@ export const mockUsers = [
     password: "password123",
     role: "rania",
   },
+  {
+    id: 5,
+    name: "Lalisa",
+    email: "academic@schoters.com",
+    password: "password123",
+    role: "academic",
+  },
 ];
