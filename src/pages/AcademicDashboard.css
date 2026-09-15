@@ -121,6 +121,84 @@
   font-size: 13px;
   text-align: center;
 }
+.academic-verify-section {
+  margin-top: 32px;
+}
+.academic-verify-card {
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 22px;
+}
+.academic-verify-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.academic-verify-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+.academic-verify-count {
+  padding: 4px 12px;
+  border: 1.5px solid var(--accent);
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+}
+.academic-verify-list {
+  display: grid;
+  gap: 14px;
+}
+.academic-verify-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+}
+.academic-verify-item-info strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: "Space Grotesk", sans-serif;
+}
+.academic-verify-meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--muted);
+  font-family: "JetBrains Mono", monospace;
+}
+.academic-verify-note {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+  max-width: 480px;
+}
+.academic-verify-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.academic-verify-approve {
+  min-height: 36px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+.academic-verify-empty {
+  margin: 0;
+  padding: 20px 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
 
 @media (max-width: 900px) {
   .academic-stat-grid,

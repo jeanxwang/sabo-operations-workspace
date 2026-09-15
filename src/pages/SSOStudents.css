@@ -5,6 +5,9 @@
   padding: 32px 28px 40px;
   align-items: start;
 }
+.sso-students-main-column {
+  min-width: 0;
+}
 
 /* ---------- Header row ---------- */
 .sso-students-header-row {
@@ -65,12 +68,17 @@
 
 /* ---------- Table ---------- */
 .sso-students-table-card {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   border: 1.5px solid var(--line);
   border-radius: 10px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 .sso-students-table {
   width: 100%;
+  min-width: 1120px;
   border-collapse: collapse;
 }
 .sso-students-table th {

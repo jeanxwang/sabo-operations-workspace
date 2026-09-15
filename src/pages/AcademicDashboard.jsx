@@ -6,6 +6,12 @@ import { useScholarships } from "../hooks/useScholarships";
 import AcademicSidebar from "../components/AcademicSidebar";
 import "./StudentBuddyDashboard.css";
 import "./AcademicDashboard.css";
+import { CheckCircle2, XCircle } from "lucide-react";
+import { useCollectionStore } from "../hooks/useCollectionStore";
+import {
+  SCHOLARSHIP_VERIFICATIONS_KEY,
+  mockScholarshipVerificationsSeed,
+} from "../data/mockScholarshipVerifications";
 
 export default function AcademicDashboard({ user, onLogout }) {
   const navigate = useNavigate();
@@ -13,6 +19,29 @@ export default function AcademicDashboard({ user, onLogout }) {
 
   const universityApi = useUniversityPrograms();
   const scholarshipApi = useScholarships();
+
+  const verificationStore = useCollectionStore(
+    SCHOLARSHIP_VERIFICATIONS_KEY,
+    mockScholarshipVerificationsSeed
+  );
+
+  async function handleApproveVerification(item) {
+    try {
+      await scholarshipApi.addItem({
+        name: item.name,
+        provider: item.provider,
+        coverage: item.coverage,
+        level: item.level,
+      });
+      verificationStore.removeItem(item.id);
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  function handleRejectVerification(id) {
+    verificationStore.removeItem(id);
+  }
 
   const totalUniversity = useCountUp(universityApi.items.length);
   const totalScholarship = useCountUp(scholarshipApi.items.length);
@@ -134,6 +163,53 @@ export default function AcademicDashboard({ user, onLogout }) {
               </div>
             </div>
           </section>
+
+          <section className="academic-verify-section fade-in-up" style={{ "--delay": "220ms" }}>
+            <div className="academic-verify-card">
+              <header className="academic-verify-header">
+                <h2>Verifikasi Beasiswa (Update AI)</h2>
+                <span className="academic-verify-count">{verificationStore.items.length} menunggu</span>
+              </header>
+
+              {verificationStore.items.length > 0 ? (
+                <div className="academic-verify-list">
+                  {verificationStore.items.map((item) => (
+                    <article key={item.id} className="academic-verify-item">
+                      <div className="academic-verify-item-info">
+                        <strong>{item.name}</strong>
+                        <span className="academic-verify-meta">
+                          {item.provider} • {item.coverage} • {item.level}
+                        </span>
+                        <p className="academic-verify-note">{item.aiNote}</p>
+                      </div>
+
+                      <div className="academic-verify-actions">
+                        <button
+                          type="button"
+                          className="icon-round-button danger"
+                          aria-label="Tolak"
+                          onClick={() => handleRejectVerification(item.id)}
+                        >
+                          <XCircle size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          className="outline-button academic-verify-approve"
+                          onClick={() => handleApproveVerification(item)}
+                        >
+                          <CheckCircle2 size={16} />
+                          Setujui
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <p className="academic-verify-empty">Tidak ada beasiswa yang perlu diverifikasi saat ini.</p>
+              )}
+            </div>
+          </section>
+
         </section>
       </section>
     </main>
