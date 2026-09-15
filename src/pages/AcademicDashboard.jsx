@@ -1,12 +1,8 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { BookOpen, ChevronRight, Grid2X2, List, LogOut, Plus } from "lucide-react";
 import { useCountUp } from "../hooks/useCountUp";
-import { useCollectionStore } from "../hooks/useCollectionStore";
-import {
-  UNIVERSITY_PROGRAMS_KEY,
-  mockUniversityProgramsSeed,
-} from "../data/mockUniversityPrograms";
-import { SCHOLARSHIPS_KEY, mockScholarshipsSeed } from "../data/mockScholarships";
+import { useUniversityPrograms } from "../hooks/useUniversityPrograms";
+import { useScholarships } from "../hooks/useScholarships";
 import "./StudentBuddyDashboard.css";
 import "./AcademicDashboard.css";
 import schotersLogo from "../assets/schoters-logo.png";
@@ -19,14 +15,14 @@ export default function AcademicDashboard({ user, onLogout }) {
   const navigate = useNavigate();
   const displayName = getDisplayName(user?.name);
 
-  const universityStore = useCollectionStore(UNIVERSITY_PROGRAMS_KEY, mockUniversityProgramsSeed);
-  const scholarshipStore = useCollectionStore(SCHOLARSHIPS_KEY, mockScholarshipsSeed);
+  const universityApi = useUniversityPrograms();
+  const scholarshipApi = useScholarships();
 
-  const totalUniversity = useCountUp(universityStore.items.length);
-  const totalScholarship = useCountUp(scholarshipStore.items.length);
+  const totalUniversity = useCountUp(universityApi.items.length);
+  const totalScholarship = useCountUp(scholarshipApi.items.length);
 
-  const recentUniversity = universityStore.items.slice(0, 3);
-  const recentScholarship = scholarshipStore.items.slice(0, 3);
+  const recentUniversity = universityApi.items.slice(0, 3);
+  const recentScholarship = scholarshipApi.items.slice(0, 3);
 
   return (
     <main className="dashboard-page">

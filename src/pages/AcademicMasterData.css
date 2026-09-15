@@ -176,6 +176,15 @@
   border-color: var(--accent-high);
   color: var(--accent-high);
 }
+.master-data-form-error {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border: 1.5px solid var(--accent-high);
+  border-radius: 6px;
+  background: #fff1f1;
+  color: var(--accent-high);
+  font-size: 13px;
+}
 
 @media (max-width: 760px) {
   .master-data-form-grid {

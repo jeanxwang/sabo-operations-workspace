@@ -2,17 +2,10 @@ import { useState } from "react";
 import { NavLink, useSearchParams } from "react-router-dom";
 import { Grid2X2, List, LogOut, Pencil, Plus, Trash2, X, BookOpen } from "lucide-react";
 import schotersLogo from "../assets/schoters-logo.png";
-import { useCollectionStore } from "../hooks/useCollectionStore";
-import {
-  UNIVERSITY_PROGRAMS_KEY,
-  DEGREE_LEVEL_OPTIONS,
-  mockUniversityProgramsSeed,
-} from "../data/mockUniversityPrograms";
-import {
-  SCHOLARSHIPS_KEY,
-  SCHOLARSHIP_LEVEL_OPTIONS,
-  mockScholarshipsSeed,
-} from "../data/mockScholarships";
+import { useUniversityPrograms } from "../hooks/useUniversityPrograms";
+import { useScholarships } from "../hooks/useScholarships";
+import { DEGREE_LEVEL_OPTIONS } from "../data/mockUniversityPrograms";
+import { SCHOLARSHIP_LEVEL_OPTIONS } from "../data/mockScholarships";
 import "./StudentBuddyDashboard.css";
 import "./AcademicMasterData.css";
 
@@ -27,13 +20,14 @@ export default function AcademicMasterData({ user, onLogout }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") === "scholarship" ? "scholarship" : "university";
 
-  const universityStore = useCollectionStore(UNIVERSITY_PROGRAMS_KEY, mockUniversityProgramsSeed);
-  const scholarshipStore = useCollectionStore(SCHOLARSHIPS_KEY, mockScholarshipsSeed);
+  const universityApi = useUniversityPrograms();
+  const scholarshipApi = useScholarships();
 
   const [formOpen, setFormOpen] = useState(searchParams.get("add") === "1");
   const [editingId, setEditingId] = useState(null);
   const [universityForm, setUniversityForm] = useState(EMPTY_UNIVERSITY_FORM);
   const [scholarshipForm, setScholarshipForm] = useState(EMPTY_SCHOLARSHIP_FORM);
+  const [submitError, setSubmitError] = useState("");
 
   function switchTab(tab) {
     setSearchParams({ tab });
@@ -41,17 +35,20 @@ export default function AcademicMasterData({ user, onLogout }) {
     setEditingId(null);
     setUniversityForm(EMPTY_UNIVERSITY_FORM);
     setScholarshipForm(EMPTY_SCHOLARSHIP_FORM);
+    setSubmitError("");
   }
 
   function openAddForm() {
     setEditingId(null);
     setUniversityForm(EMPTY_UNIVERSITY_FORM);
     setScholarshipForm(EMPTY_SCHOLARSHIP_FORM);
+    setSubmitError("");
     setFormOpen(true);
   }
 
   function openEditForm(item) {
     setEditingId(item.id);
+    setSubmitError("");
     if (activeTab === "university") {
       setUniversityForm({
         university: item.university,
@@ -73,30 +70,55 @@ export default function AcademicMasterData({ user, onLogout }) {
   function closeForm() {
     setFormOpen(false);
     setEditingId(null);
+    setSubmitError("");
   }
 
-  function handleUniversitySubmit(event) {
+  async function handleUniversitySubmit(event) {
     event.preventDefault();
     if (!universityForm.university.trim() || !universityForm.program.trim()) return;
 
-    if (editingId) {
-      universityStore.updateItem(editingId, universityForm);
-    } else {
-      universityStore.addItem({ id: `up-${Date.now()}`, ...universityForm });
+    try {
+      if (editingId) {
+        await universityApi.updateItem(editingId, universityForm);
+      } else {
+        await universityApi.addItem(universityForm);
+      }
+      closeForm();
+    } catch (err) {
+      setSubmitError(err.message);
     }
-    closeForm();
   }
 
-  function handleScholarshipSubmit(event) {
+  async function handleScholarshipSubmit(event) {
     event.preventDefault();
     if (!scholarshipForm.name.trim()) return;
 
-    if (editingId) {
-      scholarshipStore.updateItem(editingId, scholarshipForm);
-    } else {
-      scholarshipStore.addItem({ id: `sch-${Date.now()}`, ...scholarshipForm });
+    try {
+      if (editingId) {
+        await scholarshipApi.updateItem(editingId, scholarshipForm);
+      } else {
+        await scholarshipApi.addItem(scholarshipForm);
+      }
+      closeForm();
+    } catch (err) {
+      setSubmitError(err.message);
     }
-    closeForm();
+  }
+
+  async function handleDeleteUniversity(id) {
+    try {
+      await universityApi.removeItem(id);
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  async function handleDeleteScholarship(id) {
+    try {
+      await scholarshipApi.removeItem(id);
+    } catch (err) {
+      alert(err.message);
+    }
   }
 
   return (
@@ -166,7 +188,7 @@ export default function AcademicMasterData({ user, onLogout }) {
               className={activeTab === "university" ? "md-tab-button active" : "md-tab-button"}
               onClick={() => switchTab("university")}
             >
-              University &amp; Program ({universityStore.items.length})
+              University &amp; Program ({universityApi.items.length})
             </button>
             <button
               type="button"
@@ -175,7 +197,7 @@ export default function AcademicMasterData({ user, onLogout }) {
               className={activeTab === "scholarship" ? "md-tab-button active" : "md-tab-button"}
               onClick={() => switchTab("scholarship")}
             >
-              Scholarship ({scholarshipStore.items.length})
+              Scholarship ({scholarshipApi.items.length})
             </button>
           </div>
 
@@ -187,6 +209,8 @@ export default function AcademicMasterData({ user, onLogout }) {
                   <X size={16} />
                 </button>
               </div>
+
+              {submitError && <p className="master-data-form-error">{submitError}</p>}
 
               <div className="master-data-form-grid">
                 <label>
@@ -262,6 +286,8 @@ export default function AcademicMasterData({ user, onLogout }) {
                   <X size={16} />
                 </button>
               </div>
+
+              {submitError && <p className="master-data-form-error">{submitError}</p>}
 
               <div className="master-data-form-grid">
                 <label>
@@ -342,7 +368,7 @@ export default function AcademicMasterData({ user, onLogout }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {universityStore.items.map((item) => (
+                  {universityApi.items.map((item) => (
                     <tr key={item.id}>
                       <td>
                         <strong>{item.university}</strong>
@@ -364,7 +390,7 @@ export default function AcademicMasterData({ user, onLogout }) {
                             type="button"
                             className="icon-round-button danger"
                             aria-label="Hapus"
-                            onClick={() => universityStore.removeItem(item.id)}
+                            onClick={() => handleDeleteUniversity(item.id)}
                           >
                             <Trash2 size={14} />
                           </button>
@@ -373,9 +399,11 @@ export default function AcademicMasterData({ user, onLogout }) {
                     </tr>
                   ))}
 
-                  {universityStore.items.length === 0 && (
+                  {universityApi.items.length === 0 && (
                     <tr className="empty-row">
-                      <td colSpan={5}>Belum ada data universitas/program.</td>
+                      <td colSpan={5}>
+                        {universityApi.loading ? "Memuat data..." : "Belum ada data universitas/program."}
+                      </td>
                     </tr>
                   )}
                 </tbody>
@@ -394,7 +422,7 @@ export default function AcademicMasterData({ user, onLogout }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {scholarshipStore.items.map((item) => (
+                  {scholarshipApi.items.map((item) => (
                     <tr key={item.id}>
                       <td>
                         <strong>{item.name}</strong>
@@ -416,7 +444,7 @@ export default function AcademicMasterData({ user, onLogout }) {
                             type="button"
                             className="icon-round-button danger"
                             aria-label="Hapus"
-                            onClick={() => scholarshipStore.removeItem(item.id)}
+                            onClick={() => handleDeleteScholarship(item.id)}
                           >
                             <Trash2 size={14} />
                           </button>
@@ -425,9 +453,11 @@ export default function AcademicMasterData({ user, onLogout }) {
                     </tr>
                   ))}
 
-                  {scholarshipStore.items.length === 0 && (
+                  {scholarshipApi.items.length === 0 && (
                     <tr className="empty-row">
-                      <td colSpan={5}>Belum ada data beasiswa.</td>
+                      <td colSpan={5}>
+                        {scholarshipApi.loading ? "Memuat data..." : "Belum ada data beasiswa."}
+                      </td>
                     </tr>
                   )}
                 </tbody>

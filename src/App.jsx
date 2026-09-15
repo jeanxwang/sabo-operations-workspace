@@ -9,6 +9,7 @@ import SSOStudentDetail from "./pages/SSOStudentDetail";
 import StudentBuddyHandover from "./pages/StudentBuddyHandover";
 import AcademicDashboard from "./pages/AcademicDashboard";
 import AcademicMasterData from "./pages/AcademicMasterData";
+import StudentBuddyStudentDetail from "./pages/StudentBuddyStudentDetail";
 
 export default function App() {
   const navigate = useNavigate();
@@ -116,6 +117,15 @@ export default function App() {
         element={
           <ProtectedRoute allowedRoles={["academic"]}>
             <AcademicMasterData user={currentUser} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/student-buddy/students/:studentId"
+        element={
+          <ProtectedRoute allowedRoles={["student-buddy"]}>
+            <StudentBuddyStudentDetail user={currentUser} onLogout={handleLogout} />
           </ProtectedRoute>
         }
       />

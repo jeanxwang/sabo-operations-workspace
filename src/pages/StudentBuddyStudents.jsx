@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   ArrowUpDown,
   ChevronRight,
@@ -27,6 +27,7 @@ function navLinkClass({ isActive }) {
 }
 
 export default function StudentBuddyStudents({ user, onLogout }) {
+  const navigate = useNavigate();
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedStudent, setSelectedStudent] = useState(mockStudents[0]);
 
@@ -161,7 +162,7 @@ export default function StudentBuddyStudents({ user, onLogout }) {
                           className="text-button"
                           onClick={(event) => {
                             event.stopPropagation();
-                            setSelectedStudent(student);
+                            navigate(`/student-buddy/students/${student.id}`);
                           }}
                         >
                           Lihat
@@ -228,6 +229,14 @@ export default function StudentBuddyStudents({ user, onLogout }) {
                   </button>
                 </div>
               </div>
+
+              <button
+                type="button"
+                className="outline-button view-full-detail-button"
+                onClick={() => navigate(`/student-buddy/students/${selectedStudent.id}`)}
+              >
+                Lihat Detail Lengkap
+              </button>
 
               <button type="button" className="outline-button create-ticket-detail-button">
                 <Plus size={18} />

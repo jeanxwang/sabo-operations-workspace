@@ -24,12 +24,8 @@ import { useHandoverStore } from "../hooks/useHandoverStore";
 import { mockHandoverSeed } from "../data/mockHandover";
 import { useSearchParams } from "react-router-dom";
 import { FOLLOW_UP_TAG_LABELS } from "../data/followUpTags";
-import { useCollectionStore } from "../hooks/useCollectionStore";
-import {
-  UNIVERSITY_PROGRAMS_KEY,
-  mockUniversityProgramsSeed,
-} from "../data/mockUniversityPrograms";
-import { SCHOLARSHIPS_KEY, mockScholarshipsSeed } from "../data/mockScholarships";
+import { useUniversityPrograms } from "../hooks/useUniversityPrograms";
+import { useScholarships } from "../hooks/useScholarships";
 
 const RECIPIENT_OPTIONS = [
   { value: "SB", label: "Student Buddy" },
@@ -89,8 +85,8 @@ export default function SSOStudents({ user, onLogout }) {
 
   const { items: handoverItems, addHandover } = useHandoverStore(mockHandoverSeed);
 
-  const universityStore = useCollectionStore(UNIVERSITY_PROGRAMS_KEY, mockUniversityProgramsSeed);
-  const scholarshipStore = useCollectionStore(SCHOLARSHIPS_KEY, mockScholarshipsSeed);
+  const universityApi = useUniversityPrograms();
+  const scholarshipApi = useScholarships();
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -550,8 +546,8 @@ export default function SSOStudents({ user, onLogout }) {
                 ssoName={user?.name || "Jung Kook"}
                 handoverForStudent={handoverItems.filter((t) => t.studentId === selectedStudent.id)}
                 onSendHandover={addHandover}
-                universityOptions={universityStore.items}
-                scholarshipOptions={scholarshipStore.items}
+                universityOptions={universityApi.items}
+                scholarshipOptions={scholarshipApi.items}
               />
             )}
           </aside>
