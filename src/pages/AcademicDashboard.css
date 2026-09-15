@@ -54,6 +54,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   margin-bottom: 18px;
 }
 .academic-recent-header h2 {
@@ -61,7 +62,12 @@
   font-size: 18px;
   font-weight: 700;
 }
-.academic-recent-header .text-button {
+.academic-recent-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.academic-recent-actions .text-button {
   display: inline-flex;
   align-items: center;
   gap: 2px;

@@ -1,0 +1,44 @@
+.academic-sidebar-group {
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.academic-sidebar-group-label {
+  padding: 8px 16px 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.academic-sidebar-divider {
+  height: 1.5px;
+  margin: 0 16px 4px;
+  background: var(--line);
+}
+
+.academic-sidebar-subnav {
+  display: grid;
+  gap: 4px;
+}
+
+.academic-sidebar-subnav .sidebar-link {
+  padding-left: 24px;
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .academic-sidebar-group-label {
+    padding-left: 12px;
+  }
+
+  .academic-sidebar-divider {
+    margin-right: 12px;
+    margin-left: 12px;
+  }
+
+  .academic-sidebar-subnav .sidebar-link {
+    padding-left: 16px;
+  }
+}

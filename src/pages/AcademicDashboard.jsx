@@ -1,15 +1,11 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import { BookOpen, ChevronRight, Grid2X2, List, LogOut, Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ChevronRight, List, LogOut, Plus } from "lucide-react";
 import { useCountUp } from "../hooks/useCountUp";
 import { useUniversityPrograms } from "../hooks/useUniversityPrograms";
 import { useScholarships } from "../hooks/useScholarships";
+import AcademicSidebar from "../components/AcademicSidebar";
 import "./StudentBuddyDashboard.css";
 import "./AcademicDashboard.css";
-import schotersLogo from "../assets/schoters-logo.png";
-
-function navLinkClass({ isActive }) {
-  return `sidebar-link ${isActive ? "active" : ""}`;
-}
 
 export default function AcademicDashboard({ user, onLogout }) {
   const navigate = useNavigate();
@@ -26,32 +22,7 @@ export default function AcademicDashboard({ user, onLogout }) {
 
   return (
     <main className="dashboard-page">
-      <aside className="sidebar">
-        <header className="sidebar-brand">
-          <img className="sidebar-brand-logo" src={schotersLogo} alt="Schoters" />
-          <span>SABO</span>
-        </header>
-
-        <nav className="sidebar-nav" aria-label="Main navigation">
-          <NavLink to="/academic/dashboard" className={navLinkClass}>
-            <Grid2X2 size={22} />
-            <span>Dashboard</span>
-          </NavLink>
-
-          <NavLink to="/academic/master-data" className={navLinkClass}>
-            <BookOpen size={22} />
-            <span>Master Data</span>
-          </NavLink>
-        </nav>
-
-        <footer className="sidebar-profile">
-          <span className="profile-avatar">{getInitials(user?.name)}</span>
-          <span>
-            <strong>{user?.name || "Academic Team"}</strong>
-            <small>Academic</small>
-          </span>
-        </footer>
-      </aside>
+      <AcademicSidebar user={user} />
 
       <section className="dashboard-main">
         <header className="topbar">
@@ -84,7 +55,7 @@ export default function AcademicDashboard({ user, onLogout }) {
               <button
                 type="button"
                 className="outline-button"
-                onClick={() => navigate("/academic/master-data?tab=university&add=1")}
+                onClick={() => navigate("/academic/universities?add=1")}
               >
                 <Plus size={18} />
                 Tambah Program
@@ -98,7 +69,7 @@ export default function AcademicDashboard({ user, onLogout }) {
               <button
                 type="button"
                 className="outline-button"
-                onClick={() => navigate("/academic/master-data?tab=scholarship&add=1")}
+                onClick={() => navigate("/academic/scholarships?add=1")}
               >
                 <Plus size={18} />
                 Tambah Beasiswa
@@ -110,14 +81,24 @@ export default function AcademicDashboard({ user, onLogout }) {
             <div className="academic-recent-card">
               <header className="academic-recent-header">
                 <h2>Baru Ditambahkan</h2>
-                <button
-                  type="button"
-                  className="text-button"
-                  onClick={() => navigate("/academic/master-data")}
-                >
-                  Lihat semua
-                  <ChevronRight size={16} />
-                </button>
+                <div className="academic-recent-actions">
+                  <button
+                    type="button"
+                    className="text-button"
+                    onClick={() => navigate("/academic/universities")}
+                  >
+                    Universitas
+                    <ChevronRight size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className="text-button"
+                    onClick={() => navigate("/academic/scholarships")}
+                  >
+                    Beasiswa
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
               </header>
 
               <div className="academic-recent-columns">
@@ -163,14 +144,4 @@ function getDisplayName(name) {
   if (!name) return "Academic Team";
   const nameParts = name.trim().split(" ");
   return nameParts[nameParts.length - 1];
-}
-
-function getInitials(name) {
-  if (!name) return "AC";
-  return name
-    .split(" ")
-    .map((word) => word[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
 }

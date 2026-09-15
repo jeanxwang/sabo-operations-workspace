@@ -1,0 +1,132 @@
+.composer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(11, 11, 12, 0.45);
+  animation: fadeInUp 0.15s ease both;
+}
+.composer-modal {
+  width: 100%;
+  max-width: 560px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--paper, #fff);
+  border-radius: 12px;
+  border: 1.5px solid var(--line, #e4e4e7);
+  box-shadow: 0 24px 60px rgba(11, 11, 12, 0.25);
+}
+.composer-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 22px;
+  border-bottom: 1.5px solid var(--line, #e4e4e7);
+}
+.composer-header h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+.composer-header p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted, #6b6b76);
+}
+.composer-body {
+  padding: 20px 22px 22px;
+}
+.composer-templates {
+  margin-bottom: 16px;
+}
+.composer-templates-label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted, #6b6b76);
+}
+.composer-template-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.composer-template-chip {
+  padding: 7px 14px;
+  border: 1.5px solid var(--line, #e4e4e7);
+  border-radius: 20px;
+  background: var(--paper, #fff);
+  color: var(--ink, #0b0b0c);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background-color 0.16s ease, color 0.16s ease;
+}
+.composer-template-chip:hover {
+  border-color: var(--accent, #2f5de3);
+}
+.composer-template-chip.active {
+  background: var(--ink, #0b0b0c);
+  border-color: var(--ink, #0b0b0c);
+  color: var(--paper, #fff);
+}
+.composer-textarea {
+  width: 100%;
+  padding: 14px;
+  border: 1.5px solid var(--line, #e4e4e7);
+  border-radius: 8px;
+  background: var(--surface, #fafafa);
+  color: var(--ink, #0b0b0c);
+  font-size: 14px;
+  line-height: 1.5;
+  font-family: "Inter", sans-serif;
+  resize: vertical;
+  outline: none;
+  margin-bottom: 14px;
+}
+.composer-textarea:focus {
+  border-color: var(--accent, #2f5de3);
+}
+.composer-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.composer-recipient {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted, #6b6b76);
+}
+.composer-recipient select {
+  height: 36px;
+  padding: 0 10px;
+  border: 1.5px solid var(--line, #e4e4e7);
+  border-radius: 6px;
+  background: var(--paper, #fff);
+  color: var(--ink, #0b0b0c);
+  font-size: 13px;
+  font-weight: 600;
+}
+.composer-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.composer-footer-actions .outline-button {
+  min-height: 38px;
+  padding: 0 18px;
+  font-size: 14px;
+}
+.composer-footer-actions .outline-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

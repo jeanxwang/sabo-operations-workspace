@@ -8,7 +8,6 @@ import {
   Grid2X2,
   List,
   LogOut,
-  MessageCircle,
   Minus,
   Plus,
   Search,
@@ -26,14 +25,10 @@ import { useSearchParams } from "react-router-dom";
 import { FOLLOW_UP_TAG_LABELS } from "../data/followUpTags";
 import { useUniversityPrograms } from "../hooks/useUniversityPrograms";
 import { useScholarships } from "../hooks/useScholarships";
-
-const RECIPIENT_OPTIONS = [
-  { value: "SB", label: "Student Buddy" },
-  { value: "HL", label: "Hotline" },
-  { value: "RN", label: "Rania" },
-];
+import MessageComposerModal from "../components/MessageComposerModal";
 
 const GRADE_OPTIONS = ["10", "11", "12"];
+const RECIPIENT_LABELS = { SB: "Student Buddy", HL: "Hotline", RN: "Rania" };
 
 function navLinkClass({ isActive }) {
   return `sidebar-link ${isActive ? "active" : ""}`;
@@ -75,16 +70,13 @@ export default function SSOStudents({ user, onLogout }) {
   const filterRef = useRef(null);
 
   const [selectedIds, setSelectedIds] = useState(new Set());
-  const [reminderFormOpen, setReminderFormOpen] = useState(false);
-  const [reminderText, setReminderText] = useState("");
+  const [composerOpen, setComposerOpen] = useState(false);
+  const [composerContext, setComposerContext] = useState(null);
 
   const activeTag = searchParams.get("tag");
-  const activeGrades = (searchParams.get("grade") ?? "")
-    .split(",")
-    .filter(Boolean);
+  const activeGrades = (searchParams.get("grade") ?? "").split(",").filter(Boolean);
 
   const { items: handoverItems, addHandover } = useHandoverStore(mockHandoverSeed);
-
   const universityApi = useUniversityPrograms();
   const scholarshipApi = useScholarships();
 
@@ -101,8 +93,7 @@ export default function SSOStudents({ user, onLogout }) {
   const filteredStudents = students
     .filter((student) => !activeTag || student.followUpTags?.includes(activeTag))
     .filter(
-      (student) =>
-        activeGrades.length === 0 || activeGrades.includes(String(student.grade))
+      (student) => activeGrades.length === 0 || activeGrades.includes(String(student.grade))
     )
     .filter((student) => {
       const keyword = searchKeyword.toLowerCase();
@@ -114,8 +105,7 @@ export default function SSOStudents({ user, onLogout }) {
       );
     });
 
-  const selectedStudent =
-    students.find((student) => student.id === selectedId) ?? students[0];
+  const selectedStudent = students.find((student) => student.id === selectedId) ?? students[0];
 
   const allVisibleSelected =
     filteredStudents.length > 0 &&
@@ -124,18 +114,10 @@ export default function SSOStudents({ user, onLogout }) {
   function toggleGrade(grade) {
     const next = new URLSearchParams(searchParams);
     const current = new Set(activeGrades);
-
-    if (current.has(grade)) {
-      current.delete(grade);
-    } else {
-      current.add(grade);
-    }
-
-    if (current.size === 0) {
-      next.delete("grade");
-    } else {
-      next.set("grade", Array.from(current).join(","));
-    }
+    if (current.has(grade)) current.delete(grade);
+    else current.add(grade);
+    if (current.size === 0) next.delete("grade");
+    else next.set("grade", Array.from(current).join(","));
     setSearchParams(next);
   }
 
@@ -169,9 +151,7 @@ export default function SSOStudents({ user, onLogout }) {
               ...student,
               recommendations: {
                 ...student.recommendations,
-                [category]: student.recommendations[category].filter(
-                  (item) => item.id !== itemId
-                ),
+                [category]: student.recommendations[category].filter((item) => item.id !== itemId),
               },
             }
           : student
@@ -182,60 +162,76 @@ export default function SSOStudents({ user, onLogout }) {
   function toggleSelectStudent(studentId) {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(studentId)) {
-        next.delete(studentId);
-      } else {
-        next.add(studentId);
-      }
+      if (next.has(studentId)) next.delete(studentId);
+      else next.add(studentId);
       return next;
     });
   }
 
   function toggleSelectAll() {
     setSelectedIds((prev) => {
-      if (allVisibleSelected) {
-        const next = new Set(prev);
-        filteredStudents.forEach((student) => next.delete(student.id));
-        return next;
-      }
       const next = new Set(prev);
-      filteredStudents.forEach((student) => next.add(student.id));
+      if (allVisibleSelected) {
+        filteredStudents.forEach((student) => next.delete(student.id));
+      } else {
+        filteredStudents.forEach((student) => next.add(student.id));
+      }
       return next;
     });
   }
 
   function clearSelection() {
     setSelectedIds(new Set());
-    setReminderFormOpen(false);
-    setReminderText("");
-  }
-
-  function handleBulkReminderSubmit(event) {
-    event.preventDefault();
-    if (!reminderText.trim()) return;
-
-    const targets = students.filter((student) => selectedIds.has(student.id));
-    targets.forEach((student) => {
-      addHandover({
-        id: `TTP-${Date.now()}-${student.id}`,
-        studentId: student.id,
-        studentName: student.name,
-        fromSso: user?.name || "Jung Kook",
-        toSb: "Student Buddy",
-        message: reminderText.trim(),
-        status: "belum",
-        createdAt: "Baru saja",
-      });
-    });
-
-    setReminderText("");
-    setReminderFormOpen(false);
-    clearSelection();
   }
 
   function handleBulkExport() {
     const targets = students.filter((student) => selectedIds.has(student.id));
     downloadCsv(targets);
+  }
+
+  function openBulkComposer() {
+    setComposerContext({ type: "bulk" });
+    setComposerOpen(true);
+  }
+
+  function openSingleComposer(studentId, studentName) {
+    setComposerContext({ type: "single", studentId, studentName });
+    setComposerOpen(true);
+  }
+
+  function handleComposerSend(text, recipientValue) {
+    const toLabel = RECIPIENT_LABELS[recipientValue] ?? recipientValue;
+
+    if (composerContext?.type === "bulk") {
+      const targets = students.filter((student) => selectedIds.has(student.id));
+      targets.forEach((student) => {
+        addHandover({
+          id: `TTP-${Date.now()}-${student.id}`,
+          studentId: student.id,
+          studentName: student.name,
+          fromSso: user?.name || "Jung Kook",
+          toSb: toLabel,
+          message: text,
+          status: "belum",
+          createdAt: "Baru saja",
+        });
+      });
+      clearSelection();
+    } else if (composerContext?.type === "single") {
+      addHandover({
+        id: `TTP-${Date.now()}`,
+        studentId: composerContext.studentId,
+        studentName: composerContext.studentName,
+        fromSso: user?.name || "Jung Kook",
+        toSb: toLabel,
+        message: text,
+        status: "belum",
+        createdAt: "Baru saja",
+      });
+    }
+
+    setComposerOpen(false);
+    setComposerContext(null);
   }
 
   const hasActiveFilters = activeTag || activeGrades.length > 0;
@@ -253,7 +249,6 @@ export default function SSOStudents({ user, onLogout }) {
             <Grid2X2 size={22} />
             <span>Dashboard</span>
           </NavLink>
-
           <NavLink to="/sso/students" className={navLinkClass}>
             <Users size={22} />
             <span>Students</span>
@@ -278,12 +273,10 @@ export default function SSOStudents({ user, onLogout }) {
             <span className="breadcrumb-separator">›</span>
             <strong>Students</strong>
           </div>
-
           <div className="topbar-actions">
             <button type="button" aria-label="Menu">
               <List size={22} />
             </button>
-
             <button type="button" aria-label="Logout" onClick={onLogout}>
               <LogOut size={22} />
             </button>
@@ -351,13 +344,9 @@ export default function SSOStudents({ user, onLogout }) {
               <div className="active-filter-banner">
                 <span>
                   Filter aktif:{" "}
-                  {activeTag && (
-                    <strong>{FOLLOW_UP_TAG_LABELS[activeTag] ?? activeTag}</strong>
-                  )}
+                  {activeTag && <strong>{FOLLOW_UP_TAG_LABELS[activeTag] ?? activeTag}</strong>}
                   {activeTag && activeGrades.length > 0 && " • "}
-                  {activeGrades.length > 0 && (
-                    <strong>Kelas {activeGrades.join(", ")}</strong>
-                  )}{" "}
+                  {activeGrades.length > 0 && <strong>Kelas {activeGrades.join(", ")}</strong>}{" "}
                   ({filteredStudents.length})
                 </span>
                 <button type="button" onClick={() => setSearchParams({})}>
@@ -378,69 +367,36 @@ export default function SSOStudents({ user, onLogout }) {
 
             {selectedIds.size > 0 && (
               <div className="bulk-action-bar">
-                {!reminderFormOpen ? (
-                  <>
-                    <span className="bulk-action-count">
-                      {selectedIds.size} student dipilih
-                    </span>
+                <span className="bulk-action-count">{selectedIds.size} student dipilih</span>
 
-                    <div className="bulk-action-buttons">
-                      <button
-                        type="button"
-                        className="outline-button bulk-action-button"
-                        onClick={() => setReminderFormOpen(true)}
-                      >
-                        <Send size={16} />
-                        Kirim Reminder ke SB
-                      </button>
+                <div className="bulk-action-buttons">
+                  <button
+                    type="button"
+                    className="outline-button bulk-action-button"
+                    onClick={openBulkComposer}
+                  >
+                    <Send size={16} />
+                    Kirim Reminder
+                  </button>
 
-                      <button
-                        type="button"
-                        className="outline-button bulk-action-button"
-                        onClick={handleBulkExport}
-                      >
-                        <Download size={16} />
-                        Export CSV
-                      </button>
+                  <button
+                    type="button"
+                    className="outline-button bulk-action-button"
+                    onClick={handleBulkExport}
+                  >
+                    <Download size={16} />
+                    Export CSV
+                  </button>
 
-                      <button
-                        type="button"
-                        className="bulk-action-clear"
-                        onClick={clearSelection}
-                        aria-label="Batalkan pilihan"
-                      >
-                        <X size={18} />
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <form className="bulk-reminder-form" onSubmit={handleBulkReminderSubmit}>
-                    <input
-                      type="text"
-                      placeholder={`Tulis reminder untuk ${selectedIds.size} student...`}
-                      value={reminderText}
-                      onChange={(event) => setReminderText(event.target.value)}
-                      autoFocus
-                    />
-                    <button
-                      type="button"
-                      className="text-button"
-                      onClick={() => {
-                        setReminderFormOpen(false);
-                        setReminderText("");
-                      }}
-                    >
-                      Batal
-                    </button>
-                    <button
-                      type="submit"
-                      className="outline-button bulk-action-button"
-                      disabled={!reminderText.trim()}
-                    >
-                      Kirim ke {selectedIds.size} SB
-                    </button>
-                  </form>
-                )}
+                  <button
+                    type="button"
+                    className="bulk-action-clear"
+                    onClick={clearSelection}
+                    aria-label="Batalkan pilihan"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
               </div>
             )}
 
@@ -472,10 +428,7 @@ export default function SSOStudents({ user, onLogout }) {
                       className={selectedStudent?.id === student.id ? "selected-row" : ""}
                       onClick={() => setSelectedId(student.id)}
                     >
-                      <td
-                        className="checkbox-cell"
-                        onClick={(event) => event.stopPropagation()}
-                      >
+                      <td className="checkbox-cell" onClick={(event) => event.stopPropagation()}>
                         <input
                           type="checkbox"
                           checked={selectedIds.has(student.id)}
@@ -543,9 +496,8 @@ export default function SSOStudents({ user, onLogout }) {
                 onAddRecommendation={handleAddRecommendation}
                 onRemoveRecommendation={handleRemoveRecommendation}
                 navigate={navigate}
-                ssoName={user?.name || "Jung Kook"}
                 handoverForStudent={handoverItems.filter((t) => t.studentId === selectedStudent.id)}
-                onSendHandover={addHandover}
+                onOpenComposer={openSingleComposer}
                 universityOptions={universityApi.items}
                 scholarshipOptions={scholarshipApi.items}
               />
@@ -553,6 +505,25 @@ export default function SSOStudents({ user, onLogout }) {
           </aside>
         </section>
       </section>
+
+      <MessageComposerModal
+        open={composerOpen}
+        title={
+          composerContext?.type === "bulk"
+            ? `Kirim ke ${selectedIds.size} Student`
+            : `Kirim ke SB — ${composerContext?.studentName ?? ""}`
+        }
+        subtitle={
+          composerContext?.type === "bulk"
+            ? "Pesan ini akan dikirim sebagai handover terpisah untuk tiap student terpilih."
+            : "Pilih template atau tulis pesan bebas untuk Student Buddy terkait student ini."
+        }
+        onClose={() => {
+          setComposerOpen(false);
+          setComposerContext(null);
+        }}
+        onSend={handleComposerSend}
+      />
     </main>
   );
 }
@@ -562,17 +533,14 @@ function StudentDetailPanel({
   onAddRecommendation,
   onRemoveRecommendation,
   navigate,
-  ssoName,
   handoverForStudent,
-  onSendHandover,
+  onOpenComposer,
   universityOptions,
   scholarshipOptions,
 }) {
   const [activeTab, setActiveTab] = useState("kampus");
   const [addFormOpen, setAddFormOpen] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [messageText, setMessageText] = useState("");
-  const [recipient, setRecipient] = useState("SB");
 
   const currentList = student.recommendations[activeTab];
   const searchPool = activeTab === "kampus" ? universityOptions : scholarshipOptions;
@@ -610,26 +578,6 @@ function StudentDetailPanel({
     setAddFormOpen(false);
   }
 
-  function handleSendMessage(event) {
-    event.preventDefault();
-    if (!messageText.trim()) return;
-
-    if (recipient === "SB") {
-      onSendHandover({
-        id: `TTP-${Date.now()}`,
-        studentId: student.id,
-        studentName: student.name,
-        fromSso: ssoName,
-        toSb: "Student Buddy",
-        message: messageText.trim(),
-        status: "belum",
-        createdAt: "Baru saja",
-      });
-    }
-
-    setMessageText("");
-  }
-
   return (
     <section className="student-detail-card">
       <h2>{student.name}</h2>
@@ -641,12 +589,10 @@ function StudentDetailPanel({
         <span className="info-label">Package</span>
         <strong>{student.package}</strong>
       </div>
-
       <div className="info-box">
         <span className="info-label">Current Stage</span>
         <strong>{student.currentStage}</strong>
       </div>
-
       <div className="info-box">
         <span className="info-label">Next Deadline</span>
         <strong>{student.nextDeadline}</strong>
@@ -719,7 +665,7 @@ function StudentDetailPanel({
                 ))
               ) : (
                 <p className="recommendation-search-empty">
-                  Tidak ditemukan. Minta tim Academic menambahkan data ini di Master Data.
+                  Tidak ditemukan. Minta tim Academic menambahkan data ini.
                 </p>
               )}
             </div>
@@ -773,7 +719,7 @@ function StudentDetailPanel({
 
       {handoverForStudent.length > 0 && (
         <div className="handover-history-section">
-          <span className="section-label">Riwayat Handover ke SB</span>
+          <span className="section-label">Riwayat Handover</span>
           <div className="handover-history-list">
             {handoverForStudent.map((item) => (
               <div key={item.id} className="handover-history-item">
@@ -787,42 +733,19 @@ function StudentDetailPanel({
         </div>
       )}
 
-      <form className="send-message-row" onSubmit={handleSendMessage}>
-        <label className="send-message-input">
-          <MessageCircle size={18} />
-          <input
-            type="text"
-            placeholder="Kirim pesan..."
-            value={messageText}
-            onChange={(event) => setMessageText(event.target.value)}
-          />
-        </label>
-
-        <label className="send-message-recipient">
-          <span>To:</span>
-          <select value={recipient} onChange={(event) => setRecipient(event.target.value)}>
-            {RECIPIENT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.value}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <button type="submit" className="send-message-button" aria-label="Kirim pesan">
-          <Send size={16} />
-        </button>
-      </form>
+      <button
+        type="button"
+        className="outline-button send-composer-button"
+        onClick={() => onOpenComposer(student.id, student.name)}
+      >
+        <Send size={16} />
+        Tulis Pesan
+      </button>
     </section>
   );
 }
 
 function getInitials(name) {
   if (!name) return "JK";
-  return name
-    .split(" ")
-    .map((word) => word[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 }

@@ -8,7 +8,8 @@ import SSOStudents from "./pages/SSOStudents";
 import SSOStudentDetail from "./pages/SSOStudentDetail";
 import StudentBuddyHandover from "./pages/StudentBuddyHandover";
 import AcademicDashboard from "./pages/AcademicDashboard";
-import AcademicMasterData from "./pages/AcademicMasterData";
+import AcademicUniversities from "./pages/AcademicUniversities";
+import AcademicScholarships from "./pages/AcademicScholarships";
 import StudentBuddyStudentDetail from "./pages/StudentBuddyStudentDetail";
 
 export default function App() {
@@ -113,10 +114,19 @@ export default function App() {
       />
 
       <Route
-        path="/academic/master-data"
+        path="/academic/universities"
         element={
           <ProtectedRoute allowedRoles={["academic"]}>
-            <AcademicMasterData user={currentUser} onLogout={handleLogout} />
+            <AcademicUniversities user={currentUser} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/academic/scholarships"
+        element={
+          <ProtectedRoute allowedRoles={["academic"]}>
+            <AcademicScholarships user={currentUser} onLogout={handleLogout} />
           </ProtectedRoute>
         }
       />
