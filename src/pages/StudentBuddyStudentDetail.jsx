@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -15,7 +15,9 @@ import {
   X,
 } from "lucide-react";
 import schotersLogo from "../assets/schoters-logo.png";
-import { mockStudents } from "../data/mockStudents";
+import { useStudents } from "../hooks/useStudents";
+import { mockStudents as mockStudentExtras } from "../data/mockStudents";
+import { mergeStudentExtras } from "../utils/mergeStudentExtras";
 import { useHandoverStore } from "../hooks/useHandoverStore";
 import { mockHandoverSeed } from "../data/mockHandover";
 import "./StudentBuddyDashboard.css";
@@ -37,9 +39,30 @@ export default function StudentBuddyStudentDetail({ user, onLogout }) {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profil");
 
-  const student = mockStudents.find((s) => s.id === studentId);
+  const { items: apiStudents, loading } = useStudents();
+  const [student, setStudent] = useState(null);
+
+  useEffect(() => {
+    if (!loading && apiStudents.length > 0) {
+      const merged = mergeStudentExtras(apiStudents, mockStudentExtras, ["actionDone", "recentActivity"]);
+      setStudent(merged.find((s) => s.id === studentId) ?? null);
+    }
+  }, [loading, apiStudents, studentId]);
+
   const { items: handoverItems, updateStatus } = useHandoverStore(mockHandoverSeed);
   const handoverForStudent = handoverItems.filter((item) => item.studentId === studentId);
+
+  if (loading) {
+    return (
+      <main className="dashboard-page">
+        <section className="dashboard-main">
+          <div className="sb-detail-not-found">
+            <p>Memuat data...</p>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   if (!student) {
     return (
@@ -74,17 +97,14 @@ export default function StudentBuddyStudentDetail({ user, onLogout }) {
             <Grid2X2 size={22} />
             <span>Dashboard</span>
           </NavLink>
-
           <NavLink to="/student-buddy/students" className={navLinkClass}>
             <Users size={22} />
             <span>Students</span>
           </NavLink>
-
           <NavLink to="/student-buddy/tickets" className={navLinkClass}>
             <Ticket size={22} />
             <span>Tickets</span>
           </NavLink>
-
           <NavLink to="/student-buddy/handover" className={navLinkClass}>
             <CheckCircle2 size={22} />
             <span>Handover</span>
@@ -189,6 +209,22 @@ function ProfilTab({ student }) {
         <span className="sb-detail-field-label">Action</span>
         <span className="sb-detail-field-value">{student.action}</span>
       </div>
+      <div className="sb-detail-field">
+        <span className="sb-detail-field-label">Kelas</span>
+        <span className="sb-detail-field-value">{student.grade ?? "—"}</span>
+      </div>
+      <div className="sb-detail-field">
+        <span className="sb-detail-field-label">Jenjang</span>
+        <span className="sb-detail-field-value">{student.currentDegree ?? "—"}</span>
+      </div>
+      <div className="sb-detail-field">
+        <span className="sb-detail-field-label">Current Stage</span>
+        <span className="sb-detail-field-value">{student.currentStage ?? "—"}</span>
+      </div>
+      <div className="sb-detail-field">
+        <span className="sb-detail-field-label">Next Deadline</span>
+        <span className="sb-detail-field-value">{student.nextDeadline ?? "—"}</span>
+      </div>
     </div>
   );
 }
@@ -284,11 +320,5 @@ function HandoverTab({ items, onUpdateStatus }) {
 
 function getInitials(name) {
   if (!name) return "ES";
-
-  return name
-    .split(" ")
-    .map((word) => word[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 }

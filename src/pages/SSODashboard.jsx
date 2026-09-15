@@ -14,7 +14,7 @@ import { FOLLOW_UP_TAG_LABELS } from "../data/followUpTags";
 import "./StudentBuddyDashboard.css";
 import "./SSODashboard.css";
 import schotersLogo from "../assets/schoters-logo.png";
-import { mockSsoStudents } from "../data/mockSsoStudents";
+import { useStudents } from "../hooks/useStudents";
 
 function navLinkClass({ isActive }) {
   return `sidebar-link ${isActive ? "active" : ""}`;
@@ -33,8 +33,17 @@ export default function SSODashboard({ user, onLogout }) {
   const totalStudents = useCountUp(mockSsoDashboard.totalActiveStudents);
 
   const { followUp, cxUpdate, priorities, updates } = mockSsoDashboard;
-  const grade12Students = mockSsoStudents.filter((student) => student.grade === 12);
+  const { items: students } = useStudents();
+  const grade12Students = students.filter((student) => student.grade === 12);
   const grade12Preview = grade12Students.slice(0, 4);
+  const gradeCounts = [10, 11, 12].map((grade) => ({
+    label: `Kelas ${grade}`,
+    count: students.filter((s) => s.grade === grade).length,
+  }));
+  const degreeCounts = ["S1", "S2", "S3", "Gap Year"].map((degree) => ({
+    label: degree,
+    count: students.filter((s) => s.currentDegree === degree).length,
+  }));
 
   return (
     <main className="dashboard-page">
@@ -119,6 +128,34 @@ export default function SSODashboard({ user, onLogout }) {
             <div className="sso-highlight-grid">
               <FollowUpCard followUp={followUp} navigate={navigate} />
               <HighlightCard item={cxUpdate} index={1} />
+            </div>
+          </section>
+
+          <section className="sso-breakdown-section fade-in-up" style={{ "--delay": "160ms" }}>
+            <h2>Pembagian Student</h2>
+
+            <div className="sso-breakdown-group">
+              <span className="sso-breakdown-group-label">Berdasarkan Kelas</span>
+              <div className="sso-breakdown-grid">
+                {gradeCounts.map((item) => (
+                  <div key={item.label} className="sso-breakdown-chip">
+                    <strong>{item.count}</strong>
+                    <span>{item.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="sso-breakdown-group">
+              <span className="sso-breakdown-group-label">Berdasarkan Jenjang</span>
+              <div className="sso-breakdown-grid">
+                {degreeCounts.map((item) => (
+                  <div key={item.label} className="sso-breakdown-chip">
+                    <strong>{item.count}</strong>
+                    <span>{item.label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </section>
 

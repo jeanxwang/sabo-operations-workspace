@@ -16,7 +16,9 @@ import {
   X,
 } from "lucide-react";
 import schotersLogo from "../assets/schoters-logo.png";
-import { mockSsoStudents } from "../data/mockSsoStudents";
+import { useStudents } from "../hooks/useStudents";
+import { mockSsoStudents as mockSsoExtras } from "../data/mockSsoStudents";
+import { mergeStudentExtras } from "../utils/mergeStudentExtras";
 import "./StudentBuddyDashboard.css";
 import "./SSOStudents.css";
 import { useHandoverStore } from "../hooks/useHandoverStore";
@@ -36,19 +38,10 @@ function navLinkClass({ isActive }) {
 
 function downloadCsv(students) {
   const headers = ["Nama", "ID", "Kelas", "Package", "Payment Date", "Phone Number"];
-  const rows = students.map((s) => [
-    s.name,
-    s.id,
-    s.grade,
-    s.package,
-    s.paymentDate,
-    s.phoneNumber,
-  ]);
-
+  const rows = students.map((s) => [s.name, s.id, s.grade, s.package, s.paymentDate, s.phoneNumber]);
   const csvContent = [headers, ...rows]
     .map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(","))
     .join("\n");
-
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -62,9 +55,10 @@ function downloadCsv(students) {
 
 export default function SSOStudents({ user, onLogout }) {
   const navigate = useNavigate();
-  const [students, setStudents] = useState(mockSsoStudents);
+  const { items: apiStudents, loading } = useStudents();
+  const [students, setStudents] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [selectedId, setSelectedId] = useState(mockSsoStudents[0]?.id ?? null);
+  const [selectedId, setSelectedId] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [filterOpen, setFilterOpen] = useState(false);
   const filterRef = useRef(null);
@@ -72,6 +66,12 @@ export default function SSOStudents({ user, onLogout }) {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [composerOpen, setComposerOpen] = useState(false);
   const [composerContext, setComposerContext] = useState(null);
+
+  useEffect(() => {
+    if (!loading && apiStudents.length > 0) {
+      setStudents(mergeStudentExtras(apiStudents, mockSsoExtras, ["followUpTags", "recommendations"]));
+    }
+  }, [loading, apiStudents]);
 
   const activeTag = searchParams.get("tag");
   const activeGrades = (searchParams.get("grade") ?? "").split(",").filter(Boolean);
@@ -100,12 +100,12 @@ export default function SSOStudents({ user, onLogout }) {
       return (
         student.name.toLowerCase().includes(keyword) ||
         student.id.toLowerCase().includes(keyword) ||
-        student.package.toLowerCase().includes(keyword) ||
-        student.packageName.toLowerCase().includes(keyword)
+        (student.package ?? "").toLowerCase().includes(keyword) ||
+        (student.packageName ?? "").toLowerCase().includes(keyword)
       );
     });
 
-  const selectedStudent = students.find((student) => student.id === selectedId) ?? students[0];
+  const selectedStudent = students.find((student) => student.id === selectedId) ?? students[0] ?? null;
 
   const allVisibleSelected =
     filteredStudents.length > 0 &&
@@ -370,20 +370,12 @@ export default function SSOStudents({ user, onLogout }) {
                 <span className="bulk-action-count">{selectedIds.size} student dipilih</span>
 
                 <div className="bulk-action-buttons">
-                  <button
-                    type="button"
-                    className="outline-button bulk-action-button"
-                    onClick={openBulkComposer}
-                  >
+                  <button type="button" className="outline-button bulk-action-button" onClick={openBulkComposer}>
                     <Send size={16} />
                     Kirim Reminder
                   </button>
 
-                  <button
-                    type="button"
-                    className="outline-button bulk-action-button"
-                    onClick={handleBulkExport}
-                  >
+                  <button type="button" className="outline-button bulk-action-button" onClick={handleBulkExport}>
                     <Download size={16} />
                     Export CSV
                   </button>
@@ -460,9 +452,14 @@ export default function SSOStudents({ user, onLogout }) {
                     </tr>
                   ))}
 
-                  {filteredStudents.length === 0 && (
+                  {!loading && filteredStudents.length === 0 && (
                     <tr className="empty-row">
                       <td colSpan={8}>Tidak ada student yang cocok dengan filter/pencarian.</td>
+                    </tr>
+                  )}
+                  {loading && (
+                    <tr className="empty-row">
+                      <td colSpan={8}>Memuat data...</td>
                     </tr>
                   )}
                 </tbody>
@@ -473,12 +470,8 @@ export default function SSOStudents({ user, onLogout }) {
                   Showing 1-{filteredStudents.length} of {students.length}
                 </span>
                 <div className="pagination">
-                  <button type="button" disabled>
-                    Prev
-                  </button>
-                  <button type="button" className="active-page">
-                    1
-                  </button>
+                  <button type="button" disabled>Prev</button>
+                  <button type="button" className="active-page">1</button>
                   <button type="button">2</button>
                   <span className="pagination-ellipsis">…</span>
                   <button type="button">59</button>

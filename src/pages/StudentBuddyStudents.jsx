@@ -1,24 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   ArrowUpDown,
-  ChevronRight,
-  Clock,
   Filter,
   Grid2X2,
   List,
   LogOut,
-  MessageCircle,
   Plus,
   Search,
-  Tag,
   Ticket,
   Users,
-  X,
   CheckCircle2
 } from "lucide-react";
 import schotersLogo from "../assets/schoters-logo.png";
-import { mockStudents } from "../data/mockStudents";
+import { useStudents } from "../hooks/useStudents";
+import { mockStudents as mockStudentExtras } from "../data/mockStudents";
+import { mergeStudentExtras } from "../utils/mergeStudentExtras";
 import "./StudentBuddyDashboard.css";
 import "./StudentBuddyStudents.css";
 
@@ -28,17 +25,27 @@ function navLinkClass({ isActive }) {
 
 export default function StudentBuddyStudents({ user, onLogout }) {
   const navigate = useNavigate();
+  const { items: apiStudents, loading } = useStudents();
+  const [students, setStudents] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [selectedStudent, setSelectedStudent] = useState(mockStudents[0]);
+  const [selectedId, setSelectedId] = useState(null);
 
-  const filteredStudents = mockStudents.filter((student) => {
+  useEffect(() => {
+    if (!loading && apiStudents.length > 0) {
+      setStudents(mergeStudentExtras(apiStudents, mockStudentExtras, ["actionDone", "recentActivity"]));
+    }
+  }, [loading, apiStudents]);
+
+  const filteredStudents = students.filter((student) => {
     const keyword = searchKeyword.toLowerCase();
     return (
       student.name.toLowerCase().includes(keyword) ||
       student.id.toLowerCase().includes(keyword) ||
-      student.package.toLowerCase().includes(keyword)
+      (student.package ?? "").toLowerCase().includes(keyword)
     );
   });
+
+  const selectedStudent = students.find((s) => s.id === selectedId) ?? students[0] ?? null;
 
   return (
     <main className="dashboard-page">
@@ -53,17 +60,14 @@ export default function StudentBuddyStudents({ user, onLogout }) {
             <Grid2X2 size={22} />
             <span>Dashboard</span>
           </NavLink>
-
           <NavLink to="/student-buddy/students" className={navLinkClass}>
             <Users size={22} />
             <span>Students</span>
           </NavLink>
-
           <NavLink to="/student-buddy/tickets" className={navLinkClass}>
             <Ticket size={22} />
             <span>Tickets</span>
           </NavLink>
-
           <NavLink to="/student-buddy/handover" className={({ isActive }) => `sidebar-link ${isActive ? "active" : ""}`}>
             <CheckCircle2 size={22} />
             <span>Handover</span>
@@ -88,12 +92,10 @@ export default function StudentBuddyStudents({ user, onLogout }) {
             <span className="breadcrumb-separator">›</span>
             <strong>Students</strong>
           </div>
-
           <div className="topbar-actions">
             <button type="button" aria-label="Menu">
               <List size={22} />
             </button>
-
             <button type="button" aria-label="Logout" onClick={onLogout}>
               <LogOut size={22} />
             </button>
@@ -103,7 +105,7 @@ export default function StudentBuddyStudents({ user, onLogout }) {
         <section className="students-content">
           <div className="students-main-column fade-in-up" style={{ "--delay": "0ms" }}>
             <div className="students-header-row">
-              <h1>Student Aktif ({mockStudents.length})</h1>
+              <h1>Student Aktif ({students.length})</h1>
 
               <div className="students-toolbar-actions">
                 <button type="button" className="outline-button small-toolbar-button">
@@ -141,10 +143,8 @@ export default function StudentBuddyStudents({ user, onLogout }) {
                   {filteredStudents.map((student) => (
                     <tr
                       key={student.id}
-                      className={
-                        selectedStudent.id === student.id ? "selected-row" : ""
-                      }
-                      onClick={() => setSelectedStudent(student)}
+                      className={selectedStudent?.id === student.id ? "selected-row" : ""}
+                      onClick={() => setSelectedId(student.id)}
                     >
                       <td>
                         <strong>{student.name}</strong>
@@ -171,9 +171,14 @@ export default function StudentBuddyStudents({ user, onLogout }) {
                     </tr>
                   ))}
 
-                  {filteredStudents.length === 0 && (
+                  {!loading && filteredStudents.length === 0 && (
                     <tr className="empty-row">
                       <td colSpan={4}>Tidak ada student yang cocok dengan pencarian.</td>
+                    </tr>
+                  )}
+                  {loading && (
+                    <tr className="empty-row">
+                      <td colSpan={4}>Memuat data...</td>
                     </tr>
                   )}
                 </tbody>
@@ -181,15 +186,11 @@ export default function StudentBuddyStudents({ user, onLogout }) {
 
               <footer className="table-footer">
                 <span>
-                  Showing 1-{filteredStudents.length} of {mockStudents.length}
+                  Showing 1-{filteredStudents.length} of {students.length}
                 </span>
                 <div className="pagination">
-                  <button type="button" disabled>
-                    Prev
-                  </button>
-                  <button type="button" className="active-page">
-                    1
-                  </button>
+                  <button type="button" disabled>Prev</button>
+                  <button type="button" className="active-page">1</button>
                   <button type="button">2</button>
                   <button type="button">Next</button>
                 </div>
@@ -198,86 +199,51 @@ export default function StudentBuddyStudents({ user, onLogout }) {
           </div>
 
           <aside className="students-side-column">
-            <section
-              className="student-detail-card fade-in-up"
-              style={{ "--delay": "80ms" }}
-            >
-              <h2>{selectedStudent.name}</h2>
-              <p>{selectedStudent.id}</p>
+            {selectedStudent && (
+              <>
+                <section className="student-detail-card fade-in-up" style={{ "--delay": "80ms" }}>
+                  <h2>{selectedStudent.name}</h2>
+                  <p>{selectedStudent.id}</p>
 
-              <div className="detail-block">
-                <span>Package</span>
-                <strong>{selectedStudent.package}</strong>
-              </div>
+                  <div className="detail-block">
+                    <span>Package</span>
+                    <strong>{selectedStudent.package}</strong>
+                  </div>
 
-              <div className="detail-block">
-                <span>Action Done</span>
-                <div className="action-chip-row">
-                  {selectedStudent.actionDone.length > 0 ? (
-                    selectedStudent.actionDone.map((action) => (
-                      <button key={action} type="button" className="done-chip">
-                        {action}
-                        <X size={14} />
-                      </button>
-                    ))
-                  ) : (
-                    <p className="empty-action-text">Belum ada action selesai</p>
-                  )}
-                  <button type="button" className="add-action-chip">
-                    Tambah
-                    <Plus size={16} />
-                  </button>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                className="outline-button view-full-detail-button"
-                onClick={() => navigate(`/student-buddy/students/${selectedStudent.id}`)}
-              >
-                Lihat Detail Lengkap
-              </button>
-
-              <button type="button" className="outline-button create-ticket-detail-button">
-                <Plus size={18} />
-                Buat tiket
-              </button>
-            </section>
-
-            <section
-              className="recent-activity-card fade-in-up"
-              style={{ "--delay": "140ms" }}
-            >
-              <h2>Recent Activity</h2>
-
-              <div className="activity-list">
-                {selectedStudent.recentActivity.length > 0 ? (
-                  selectedStudent.recentActivity.map((activity) => (
-                    <article key={activity.title} className="activity-item">
-                      {activity.type === "group" ? (
-                        <MessageCircle size={20} />
+                  <div className="detail-block">
+                    <span>Action Done</span>
+                    <div className="action-chip-row">
+                      {selectedStudent.actionDone.length > 0 ? (
+                        selectedStudent.actionDone.map((action) => (
+                          <button key={action} type="button" className="done-chip">
+                            {action}
+                          </button>
+                        ))
                       ) : (
-                        <Tag size={20} />
+                        <p className="empty-action-text">Belum ada action selesai</p>
                       )}
-                      <div>
-                        <p>{activity.title}</p>
-                        <span>
-                          <Clock size={13} />
-                          {activity.time}
-                        </span>
-                      </div>
-                    </article>
-                  ))
-                ) : (
-                  <p className="empty-activity-text">Belum ada aktivitas terbaru.</p>
-                )}
-              </div>
+                      <button type="button" className="add-action-chip">
+                        Tambah
+                        <Plus size={16} />
+                      </button>
+                    </div>
+                  </div>
 
-              <button type="button" className="outline-button view-all-activity-button">
-                Lihat Semua Aktivitas
-                <ChevronRight size={18} />
-              </button>
-            </section>
+                  <button
+                    type="button"
+                    className="outline-button view-full-detail-button"
+                    onClick={() => navigate(`/student-buddy/students/${selectedStudent.id}`)}
+                  >
+                    Lihat Detail Lengkap
+                  </button>
+
+                  <button type="button" className="outline-button create-ticket-detail-button">
+                    <Plus size={18} />
+                    Buat tiket
+                  </button>
+                </section>
+              </>
+            )}
           </aside>
         </section>
       </section>
@@ -287,11 +253,5 @@ export default function StudentBuddyStudents({ user, onLogout }) {
 
 function getInitials(name) {
   if (!name) return "ES";
-
-  return name
-    .split(" ")
-    .map((word) => word[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 }

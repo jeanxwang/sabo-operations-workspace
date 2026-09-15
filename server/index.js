@@ -129,6 +129,59 @@ app.delete("/api/scholarships/:id", async (req, res) => {
   }
 });
 
+// ---------- Students ----------
+
+app.get("/api/students", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM students ORDER BY id");
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Gagal mengambil data students" });
+  }
+});
+
+app.get("/api/students/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query("SELECT * FROM students WHERE id = $1", [id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Student tidak ditemukan" });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Gagal mengambil detail student" });
+  }
+});
+
+app.put("/api/students/:id", async (req, res) => {
+  const { id } = req.params;
+  const {
+    name, email, phone, grade, current_degree, package: pkg, package_name,
+    payment_date, current_stage, next_deadline, overall_status, gpa, action, pic_sso,
+  } = req.body;
+  try {
+    const result = await pool.query(
+      `UPDATE students SET
+        name = $1, email = $2, phone = $3, grade = $4, current_degree = $5,
+        package = $6, package_name = $7, payment_date = $8, current_stage = $9,
+        next_deadline = $10, overall_status = $11, gpa = $12, action = $13, pic_sso = $14,
+        updated_at = NOW()
+       WHERE id = $15 RETURNING *`,
+      [name, email, phone, grade, current_degree, pkg, package_name, payment_date,
+       current_stage, next_deadline, overall_status, gpa, action, pic_sso, id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Student tidak ditemukan" });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Gagal mengubah data student" });
+  }
+});
+
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server jalan di http://localhost:${PORT}`);
