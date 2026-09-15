@@ -2,9 +2,11 @@ import { useState } from "react";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
+  CheckCircle2,
   Grid2X2,
   List,
   LogOut,
+  Ticket,
   Users,
 } from "lucide-react";
 import schotersLogo from "../assets/schoters-logo.png";
@@ -18,10 +20,32 @@ function navLinkClass({ isActive }) {
   return `sidebar-link ${isActive ? "active" : ""}`;
 }
 
-export default function SSOStudentDetail({ user, onLogout }) {
+const DETAIL_ROLE_CONFIG = {
+  sso: {
+    label: "SSO",
+    studentsPath: "/sso/students",
+    navItems: [
+      { to: "/sso/dashboard", label: "Dashboard", Icon: Grid2X2 },
+      { to: "/sso/students", label: "Students", Icon: Users },
+    ],
+  },
+  "student-buddy": {
+    label: "Student Buddy",
+    studentsPath: "/student-buddy/students",
+    navItems: [
+      { to: "/student-buddy/dashboard", label: "Dashboard", Icon: Grid2X2 },
+      { to: "/student-buddy/students", label: "Students", Icon: Users },
+      { to: "/student-buddy/tickets", label: "Tickets", Icon: Ticket },
+      { to: "/student-buddy/handover", label: "Handover", Icon: CheckCircle2 },
+    ],
+  },
+};
+
+export default function SSOStudentDetail({ user, onLogout, role = "sso" }) {
   const { studentId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profil");
+  const roleConfig = DETAIL_ROLE_CONFIG[role] ?? DETAIL_ROLE_CONFIG.sso;
 
   const studentSummary = mockSsoStudents.find((s) => s.id === studentId);
   const detail = mockSsoStudentDetails[studentId];
@@ -32,7 +56,11 @@ export default function SSOStudentDetail({ user, onLogout }) {
         <section className="dashboard-main">
           <div className="detail-not-found">
             <p>Student tidak ditemukan.</p>
-            <button type="button" className="outline-button" onClick={() => navigate("/sso/students")}>
+            <button
+              type="button"
+              className="outline-button"
+              onClick={() => navigate(roleConfig.studentsPath)}
+            >
               <ArrowLeft size={18} />
               Kembali ke daftar student
             </button>
@@ -51,15 +79,12 @@ export default function SSOStudentDetail({ user, onLogout }) {
         </header>
 
         <nav className="sidebar-nav" aria-label="Main navigation">
-          <NavLink to="/sso/dashboard" className={navLinkClass}>
-            <Grid2X2 size={22} />
-            <span>Dashboard</span>
-          </NavLink>
-
-          <NavLink to="/sso/students" className={navLinkClass}>
-            <Users size={22} />
-            <span>Students</span>
-          </NavLink>
+          {roleConfig.navItems.map(({ to, label, Icon }) => (
+            <NavLink key={to} to={to} className={navLinkClass}>
+              <Icon size={22} />
+              <span>{label}</span>
+            </NavLink>
+          ))}
         </nav>
 
         <footer className="sidebar-profile">
@@ -76,7 +101,9 @@ export default function SSOStudentDetail({ user, onLogout }) {
           <div className="breadcrumbs">
             <span>SABO Operations</span>
             <span className="breadcrumb-separator">›</span>
-            <NavLink to="/sso/students" className="breadcrumb-link">
+            <span>{roleConfig.label}</span>
+            <span className="breadcrumb-separator">›</span>
+            <NavLink to={roleConfig.studentsPath} className="breadcrumb-link">
               Students
             </NavLink>
             <span className="breadcrumb-separator">›</span>
@@ -94,7 +121,11 @@ export default function SSOStudentDetail({ user, onLogout }) {
         </header>
 
         <div className="student-detail-page-header fade-in-up" style={{ "--delay": "0ms" }}>
-          <button type="button" className="back-link" onClick={() => navigate("/sso/students")}>
+          <button
+            type="button"
+            className="back-link"
+            onClick={() => navigate(roleConfig.studentsPath)}
+          >
             <ArrowLeft size={18} />
             Kembali
           </button>
