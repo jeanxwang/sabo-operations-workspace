@@ -82,8 +82,8 @@
   border-collapse: collapse;
 }
 .sso-students-table th {
-  height: 46px;
-  padding: 0 18px;
+  height: 38px;
+  padding: 0 14px;
   border-bottom: 1.5px solid var(--line);
   background: var(--surface);
   text-align: left;
@@ -95,7 +95,7 @@
   white-space: nowrap;
 }
 .sso-students-table td {
-  padding: 16px 18px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--line);
   font-size: 14px;
   vertical-align: middle;
@@ -115,15 +115,15 @@
 }
 .sso-students-table td strong {
   display: block;
-  margin-bottom: 3px;
-  font-size: 15px;
+  margin-bottom: 2px;
+  font-size: 14px;
   font-weight: 700;
   font-family: "Space Grotesk", sans-serif;
   white-space: nowrap;
 }
 .sso-students-table td span {
   display: block;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted);
   font-family: "JetBrains Mono", monospace;
 }
@@ -159,12 +159,12 @@
 }
 
 .table-footer {
-  min-height: 50px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 0 20px;
+  padding: 0 16px;
   border-top: 1.5px solid var(--line);
   background: var(--surface);
   font-size: 13px;
@@ -187,16 +187,16 @@
   transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease;
 }
 .pagination button:hover:not(:disabled) {
-  border-color: var(--ink);
+  border-color: var(--accent);
 }
 .pagination button:disabled {
   color: #b8b8bc;
   cursor: not-allowed;
 }
 .pagination .active-page {
-  background: var(--ink);
+  background: var(--accent);
   color: var(--paper);
-  border-color: var(--ink);
+  border-color: var(--accent);
 }
 .pagination-ellipsis {
   padding: 0 2px;

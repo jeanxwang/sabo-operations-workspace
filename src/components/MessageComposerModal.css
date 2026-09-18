@@ -71,8 +71,8 @@
   border-color: var(--accent, #2f5de3);
 }
 .composer-template-chip.active {
-  background: var(--ink, #0b0b0c);
-  border-color: var(--ink, #0b0b0c);
+  background: var(--accent, #2457d6);
+  border-color: var(--accent, #2457d6);
   color: var(--paper, #fff);
 }
 .composer-textarea {

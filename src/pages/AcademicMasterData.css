@@ -37,7 +37,7 @@
   transition: background-color 0.16s ease, color 0.16s ease;
 }
 .md-tab-button.active {
-  background: var(--ink);
+  background: var(--accent);
   color: var(--paper);
 }
 
@@ -116,8 +116,8 @@
   border-collapse: collapse;
 }
 .master-data-table th {
-  height: 46px;
-  padding: 0 20px;
+  height: 38px;
+  padding: 0 16px;
   border-bottom: 1.5px solid var(--line);
   background: var(--surface);
   text-align: left;
@@ -128,7 +128,7 @@
   color: var(--muted);
 }
 .master-data-table td {
-  padding: 14px 20px;
+  padding: 9px 16px;
   border-bottom: 1px solid var(--line);
   font-size: 14px;
   vertical-align: middle;
@@ -170,7 +170,8 @@
   transition: border-color 0.16s ease, color 0.16s ease, background-color 0.16s ease;
 }
 .icon-round-button:hover {
-  border-color: var(--ink);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 .icon-round-button.danger:hover {
   border-color: var(--accent-high);

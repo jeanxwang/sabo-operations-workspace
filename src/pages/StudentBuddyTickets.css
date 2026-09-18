@@ -36,7 +36,7 @@
   min-height: 38px;
   padding: 0 16px;
   font-size: 14px;
-  background: var(--ink);
+  background: var(--accent);
   color: var(--paper);
 }
 .create-ticket-button:hover {
@@ -87,8 +87,8 @@
   border-collapse: collapse;
 }
 .tickets-table th {
-  height: 46px;
-  padding: 0 20px;
+  height: 38px;
+  padding: 0 16px;
   border-bottom: 1.5px solid var(--line);
   background: var(--surface);
   text-align: left;
@@ -99,9 +99,9 @@
   color: var(--muted);
 }
 .tickets-table td {
-  padding: 16px 20px;
+  padding: 10px 16px;
   border-bottom: 1px solid var(--line);
-  font-size: 15px;
+  font-size: 14px;
   vertical-align: middle;
 }
 .tickets-table tbody tr {
@@ -118,7 +118,7 @@
   background: var(--accent-soft);
 }
 .tickets-table td strong {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 1.35;
 }
@@ -145,10 +145,11 @@
   align-items: center;
   gap: 8px;
   height: 34px;
-  padding: 0 30px 0 12px;
-  border: 1.5px solid var(--line);
-  border-radius: 6px;
-  background: var(--paper);
+  padding: 0 30px 0 14px;
+  border: 1.5px solid transparent;
+  border-radius: 8px;
+  background: var(--surface);
+  transition: background-color 0.16s ease;
 }
 .status-select .status-dot {
   width: 7px;
@@ -157,14 +158,23 @@
   background: var(--muted);
   flex-shrink: 0;
 }
+.status-select.status-belum {
+  background: #fee2e2;
+}
 .status-select.status-belum .status-dot {
-  background: var(--accent-high);
+  background: #b91c1c;
+}
+.status-select.status-proses {
+  background: #fef3c7;
 }
 .status-select.status-proses .status-dot {
-  background: var(--accent-medium);
+  background: #b45309;
+}
+.status-select.status-done {
+  background: #dcfce7;
 }
 .status-select.status-done .status-dot {
-  background: var(--accent-low);
+  background: #15803d;
 }
 .status-select select {
   appearance: none;
@@ -183,19 +193,20 @@
   top: 50%;
   width: 6px;
   height: 6px;
-  border-right: 1.5px solid var(--muted);
-  border-bottom: 1.5px solid var(--muted);
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
   transform: translateY(-70%) rotate(45deg);
   pointer-events: none;
+  opacity: 0.5;
 }
 
 .table-footer {
-  min-height: 50px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 0 20px;
+  padding: 0 16px;
   border-top: 1.5px solid var(--line);
   background: var(--surface);
   font-size: 13px;
@@ -218,16 +229,16 @@
   transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease;
 }
 .pagination button:hover:not(:disabled) {
-  border-color: var(--ink);
+  border-color: var(--accent);
 }
 .pagination button:disabled {
   color: #b8b8bc;
   cursor: not-allowed;
 }
 .pagination .active-page {
-  background: var(--ink);
+  background: var(--accent);
   color: var(--paper);
-  border-color: var(--ink);
+  border-color: var(--accent);
 }
 
 /* ---------- Detail panel ---------- */
@@ -340,7 +351,7 @@
 }
 .respond-ticket-button {
   width: 100%;
-  background: var(--ink);
+  background: var(--accent);
   color: var(--paper);
 }
 .respond-ticket-button:hover {

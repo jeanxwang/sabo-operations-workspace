@@ -153,8 +153,8 @@
   border-collapse: collapse;
 }
 .priority-table th {
-  height: 44px;
-  padding: 0 22px;
+  height: 38px;
+  padding: 0 16px;
   border-bottom: 1.5px solid var(--line);
   background: var(--surface);
   text-align: left;
@@ -165,7 +165,7 @@
   color: var(--muted);
 }
 .priority-table td {
-  padding: 16px 22px;
+  padding: 10px 16px;
   border-bottom: 1px solid var(--line);
   font-size: 14px;
   vertical-align: middle;
@@ -181,8 +181,8 @@
 }
 .priority-table td strong {
   display: block;
-  margin-bottom: 3px;
-  font-size: 15px;
+  margin-bottom: 2px;
+  font-size: 14px;
   font-weight: 700;
   font-family: "Space Grotesk", sans-serif;
 }
@@ -196,23 +196,23 @@
   display: inline-flex;
   align-items: center;
   padding: 4px 12px;
-  border: 1.5px solid var(--line);
-  border-radius: 6px;
+  border: 1.5px solid transparent;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
 }
 .status-badge.status-high {
-  border-color: var(--accent-high);
-  color: var(--accent-high);
+  background: #fee2e2;
+  color: #b91c1c;
 }
 .status-badge.status-low {
-  border-color: var(--accent-low);
-  color: var(--accent-low);
+  background: #dcfce7;
+  color: #15803d;
 }
 .status-badge.status-neutral {
-  border-color: var(--line);
-  color: var(--ink);
+  background: var(--accent-soft);
+  color: var(--accent-dark);
 }
 
 /* ---------- Update dari CX/Lainnya (list) ---------- */
@@ -301,8 +301,8 @@
   border-collapse: collapse;
 }
 .grade12-table th {
-  height: 40px;
-  padding: 0 22px;
+  height: 36px;
+  padding: 0 16px;
   background: var(--surface);
   border-bottom: 1.5px solid var(--line);
   text-align: left;
@@ -313,9 +313,9 @@
   color: var(--muted);
 }
 .grade12-table td {
-  padding: 14px 22px;
+  padding: 9px 16px;
   border-bottom: 1px solid var(--line);
-  font-size: 14px;
+  font-size: 13px;
 }
 .grade12-table tr:last-child td {
   border-bottom: 0;
@@ -323,7 +323,7 @@
 .grade12-table td strong {
   display: block;
   margin-bottom: 2px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   font-family: "Space Grotesk", sans-serif;
 }
