@@ -28,6 +28,7 @@ import { FOLLOW_UP_TAG_LABELS } from "../data/followUpTags";
 import { useUniversityPrograms } from "../hooks/useUniversityPrograms";
 import { useScholarships } from "../hooks/useScholarships";
 import MessageComposerModal from "../components/MessageComposerModal";
+import { interpolateMessage } from "../utils/messageTemplate";
 
 const GRADE_OPTIONS = ["10", "11", "12"];
 const RECIPIENT_LABELS = { SB: "Student Buddy", HL: "Hotline", RN: "Rania" };
@@ -211,7 +212,7 @@ export default function SSOStudents({ user, onLogout }) {
           studentName: student.name,
           fromSso: user?.name || "Jung Kook",
           toSb: toLabel,
-          message: text,
+          message: interpolateMessage(text, student),
           status: "belum",
           createdAt: "Baru saja",
         });
@@ -224,7 +225,10 @@ export default function SSOStudents({ user, onLogout }) {
         studentName: composerContext.studentName,
         fromSso: user?.name || "Jung Kook",
         toSb: toLabel,
-        message: text,
+        message: interpolateMessage(
+          text,
+          students.find((student) => student.id === composerContext.studentId)
+        ),
         status: "belum",
         createdAt: "Baru saja",
       });
@@ -501,6 +505,11 @@ export default function SSOStudents({ user, onLogout }) {
 
       <MessageComposerModal
         open={composerOpen}
+        previewStudent={
+          composerContext?.type === "bulk"
+            ? students.find((student) => selectedIds.has(student.id))
+            : students.find((student) => student.id === composerContext?.studentId)
+        }
         title={
           composerContext?.type === "bulk"
             ? `Kirim ke ${selectedIds.size} Student`
@@ -508,8 +517,8 @@ export default function SSOStudents({ user, onLogout }) {
         }
         subtitle={
           composerContext?.type === "bulk"
-            ? "Pesan ini akan dikirim sebagai handover terpisah untuk tiap student terpilih."
-            : "Pilih template atau tulis pesan bebas untuk Student Buddy terkait student ini."
+            ? "Pesan akan dipersonalisasi untuk tiap student dan diteruskan oleh Student Buddy."
+            : "Tulis pesan yang akan diteruskan oleh Student Buddy kepada student ini."
         }
         onClose={() => {
           setComposerOpen(false);

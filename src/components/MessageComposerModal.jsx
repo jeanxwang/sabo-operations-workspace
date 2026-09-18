@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Send, X } from "lucide-react";
 import { MESSAGE_TEMPLATES } from "../data/messageTemplates";
+import { interpolateMessage, MESSAGE_VARIABLES } from "../utils/messageTemplate";
 import "./MessageComposerModal.css";
 
 const RECIPIENT_OPTIONS = [
@@ -9,7 +10,14 @@ const RECIPIENT_OPTIONS = [
   { value: "RN", label: "Rania" },
 ];
 
-export default function MessageComposerModal({ open, title, subtitle, onClose, onSend }) {
+export default function MessageComposerModal({
+  open,
+  title,
+  subtitle,
+  previewStudent,
+  onClose,
+  onSend,
+}) {
   const [text, setText] = useState("");
   const [recipient, setRecipient] = useState("SB");
   const [activeTemplateId, setActiveTemplateId] = useState(null);
@@ -82,6 +90,23 @@ export default function MessageComposerModal({ open, title, subtitle, onClose, o
               onChange={(event) => setText(event.target.value)}
               autoFocus
             />
+
+            <div className="composer-variables">
+              <span className="composer-variables-label">Parameter tersedia</span>
+              <div className="composer-variable-list">
+                {MESSAGE_VARIABLES.map((variable) => (
+                  <code key={variable.token} title={variable.label}>
+                    {variable.token}
+                  </code>
+                ))}
+              </div>
+              {previewStudent && text.trim() && (
+                <div className="composer-preview">
+                  <span>Preview untuk {previewStudent.name}</span>
+                  <p>{interpolateMessage(text.trim(), previewStudent)}</p>
+                </div>
+              )}
+            </div>
 
             <div className="composer-footer">
               <label className="composer-recipient">

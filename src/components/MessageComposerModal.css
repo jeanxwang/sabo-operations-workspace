@@ -92,6 +92,50 @@
 .composer-textarea:focus {
   border-color: var(--accent, #2f5de3);
 }
+.composer-variables {
+  display: grid;
+  gap: 8px;
+  margin: -4px 0 14px;
+}
+.composer-variables-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted, #6b6b76);
+}
+.composer-variable-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.composer-variable-list code {
+  padding: 4px 7px;
+  border: 1px solid var(--accent-border, #b8cdf7);
+  border-radius: 5px;
+  background: var(--accent-soft, #eef4ff);
+  color: var(--accent-dark, #1742ad);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+}
+.composer-preview {
+  padding: 9px 11px;
+  border-left: 3px solid var(--accent, #2457d6);
+  background: var(--surface, #fafafa);
+}
+.composer-preview span {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted, #6b6b76);
+}
+.composer-preview p {
+  margin: 0;
+  color: var(--ink, #0b0b0c);
+  font-size: 13px;
+  line-height: 1.45;
+}
 .composer-footer {
   display: flex;
   align-items: center;
