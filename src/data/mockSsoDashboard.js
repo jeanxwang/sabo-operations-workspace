@@ -1,5 +1,18 @@
 export const mockSsoDashboard = {
   totalActiveStudents: 350,
+  distribution: {
+    grades: [
+      { label: "Kelas 10", count: 86 },
+      { label: "Kelas 11", count: 112 },
+      { label: "Kelas 12", count: 152 },
+    ],
+    degrees: [
+      { label: "S1", count: 128 },
+      { label: "S2", count: 96 },
+      { label: "S3", count: 34 },
+      { label: "Gap Year", count: 92 },
+    ],
+  },
   followUp: {
     total: 24,
     items: [

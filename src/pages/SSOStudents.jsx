@@ -31,6 +31,7 @@ import MessageComposerModal from "../components/MessageComposerModal";
 import { interpolateMessage } from "../utils/messageTemplate";
 
 const GRADE_OPTIONS = ["10", "11", "12"];
+const DEGREE_OPTIONS = ["S1", "S2", "S3", "Gap Year"];
 const RECIPIENT_LABELS = { SB: "Student Buddy", HL: "Hotline", RN: "Rania" };
 
 function navLinkClass({ isActive }) {
@@ -76,6 +77,7 @@ export default function SSOStudents({ user, onLogout }) {
 
   const activeTag = searchParams.get("tag");
   const activeGrades = (searchParams.get("grade") ?? "").split(",").filter(Boolean);
+  const activeDegrees = (searchParams.get("degree") ?? "").split(",").filter(Boolean);
 
   const { items: handoverItems, addHandover } = useHandoverStore(mockHandoverSeed);
   const universityApi = useUniversityPrograms();
@@ -95,6 +97,9 @@ export default function SSOStudents({ user, onLogout }) {
     .filter((student) => !activeTag || student.followUpTags?.includes(activeTag))
     .filter(
       (student) => activeGrades.length === 0 || activeGrades.includes(String(student.grade))
+    )
+    .filter(
+      (student) => activeDegrees.length === 0 || activeDegrees.includes(student.currentDegree)
     )
     .filter((student) => {
       const keyword = searchKeyword.toLowerCase();
@@ -122,9 +127,13 @@ export default function SSOStudents({ user, onLogout }) {
     setSearchParams(next);
   }
 
-  function clearGradeFilter() {
+  function toggleDegree(degree) {
     const next = new URLSearchParams(searchParams);
-    next.delete("grade");
+    const current = new Set(activeDegrees);
+    if (current.has(degree)) current.delete(degree);
+    else current.add(degree);
+    if (current.size === 0) next.delete("degree");
+    else next.set("degree", Array.from(current).join(","));
     setSearchParams(next);
   }
 
@@ -238,7 +247,7 @@ export default function SSOStudents({ user, onLogout }) {
     setComposerContext(null);
   }
 
-  const hasActiveFilters = activeTag || activeGrades.length > 0;
+  const hasActiveFilters = activeTag || activeGrades.length > 0 || activeDegrees.length > 0;
 
   return (
     <main className="dashboard-page">
@@ -301,8 +310,10 @@ export default function SSOStudents({ user, onLogout }) {
                   >
                     <Filter size={16} />
                     Filter
-                    {activeGrades.length > 0 && (
-                      <span className="filter-count-badge">{activeGrades.length}</span>
+                    {activeGrades.length + activeDegrees.length > 0 && (
+                      <span className="filter-count-badge">
+                        {activeGrades.length + activeDegrees.length}
+                      </span>
                     )}
                   </button>
 
@@ -324,13 +335,34 @@ export default function SSOStudents({ user, onLogout }) {
                         </div>
                       </div>
 
-                      {activeGrades.length > 0 && (
+                      <div className="filter-popover-section">
+                        <span className="filter-popover-label">Jenjang</span>
+                        <div className="filter-checkbox-list">
+                          {DEGREE_OPTIONS.map((degree) => (
+                            <label key={degree} className="filter-checkbox-item">
+                              <input
+                                type="checkbox"
+                                checked={activeDegrees.includes(degree)}
+                                onChange={() => toggleDegree(degree)}
+                              />
+                              {degree}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      {(activeGrades.length > 0 || activeDegrees.length > 0) && (
                         <button
                           type="button"
                           className="text-button filter-popover-reset"
-                          onClick={clearGradeFilter}
+                          onClick={() => {
+                            const next = new URLSearchParams(searchParams);
+                            next.delete("grade");
+                            next.delete("degree");
+                            setSearchParams(next);
+                          }}
                         >
-                          Reset filter kelas
+                          Reset semua filter
                         </button>
                       )}
                     </div>
@@ -351,6 +383,8 @@ export default function SSOStudents({ user, onLogout }) {
                   {activeTag && <strong>{FOLLOW_UP_TAG_LABELS[activeTag] ?? activeTag}</strong>}
                   {activeTag && activeGrades.length > 0 && " • "}
                   {activeGrades.length > 0 && <strong>Kelas {activeGrades.join(", ")}</strong>}{" "}
+                  {activeDegrees.length > 0 && (activeTag || activeGrades.length > 0) && " • "}
+                  {activeDegrees.length > 0 && <strong>{activeDegrees.join(", ")}</strong>}{" "}
                   ({filteredStudents.length})
                 </span>
                 <button type="button" onClick={() => setSearchParams({})}>

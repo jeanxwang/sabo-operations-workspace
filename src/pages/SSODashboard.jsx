@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   ChevronRight,
@@ -30,20 +31,19 @@ export default function SSODashboard({ user, onLogout }) {
   const navigate = useNavigate();
   const displayName = getDisplayName(user?.name);
   const initials = getInitials(user?.name);
-  const totalStudents = useCountUp(mockSsoDashboard.totalActiveStudents);
 
   const { followUp, cxUpdate, priorities, updates } = mockSsoDashboard;
   const { items: students } = useStudents();
+  const totalStudentValue = students.length > 0 ? students.length : mockSsoDashboard.totalActiveStudents;
+  const totalStudents = useCountUp(totalStudentValue);
   const grade12Students = students.filter((student) => student.grade === 12);
   const grade12Preview = grade12Students.slice(0, 4);
-  const gradeCounts = [10, 11, 12].map((grade) => ({
-    label: `Kelas ${grade}`,
-    count: students.filter((s) => s.grade === grade).length,
-  }));
-  const degreeCounts = ["S1", "S2", "S3", "Gap Year"].map((degree) => ({
-    label: degree,
-    count: students.filter((s) => s.currentDegree === degree).length,
-  }));
+  const [activeDistribution, setActiveDistribution] = useState(null);
+  const distributionGroups = buildDistributionGroups(students, mockSsoDashboard.distribution);
+  const activeDistributionItem = getActiveDistributionItem(
+    distributionGroups,
+    activeDistribution
+  );
 
   return (
     <main className="dashboard-page">
@@ -131,31 +131,35 @@ export default function SSODashboard({ user, onLogout }) {
             </div>
           </section>
 
-          <section className="sso-breakdown-section fade-in-up" style={{ "--delay": "160ms" }}>
-            <h2>Pembagian Student</h2>
+          <section className="sso-distribution-section fade-in-up" style={{ "--delay": "160ms" }}>
+            <header className="sso-distribution-header">
+              <div>
+                <h2>Pembagian Student</h2>
+                <p>Hover atau fokus pada bar untuk melihat jumlah dan persentase tiap kelompok.</p>
+              </div>
+              <span className="sso-distribution-total">
+                {formatNumber(distributionGroups[0].total)} student terpetakan
+              </span>
+            </header>
 
-            <div className="sso-breakdown-group">
-              <span className="sso-breakdown-group-label">Berdasarkan Kelas</span>
-              <div className="sso-breakdown-grid">
-                {gradeCounts.map((item) => (
-                  <div key={item.label} className="sso-breakdown-chip">
-                    <strong>{item.count}</strong>
-                    <span>{item.label}</span>
-                  </div>
+            <div className="sso-distribution-layout">
+              <div className="sso-distribution-chart" aria-label="Chart pembagian student">
+                {distributionGroups.map((group) => (
+                  <DistributionGroup
+                    key={group.id}
+                    group={group}
+                    activeKey={activeDistribution?.key}
+                    onFocusItem={setActiveDistribution}
+                    onSelectItem={(item) => {
+                      if (item.value) {
+                        navigate(`/sso/students?${group.id === "grades" ? "grade" : "degree"}=${encodeURIComponent(item.value)}`);
+                      }
+                    }}
+                  />
                 ))}
               </div>
-            </div>
 
-            <div className="sso-breakdown-group">
-              <span className="sso-breakdown-group-label">Berdasarkan Jenjang</span>
-              <div className="sso-breakdown-grid">
-                {degreeCounts.map((item) => (
-                  <div key={item.label} className="sso-breakdown-chip">
-                    <strong>{item.count}</strong>
-                    <span>{item.label}</span>
-                  </div>
-                ))}
-              </div>
+              <DistributionDetail item={activeDistributionItem} />
             </div>
           </section>
 
@@ -315,6 +319,149 @@ function HighlightCard({ item, index }) {
       )}
     </article>
   );
+}
+
+function buildDistributionGroups(students, fallback) {
+  const source = students.length > 0 ? students : null;
+  const total = source ? source.length : fallback.totalActiveStudents;
+
+  function createGroup(id, title, description, definitions, getValue, fallbackItems) {
+    const items = definitions.map((definition) => {
+      const count = source
+        ? source.filter((student) => String(getValue(student)) === definition.value).length
+        : fallbackItems.find((item) => item.label === definition.label)?.count ?? 0;
+
+      return {
+        key: `${id}-${definition.value}`,
+        label: definition.label,
+        value: definition.value,
+        count,
+        percentage: total > 0 ? (count / total) * 100 : 0,
+      };
+    });
+
+    const knownCount = items.reduce((sum, item) => sum + item.count, 0);
+    if (source && total > knownCount) {
+      const missingCount = total - knownCount;
+      items.push({
+        key: `${id}-missing`,
+        label: "Belum diisi",
+        value: "",
+        count: missingCount,
+        percentage: (missingCount / total) * 100,
+      });
+    }
+
+    return { id, title, description, total, items };
+  }
+
+  return [
+    createGroup(
+      "grades",
+      "Berdasarkan Kelas",
+      "Distribusi student jenjang SMA",
+      [
+        { label: "Kelas 10", value: "10" },
+        { label: "Kelas 11", value: "11" },
+        { label: "Kelas 12", value: "12" },
+      ],
+      (student) => student.grade,
+      fallback.grades
+    ),
+    createGroup(
+      "degrees",
+      "Berdasarkan Jenjang",
+      "Distribusi jenjang pendidikan saat ini",
+      [
+        { label: "S1", value: "S1" },
+        { label: "S2", value: "S2" },
+        { label: "S3", value: "S3" },
+        { label: "Gap Year", value: "Gap Year" },
+      ],
+      (student) => student.currentDegree,
+      fallback.degrees
+    ),
+  ];
+}
+
+function getActiveDistributionItem(groups, active) {
+  const allItems = groups.flatMap((group) => group.items);
+  return allItems.find((item) => item.key === active?.key) ?? allItems[0] ?? null;
+}
+
+function DistributionGroup({ group, activeKey, onFocusItem, onSelectItem }) {
+  return (
+    <section className="sso-distribution-group" aria-labelledby={`${group.id}-distribution-title`}>
+      <div className="sso-distribution-group-header">
+        <div>
+          <h3 id={`${group.id}-distribution-title`}>{group.title}</h3>
+          <span>{group.description}</span>
+        </div>
+        <strong>{formatNumber(group.total)}</strong>
+      </div>
+
+      <div className="sso-distribution-bars">
+        {group.items.map((item) => {
+          const width = item.count > 0 ? Math.max(item.percentage, 2) : 0;
+          const tooltip = `${item.label}: ${formatNumber(item.count)} student (${formatPercentage(item.percentage)})`;
+
+          return (
+            <button
+              key={item.key}
+              type="button"
+              className={`sso-distribution-bar-button ${activeKey === item.key ? "is-active" : ""}`}
+              style={{ "--distribution-size": `${width}%` }}
+              data-tooltip={tooltip}
+              aria-label={tooltip}
+              onMouseEnter={() => onFocusItem(item)}
+              onFocus={() => onFocusItem(item)}
+              onClick={() => {
+                onFocusItem(item);
+                onSelectItem(item);
+              }}
+            >
+              <span className="sso-distribution-bar-label">{item.label}</span>
+              <span className="sso-distribution-bar-track" aria-hidden="true">
+                <span className="sso-distribution-bar-fill" />
+              </span>
+              <span className="sso-distribution-bar-value">
+                {formatNumber(item.count)}
+                <small>{formatPercentage(item.percentage)}</small>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function DistributionDetail({ item }) {
+  if (!item) return null;
+
+  return (
+    <aside className="sso-distribution-detail" aria-live="polite">
+      <span className="sso-distribution-detail-eyebrow">Detail kelompok</span>
+      <strong>{item.label}</strong>
+      <span className="sso-distribution-detail-count">
+        {formatNumber(item.count)} <small>student</small>
+      </span>
+      <p>{formatPercentage(item.percentage)} dari total student terpetakan.</p>
+      {item.label === "Belum diisi" && (
+        <span className="sso-distribution-detail-note">
+          Lengkapi data jenjang agar pembagian student lebih akurat.
+        </span>
+      )}
+    </aside>
+  );
+}
+
+function formatNumber(value) {
+  return new Intl.NumberFormat("id-ID").format(value);
+}
+
+function formatPercentage(value) {
+  return `${value.toFixed(1).replace(".0", "")}%`;
 }
 
 function getDisplayName(name) {
