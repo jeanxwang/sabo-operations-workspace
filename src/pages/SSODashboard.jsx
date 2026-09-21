@@ -4,7 +4,6 @@ import {
   ChevronRight,
   Grid2X2,
   Users,
-  List,
   LogOut,
   RefreshCcw,
   MessageCircle,
@@ -16,6 +15,7 @@ import "./StudentBuddyDashboard.css";
 import "./SSODashboard.css";
 import schotersLogo from "../assets/schoters-logo.png";
 import { useStudents } from "../hooks/useStudents";
+import TopbarActions from "../components/TopbarActions";
 
 function navLinkClass({ isActive }) {
   return `sidebar-link ${isActive ? "active" : ""}`;
@@ -71,6 +71,15 @@ export default function SSODashboard({ user, onLogout }) {
             <strong>{user?.name || "Jung Kook"}</strong>
             <small>SSO</small>
           </span>
+          <button
+            type="button"
+            className="sidebar-logout-button"
+            aria-label="Keluar"
+            title="Keluar"
+            onClick={onLogout}
+          >
+            <LogOut size={17} />
+          </button>
         </footer>
       </aside>
 
@@ -82,15 +91,7 @@ export default function SSODashboard({ user, onLogout }) {
             <strong>SSO</strong>
           </div>
 
-          <div className="topbar-actions">
-            <button type="button" aria-label="Menu">
-              <List size={22} />
-            </button>
-
-            <button type="button" aria-label="Logout" onClick={onLogout}>
-              <LogOut size={22} />
-            </button>
-          </div>
+          <TopbarActions />
         </header>
 
         <section className="dashboard-content">

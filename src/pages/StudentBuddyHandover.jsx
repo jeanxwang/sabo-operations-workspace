@@ -1,10 +1,11 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { CheckCircle2, Grid2X2, List, LogOut, Ticket, Users } from "lucide-react";
+import { CheckCircle2, Grid2X2, LogOut, Ticket, Users } from "lucide-react";
 import schotersLogo from "../assets/schoters-logo.png";
 import { mockHandoverSeed } from "../data/mockHandover";
 import { useHandoverStore } from "../hooks/useHandoverStore";
 import "./StudentBuddyDashboard.css";
 import "./StudentBuddyHandover.css";
+import TopbarActions from "../components/TopbarActions";
 
 function navLinkClass({ isActive }) {
   return `sidebar-link ${isActive ? "active" : ""}`;
@@ -47,6 +48,15 @@ export default function StudentBuddyHandover({ user, onLogout }) {
             <strong>{user?.name || "Eom Sean"}</strong>
             <small>CX - Student Buddy</small>
           </span>
+          <button
+            type="button"
+            className="sidebar-logout-button"
+            aria-label="Keluar"
+            title="Keluar"
+            onClick={onLogout}
+          >
+            <LogOut size={17} />
+          </button>
         </footer>
       </aside>
 
@@ -59,14 +69,7 @@ export default function StudentBuddyHandover({ user, onLogout }) {
             <span className="breadcrumb-separator">›</span>
             <strong>Handover</strong>
           </div>
-          <div className="topbar-actions">
-            <button type="button" aria-label="Menu">
-              <List size={22} />
-            </button>
-            <button type="button" aria-label="Logout" onClick={onLogout}>
-              <LogOut size={22} />
-            </button>
-          </div>
+          <TopbarActions />
         </header>
 
         <section className="handover-content fade-in-up" style={{ "--delay": "0ms" }}>

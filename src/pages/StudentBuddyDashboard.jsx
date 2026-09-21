@@ -4,7 +4,6 @@ import {
   Users,
   Ticket,
   Plus,
-  List,
   LogOut,
   Send,
   ClipboardList,
@@ -15,6 +14,7 @@ import "./StudentBuddyDashboard.css";
 import schotersLogo from "../assets/schoters-logo.png";
 import { useHandoverStore } from "../hooks/useHandoverStore";
 import { mockHandoverSeed } from "../data/mockHandover";
+import TopbarActions from "../components/TopbarActions";
 
 const TASKS = [
   {
@@ -105,6 +105,15 @@ export default function StudentBuddyDashboard({ user, onLogout }) {
             <strong>{user?.name || "Eom Sean"}</strong>
             <small>CX - Student Buddy</small>
           </span>
+          <button
+            type="button"
+            className="sidebar-logout-button"
+            aria-label="Keluar"
+            title="Keluar"
+            onClick={onLogout}
+          >
+            <LogOut size={17} />
+          </button>
         </footer>
       </aside>
 
@@ -116,15 +125,7 @@ export default function StudentBuddyDashboard({ user, onLogout }) {
             <strong>Student Buddy</strong>
           </div>
 
-          <div className="topbar-actions">
-            <button type="button" aria-label="Menu">
-              <List size={22} />
-            </button>
-
-            <button type="button" aria-label="Logout" onClick={onLogout}>
-              <LogOut size={22} />
-            </button>
-          </div>
+          <TopbarActions />
         </header>
 
         <section className="dashboard-content">

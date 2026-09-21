@@ -4,7 +4,6 @@ import {
   ArrowLeft,
   CheckCircle2,
   Grid2X2,
-  List,
   LogOut,
   Ticket,
   Users,
@@ -15,6 +14,7 @@ import { mockSsoStudents } from "../data/mockSsoStudents";
 import { mockSsoStudentDetails, SSO_DETAIL_TABS } from "../data/mockSsoStudentDetails";
 import "./StudentBuddyDashboard.css";
 import "./SSOStudentDetail.css";
+import TopbarActions from "../components/TopbarActions";
 
 function navLinkClass({ isActive }) {
   return `sidebar-link ${isActive ? "active" : ""}`;
@@ -93,6 +93,15 @@ export default function SSOStudentDetail({ user, onLogout, role = "sso" }) {
             <strong>{user?.name || "Jung Kook"}</strong>
             <small>SSO</small>
           </span>
+          <button
+            type="button"
+            className="sidebar-logout-button"
+            aria-label="Keluar"
+            title="Keluar"
+            onClick={onLogout}
+          >
+            <LogOut size={17} />
+          </button>
         </footer>
       </aside>
 
@@ -110,14 +119,7 @@ export default function SSOStudentDetail({ user, onLogout, role = "sso" }) {
             <strong>{detail.name}</strong>
           </div>
 
-          <div className="topbar-actions">
-            <button type="button" aria-label="Menu">
-              <List size={22} />
-            </button>
-            <button type="button" aria-label="Logout" onClick={onLogout}>
-              <LogOut size={22} />
-            </button>
-          </div>
+          <TopbarActions />
         </header>
 
         <div className="student-detail-page-header fade-in-up" style={{ "--delay": "0ms" }}>

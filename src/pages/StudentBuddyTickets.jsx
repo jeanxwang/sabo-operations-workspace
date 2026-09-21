@@ -4,7 +4,6 @@ import {
   ArrowUpDown,
   Filter,
   Grid2X2,
-  List,
   LogOut,
   Plus,
   Search,
@@ -18,6 +17,7 @@ import schotersLogo from "../assets/schoters-logo.png";
 import { mockTickets } from "../data/mockTickets";
 import "./StudentBuddyDashboard.css";
 import "./StudentBuddyTickets.css";
+import TopbarActions from "../components/TopbarActions";
 
 const STATUS_LABEL = {
   belum: "Belum",
@@ -119,6 +119,15 @@ export default function StudentBuddyTickets({ user, onLogout }) {
             <strong>{user?.name || "Eom Sean"}</strong>
             <small>CX - Student Buddy</small>
           </span>
+          <button
+            type="button"
+            className="sidebar-logout-button"
+            aria-label="Keluar"
+            title="Keluar"
+            onClick={onLogout}
+          >
+            <LogOut size={17} />
+          </button>
         </footer>
       </aside>
 
@@ -132,15 +141,7 @@ export default function StudentBuddyTickets({ user, onLogout }) {
             <strong>Tickets</strong>
           </div>
 
-          <div className="topbar-actions">
-            <button type="button" aria-label="Menu">
-              <List size={22} />
-            </button>
-
-            <button type="button" aria-label="Logout" onClick={onLogout}>
-              <LogOut size={22} />
-            </button>
-          </div>
+          <TopbarActions />
         </header>
 
         <section className="tickets-content">

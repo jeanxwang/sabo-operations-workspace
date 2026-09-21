@@ -1,0 +1,78 @@
+export const mockOpsStudents = [
+  {
+    id: "ST-26091",
+    name: "Nadia Putri",
+    email: "nadia.putri@email.com",
+    joinedAt: "20 Sep 2026",
+    assignedTo: "Ops Team",
+    activation: "done",
+    profile: "done",
+  },
+  {
+    id: "ST-26092",
+    name: "Raka Pratama",
+    email: "raka.pratama@email.com",
+    joinedAt: "20 Sep 2026",
+    assignedTo: "Belum ditugaskan",
+    activation: "done",
+    profile: "pending",
+  },
+  {
+    id: "ST-26093",
+    name: "Keisha Anindya",
+    email: "keisha.anindya@email.com",
+    joinedAt: "19 Sep 2026",
+    assignedTo: "Ops Team",
+    activation: "pending",
+    profile: "done",
+  },
+  {
+    id: "ST-26094",
+    name: "Bima Mahendra",
+    email: "bima.mahendra@email.com",
+    joinedAt: "19 Sep 2026",
+    assignedTo: "Belum ditugaskan",
+    activation: "pending",
+    profile: "pending",
+  },
+  {
+    id: "ST-26095",
+    name: "Alya Ramadhani",
+    email: "alya.ramadhani@email.com",
+    joinedAt: "18 Sep 2026",
+    assignedTo: "Ops Team",
+    activation: "done",
+    profile: "done",
+  },
+  {
+    id: "ST-26096",
+    name: "Farhan Akbar",
+    email: "farhan.akbar@email.com",
+    joinedAt: "18 Sep 2026",
+    assignedTo: "Ops Team",
+    activation: "done",
+    profile: "pending",
+  },
+  {
+    id: "ST-26097",
+    name: "Maya Salsabila",
+    email: "maya.salsabila@email.com",
+    joinedAt: "17 Sep 2026",
+    assignedTo: "Ops Team",
+    activation: "done",
+    profile: "done",
+  },
+  {
+    id: "ST-26098",
+    name: "Daffa Wijaya",
+    email: "daffa.wijaya@email.com",
+    joinedAt: "17 Sep 2026",
+    assignedTo: "Belum ditugaskan",
+    activation: "pending",
+    profile: "pending",
+  },
+];
+
+export function isOpsStudentReady(student) {
+  return student.activation === "done" && student.profile === "done";
+}

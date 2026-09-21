@@ -4,7 +4,6 @@ import {
   ArrowUpDown,
   Filter,
   Grid2X2,
-  List,
   LogOut,
   Plus,
   Search,
@@ -18,6 +17,7 @@ import { mockStudents as mockStudentExtras } from "../data/mockStudents";
 import { mergeStudentExtras } from "../utils/mergeStudentExtras";
 import "./StudentBuddyDashboard.css";
 import "./StudentBuddyStudents.css";
+import TopbarActions from "../components/TopbarActions";
 
 function navLinkClass({ isActive }) {
   return isActive ? "sidebar-link active" : "sidebar-link";
@@ -80,6 +80,15 @@ export default function StudentBuddyStudents({ user, onLogout }) {
             <strong>{user?.name || "Eom Sean"}</strong>
             <small>CX - Student Buddy</small>
           </span>
+          <button
+            type="button"
+            className="sidebar-logout-button"
+            aria-label="Keluar"
+            title="Keluar"
+            onClick={onLogout}
+          >
+            <LogOut size={17} />
+          </button>
         </footer>
       </aside>
 
@@ -92,14 +101,7 @@ export default function StudentBuddyStudents({ user, onLogout }) {
             <span className="breadcrumb-separator">›</span>
             <strong>Students</strong>
           </div>
-          <div className="topbar-actions">
-            <button type="button" aria-label="Menu">
-              <List size={22} />
-            </button>
-            <button type="button" aria-label="Logout" onClick={onLogout}>
-              <LogOut size={22} />
-            </button>
-          </div>
+          <TopbarActions />
         </header>
 
         <section className="students-content">

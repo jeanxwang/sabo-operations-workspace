@@ -10,6 +10,7 @@ import StudentBuddyHandover from "./pages/StudentBuddyHandover";
 import AcademicDashboard from "./pages/AcademicDashboard";
 import AcademicUniversities from "./pages/AcademicUniversities";
 import AcademicScholarships from "./pages/AcademicScholarships";
+import OpsDashboard from "./pages/OpsDashboard";
 
 export default function App() {
   const navigate = useNavigate();
@@ -62,7 +63,7 @@ export default function App() {
         path="/student-buddy/tickets"
         element={
           <ProtectedRoute allowedRoles={["student-buddy"]}>
-            <StudentBuddyTickets />
+            <StudentBuddyTickets user={currentUser} onLogout={handleLogout} />
           </ProtectedRoute>
         }
       />
@@ -131,6 +132,15 @@ export default function App() {
       />
 
       <Route
+        path="/ops/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={["ops"]}>
+            <OpsDashboard user={currentUser} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/student-buddy/students/:studentId"
         element={
           <ProtectedRoute allowedRoles={["student-buddy"]}>
@@ -179,6 +189,7 @@ function getDefaultRouteByRole(role) {
     sso: "/sso/dashboard",
     rania: "/rania/dashboard",
     academic: "/academic/dashboard",
+    ops: "/ops/dashboard",
   };
 
   return routes[role] || "/";

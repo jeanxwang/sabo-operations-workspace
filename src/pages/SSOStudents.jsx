@@ -6,7 +6,6 @@ import {
   Download,
   Filter,
   Grid2X2,
-  List,
   LogOut,
   Minus,
   Plus,
@@ -28,6 +27,7 @@ import { FOLLOW_UP_TAG_LABELS } from "../data/followUpTags";
 import { useUniversityPrograms } from "../hooks/useUniversityPrograms";
 import { useScholarships } from "../hooks/useScholarships";
 import MessageComposerModal from "../components/MessageComposerModal";
+import TopbarActions from "../components/TopbarActions";
 import { interpolateMessage } from "../utils/messageTemplate";
 
 const GRADE_OPTIONS = ["10", "11", "12"];
@@ -274,6 +274,15 @@ export default function SSOStudents({ user, onLogout }) {
             <strong>{user?.name || "Jung Kook"}</strong>
             <small>SSO</small>
           </span>
+          <button
+            type="button"
+            className="sidebar-logout-button"
+            aria-label="Keluar"
+            title="Keluar"
+            onClick={onLogout}
+          >
+            <LogOut size={17} />
+          </button>
         </footer>
       </aside>
 
@@ -286,14 +295,7 @@ export default function SSOStudents({ user, onLogout }) {
             <span className="breadcrumb-separator">›</span>
             <strong>Students</strong>
           </div>
-          <div className="topbar-actions">
-            <button type="button" aria-label="Menu">
-              <List size={22} />
-            </button>
-            <button type="button" aria-label="Logout" onClick={onLogout}>
-              <LogOut size={22} />
-            </button>
-          </div>
+          <TopbarActions />
         </header>
 
         <section className="sso-students-content">

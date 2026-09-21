@@ -4,8 +4,6 @@ import {
   CheckCircle2,
   ChevronRight,
   ExternalLink,
-  List,
-  LogOut,
   Plus,
   X,
   XCircle,
@@ -14,6 +12,7 @@ import { useCountUp } from "../hooks/useCountUp";
 import { useUniversityPrograms } from "../hooks/useUniversityPrograms";
 import { useScholarships } from "../hooks/useScholarships";
 import AcademicSidebar from "../components/AcademicSidebar";
+import TopbarActions from "../components/TopbarActions";
 import "./StudentBuddyDashboard.css";
 import "./AcademicDashboard.css";
 import { useCollectionStore } from "../hooks/useCollectionStore";
@@ -74,7 +73,7 @@ export default function AcademicDashboard({ user, onLogout }) {
 
   return (
     <main className="dashboard-page">
-      <AcademicSidebar user={user} />
+      <AcademicSidebar user={user} onLogout={onLogout} />
 
       <section className="dashboard-main">
         <header className="topbar">
@@ -84,14 +83,7 @@ export default function AcademicDashboard({ user, onLogout }) {
             <strong>Academic</strong>
           </div>
 
-          <div className="topbar-actions">
-            <button type="button" aria-label="Menu">
-              <List size={22} />
-            </button>
-            <button type="button" aria-label="Logout" onClick={onLogout}>
-              <LogOut size={22} />
-            </button>
-          </div>
+          <TopbarActions />
         </header>
 
         <section className="dashboard-content">

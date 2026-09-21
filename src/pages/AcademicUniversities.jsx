@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { List, LogOut, Pencil, Plus, Trash2, X } from "lucide-react";
+import { Pencil, Plus, Trash2, X } from "lucide-react";
 import { useUniversityPrograms } from "../hooks/useUniversityPrograms";
 import { DEGREE_LEVEL_OPTIONS } from "../data/mockUniversityPrograms";
 import AcademicSidebar from "../components/AcademicSidebar";
+import TopbarActions from "../components/TopbarActions";
 import "./StudentBuddyDashboard.css";
 import "./AcademicMasterData.css";
 
@@ -69,7 +70,7 @@ export default function AcademicUniversities({ user, onLogout }) {
 
   return (
     <main className="dashboard-page">
-      <AcademicSidebar user={user} />
+      <AcademicSidebar user={user} onLogout={onLogout} />
 
       <section className="dashboard-main">
         <header className="topbar">
@@ -80,14 +81,7 @@ export default function AcademicUniversities({ user, onLogout }) {
             <span className="breadcrumb-separator">›</span>
             <strong>University &amp; Program</strong>
           </div>
-          <div className="topbar-actions">
-            <button type="button" aria-label="Menu">
-              <List size={22} />
-            </button>
-            <button type="button" aria-label="Logout" onClick={onLogout}>
-              <LogOut size={22} />
-            </button>
-          </div>
+          <TopbarActions />
         </header>
 
         <section className="master-data-content fade-in-up" style={{ "--delay": "0ms" }}>

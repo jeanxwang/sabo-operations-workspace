@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Award, BookOpen, Grid2X2 } from "lucide-react";
+import { Award, BookOpen, Grid2X2, LogOut } from "lucide-react";
 import schotersLogo from "../assets/schoters-logo.png";
 import "../pages/StudentBuddyDashboard.css";
 import "./AcademicSidebar.css";
@@ -8,7 +8,7 @@ function navLinkClass({ isActive }) {
   return `sidebar-link ${isActive ? "active" : ""}`;
 }
 
-export default function AcademicSidebar({ user }) {
+export default function AcademicSidebar({ user, onLogout }) {
   return (
     <aside className="sidebar">
       <header className="sidebar-brand">
@@ -46,6 +46,15 @@ export default function AcademicSidebar({ user }) {
           <strong>{user?.name || "Academic Team"}</strong>
           <small>Academic</small>
         </span>
+        <button
+          type="button"
+          className="sidebar-logout-button"
+          aria-label="Keluar"
+          title="Keluar"
+          onClick={onLogout}
+        >
+          <LogOut size={17} />
+        </button>
       </footer>
     </aside>
   );
