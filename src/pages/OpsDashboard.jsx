@@ -3,6 +3,8 @@ import { NavLink } from "react-router-dom";
 import {
   CheckCircle2,
   ClipboardCheck,
+  ChevronDown,
+  FileText,
   Grid2X2,
   LogOut,
   Search,
@@ -12,7 +14,7 @@ import {
 } from "lucide-react";
 import schotersLogo from "../assets/schoters-logo.png";
 import TopbarActions from "../components/TopbarActions";
-import { isOpsStudentReady, mockOpsStudents } from "../data/mockOpsStudents";
+import { isOpsStudentReady, mockOpsMOs, mockOpsStudents } from "../data/mockOpsStudents";
 import "../pages/StudentBuddyDashboard.css";
 import "./OpsDashboard.css";
 
@@ -30,19 +32,20 @@ export default function OpsDashboard({ user, onLogout }) {
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [students, setStudents] = useState(mockOpsStudents);
 
-  const readyCount = mockOpsStudents.filter(isOpsStudentReady).length;
-  const activationPendingCount = mockOpsStudents.filter(
-    (student) => student.activation !== "done"
+  const readyCount = students.filter(isOpsStudentReady).length;
+  const activationDoneCount = students.filter(
+    (student) => student.activation === "done"
   ).length;
-  const profilePendingCount = mockOpsStudents.filter(
-    (student) => student.profile !== "done"
+  const profileCompleteCount = students.filter(
+    (student) => student.profile === "done"
   ).length;
 
   const filteredStudents = useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase();
 
-    return mockOpsStudents.filter((student) => {
+    return students.filter((student) => {
       const matchesSearch =
         !keyword ||
         student.name.toLowerCase().includes(keyword) ||
@@ -55,7 +58,25 @@ export default function OpsDashboard({ user, onLogout }) {
 
       return matchesSearch && matchesFilter;
     });
-  }, [activeFilter, searchKeyword]);
+  }, [activeFilter, searchKeyword, students]);
+
+  function handleAssignMo(studentId, moId) {
+    const selectedMo = mockOpsMOs.find((mo) => mo.id === moId);
+    if (!selectedMo) return;
+
+    setStudents((currentStudents) =>
+      currentStudents.map((student) =>
+        student.id === studentId
+          ? { ...student, assignedMo: selectedMo.name }
+          : student
+      )
+    );
+    setSelectedStudent((currentStudent) =>
+      currentStudent?.id === studentId
+        ? { ...currentStudent, assignedMo: selectedMo.name }
+        : currentStudent
+    );
+  }
 
   return (
     <main className="dashboard-page ops-dashboard-page">
@@ -74,6 +95,10 @@ export default function OpsDashboard({ user, onLogout }) {
             <Users size={16} />
             <span>Monitoring New Student</span>
           </div>
+          <NavLink to="/ops/onboarding-reports" className={navLinkClass}>
+            <FileText size={22} />
+            <span>Onboarding Session</span>
+          </NavLink>
         </nav>
 
         <footer className="sidebar-profile">
@@ -123,7 +148,7 @@ export default function OpsDashboard({ user, onLogout }) {
           <section className="ops-stat-grid" aria-label="Ringkasan student baru">
             <OpsStatCard
               label="Student baru"
-              value={mockOpsStudents.length}
+              value={students.length}
               helper="Masuk dalam monitoring"
               icon={Users}
               tone="blue"
@@ -136,18 +161,18 @@ export default function OpsDashboard({ user, onLogout }) {
               tone="green"
             />
             <OpsStatCard
-              label="Belum aktivasi"
-              value={activationPendingCount}
-              helper="Perlu pengecekan di LMS"
+              label="Aktivasi LMS selesai"
+              value={activationDoneCount}
+              helper="Checklist aktivasi sudah selesai"
               icon={ClipboardCheck}
-              tone="orange"
+              tone="blue"
             />
             <OpsStatCard
-              label="Profil belum lengkap"
-              value={profilePendingCount}
-              helper="Perlu dilengkapi di LMS"
+              label="Profil LMS lengkap"
+              value={profileCompleteCount}
+              helper="Checklist profil sudah lengkap"
               icon={UserCheck}
-              tone="purple"
+              tone="green"
             />
           </section>
 
@@ -189,10 +214,10 @@ export default function OpsDashboard({ user, onLogout }) {
                     {filter.label}
                     <span>
                       {filter.id === "all"
-                        ? mockOpsStudents.length
+                        ? students.length
                         : filter.id === "ready"
                           ? readyCount
-                          : mockOpsStudents.length - readyCount}
+                          : students.length - readyCount}
                     </span>
                   </button>
                 ))}
@@ -208,6 +233,7 @@ export default function OpsDashboard({ user, onLogout }) {
                     <th>Aktivasi LMS</th>
                     <th>Profil LMS</th>
                     <th>Readiness</th>
+                    <th>MO</th>
                     <th aria-label="Aksi" />
                   </tr>
                 </thead>
@@ -229,12 +255,17 @@ export default function OpsDashboard({ user, onLogout }) {
                           </span>
                         </td>
                         <td>
+                          <span className={`ops-assignment-cell ${student.assignedMo ? "assigned" : "unassigned"}`}>
+                            {student.assignedMo || "Belum diassign"}
+                          </span>
+                        </td>
+                        <td>
                           <button
                             type="button"
                             className="ops-detail-button"
                             onClick={() => setSelectedStudent(student)}
                           >
-                            Lihat detail
+                            {ready && !student.assignedMo ? "Assign MO" : "Lihat detail"}
                           </button>
                         </td>
                       </tr>
@@ -242,7 +273,7 @@ export default function OpsDashboard({ user, onLogout }) {
                   })}
                   {filteredStudents.length === 0 && (
                     <tr className="ops-empty-row">
-                      <td colSpan={6}>Tidak ada student yang sesuai dengan filter.</td>
+                      <td colSpan={7}>Tidak ada student yang sesuai dengan filter.</td>
                     </tr>
                   )}
                 </tbody>
@@ -253,7 +284,12 @@ export default function OpsDashboard({ user, onLogout }) {
       </section>
 
       {selectedStudent && (
-        <OpsStudentDetail student={selectedStudent} onClose={() => setSelectedStudent(null)} />
+        <OpsStudentDetail
+          student={selectedStudent}
+          mos={mockOpsMOs}
+          onAssign={handleAssignMo}
+          onClose={() => setSelectedStudent(null)}
+        />
       )}
     </main>
   );
@@ -279,8 +315,10 @@ function ChecklistBadge({ done }) {
   );
 }
 
-function OpsStudentDetail({ student, onClose }) {
+function OpsStudentDetail({ student, mos, onAssign, onClose }) {
   const ready = isOpsStudentReady(student);
+  const assignedMo = mos.find((mo) => mo.name === student.assignedMo);
+  const [pendingMoId, setPendingMoId] = useState(assignedMo?.id ?? "");
 
   return (
     <div className="ops-drawer-backdrop" role="presentation" onMouseDown={onClose}>
@@ -336,6 +374,37 @@ function OpsStudentDetail({ student, onClose }) {
               ? "Checklist lengkap. Ops dapat melanjutkan proses assign MO."
               : "Assign MO belum dapat dimulai sampai Aktivasi LMS dan Profil LMS selesai."}
           </div>
+          {ready && (
+            <div className="ops-assign-form">
+              <label htmlFor="ops-mo-select">Assign MO</label>
+              <div className="ops-select-wrapper">
+                <select
+                  id="ops-mo-select"
+                  value={pendingMoId}
+                  onChange={(event) => setPendingMoId(event.target.value)}
+                >
+                  <option value="" disabled>Pilih MO</option>
+                  {mos.map((mo) => (
+                    <option key={mo.id} value={mo.id}>
+                      {mo.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={16} aria-hidden="true" />
+              </div>
+              {student.assignedMo && (
+                <small>MO saat ini: {student.assignedMo}</small>
+              )}
+              <button
+                type="button"
+                className="ops-assign-button"
+                disabled={!pendingMoId}
+                onClick={() => onAssign(student.id, pendingMoId)}
+              >
+                {student.assignedMo ? "Simpan perubahan MO" : "Assign MO"}
+              </button>
+            </div>
+          )}
         </section>
       </aside>
     </div>

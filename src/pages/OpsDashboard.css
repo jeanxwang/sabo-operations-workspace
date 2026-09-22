@@ -267,7 +267,7 @@
 
 .ops-table {
   width: 100%;
-  min-width: 850px;
+  min-width: 980px;
   border-collapse: collapse;
   text-align: left;
 }
@@ -353,6 +353,24 @@
 .ops-readiness-badge.waiting {
   background: #fff5e5;
   color: #b45309;
+}
+
+.ops-assignment-cell {
+  display: inline-block !important;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px !important;
+}
+
+.ops-assignment-cell.assigned {
+  color: var(--ink) !important;
+  font-weight: 600;
+}
+
+.ops-assignment-cell.unassigned {
+  color: var(--muted) !important;
 }
 
 .ops-detail-button {
@@ -559,6 +577,78 @@
 .ops-next-step.locked {
   background: #fffaf1;
   color: #92400e;
+}
+
+.ops-assign-form {
+  display: grid;
+  gap: 7px;
+  margin-top: 14px;
+}
+
+.ops-assign-form label {
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.ops-select-wrapper {
+  position: relative;
+}
+
+.ops-select-wrapper select {
+  width: 100%;
+  height: 40px;
+  appearance: none;
+  padding: 0 34px 0 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  outline: none;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.ops-select-wrapper select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(36, 87, 214, 0.12);
+}
+
+.ops-select-wrapper svg {
+  position: absolute;
+  top: 12px;
+  right: 11px;
+  pointer-events: none;
+  color: var(--muted);
+}
+
+.ops-assign-form small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.ops-assign-button {
+  min-height: 38px;
+  margin-top: 3px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  transition: background-color 0.16s ease, opacity 0.16s ease;
+}
+
+.ops-assign-button:hover:not(:disabled) {
+  background: var(--accent-dark);
+}
+
+.ops-assign-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 @media (max-width: 1100px) {

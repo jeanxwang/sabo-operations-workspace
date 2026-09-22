@@ -5,6 +5,7 @@ export const mockOpsStudents = [
     email: "nadia.putri@email.com",
     joinedAt: "20 Sep 2026",
     assignedTo: "Ops Team",
+    assignedMo: null,
     activation: "done",
     profile: "done",
   },
@@ -14,6 +15,7 @@ export const mockOpsStudents = [
     email: "raka.pratama@email.com",
     joinedAt: "20 Sep 2026",
     assignedTo: "Belum ditugaskan",
+    assignedMo: null,
     activation: "done",
     profile: "pending",
   },
@@ -23,6 +25,7 @@ export const mockOpsStudents = [
     email: "keisha.anindya@email.com",
     joinedAt: "19 Sep 2026",
     assignedTo: "Ops Team",
+    assignedMo: null,
     activation: "pending",
     profile: "done",
   },
@@ -32,6 +35,7 @@ export const mockOpsStudents = [
     email: "bima.mahendra@email.com",
     joinedAt: "19 Sep 2026",
     assignedTo: "Belum ditugaskan",
+    assignedMo: null,
     activation: "pending",
     profile: "pending",
   },
@@ -41,6 +45,7 @@ export const mockOpsStudents = [
     email: "alya.ramadhani@email.com",
     joinedAt: "18 Sep 2026",
     assignedTo: "Ops Team",
+    assignedMo: null,
     activation: "done",
     profile: "done",
   },
@@ -50,6 +55,7 @@ export const mockOpsStudents = [
     email: "farhan.akbar@email.com",
     joinedAt: "18 Sep 2026",
     assignedTo: "Ops Team",
+    assignedMo: null,
     activation: "done",
     profile: "pending",
   },
@@ -59,6 +65,7 @@ export const mockOpsStudents = [
     email: "maya.salsabila@email.com",
     joinedAt: "17 Sep 2026",
     assignedTo: "Ops Team",
+    assignedMo: null,
     activation: "done",
     profile: "done",
   },
@@ -68,6 +75,7 @@ export const mockOpsStudents = [
     email: "daffa.wijaya@email.com",
     joinedAt: "17 Sep 2026",
     assignedTo: "Belum ditugaskan",
+    assignedMo: null,
     activation: "pending",
     profile: "pending",
   },
@@ -76,3 +84,9 @@ export const mockOpsStudents = [
 export function isOpsStudentReady(student) {
   return student.activation === "done" && student.profile === "done";
 }
+
+export const mockOpsMOs = [
+  { id: "mo-sarah", name: "Sarah Wijaya" },
+  { id: "mo-rio", name: "Rio Aditya" },
+  { id: "mo-celine", name: "Celine Tan" },
+];
