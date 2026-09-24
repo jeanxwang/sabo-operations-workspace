@@ -12,6 +12,7 @@ import AcademicUniversities from "./pages/AcademicUniversities";
 import AcademicScholarships from "./pages/AcademicScholarships";
 import OpsDashboard from "./pages/OpsDashboard";
 import OpsOnboardingReports from "./pages/OpsOnboardingReports";
+import MOHandover from "./pages/MOHandover";
 
 export default function App() {
   const navigate = useNavigate();
@@ -151,6 +152,15 @@ export default function App() {
       />
 
       <Route
+        path="/mo/handover"
+        element={
+          <ProtectedRoute allowedRoles={["mo"]}>
+            <MOHandover user={currentUser} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/student-buddy/students/:studentId"
         element={
           <ProtectedRoute allowedRoles={["student-buddy"]}>
@@ -200,6 +210,7 @@ function getDefaultRouteByRole(role) {
     rania: "/rania/dashboard",
     academic: "/academic/dashboard",
     ops: "/ops/dashboard",
+    mo: "/mo/handover",
   };
 
   return routes[role] || "/";
