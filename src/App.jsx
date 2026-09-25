@@ -13,6 +13,7 @@ import AcademicScholarships from "./pages/AcademicScholarships";
 import OpsDashboard from "./pages/OpsDashboard";
 import OpsOnboardingReports from "./pages/OpsOnboardingReports";
 import MOHandover from "./pages/MOHandover";
+import MOStudentProfiles from "./pages/MOStudentProfiles";
 
 export default function App() {
   const navigate = useNavigate();
@@ -156,6 +157,15 @@ export default function App() {
         element={
           <ProtectedRoute allowedRoles={["mo"]}>
             <MOHandover user={currentUser} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/mo/student-profiles"
+        element={
+          <ProtectedRoute allowedRoles={["mo"]}>
+            <MOStudentProfiles user={currentUser} onLogout={handleLogout} />
           </ProtectedRoute>
         }
       />

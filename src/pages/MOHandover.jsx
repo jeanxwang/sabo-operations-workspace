@@ -52,8 +52,12 @@ export default function MOHandover({ user, onLogout }) {
 
         <nav className="sidebar-nav" aria-label="Main navigation">
           <NavLink to="/mo/handover" end className={navLinkClass}>
-            <Grid2X2 size={22} />
+            <FileText size={22} />
             <span>Form Handover</span>
+          </NavLink>
+          <NavLink to="/mo/student-profiles" className={navLinkClass}>
+            <Grid2X2 size={22} />
+            <span>Profil SLMS</span>
           </NavLink>
         </nav>
 

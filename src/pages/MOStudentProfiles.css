@@ -1,0 +1,8 @@
+.mo-profile-table { min-width: 1120px; }
+.mo-profile-table td { white-space: normal; }
+.mo-profile-table td strong { max-width: 240px; line-height: 1.35; }
+.mo-source-note { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 11px; white-space: nowrap; }
+.mo-source-dot { width: 7px; height: 7px; border-radius: 50%; background: #159c63; box-shadow: 0 0 0 3px #e7f8ef; }
+.mo-source-label { color: var(--muted); font-size: 11px; }
+@media (max-width: 760px) { .mo-source-note { align-self: flex-start; } }
+
