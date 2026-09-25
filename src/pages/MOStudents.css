@@ -1,0 +1,41 @@
+.mo-student-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.mo-summary-card.tone-purple { --tone: #7c3aed; --tone-soft: #f2edff; }
+.mo-editable-note { border-color: var(--accent-border); background: var(--accent-soft); color: var(--accent-dark); }
+.mo-student-table { min-width: 1560px; }
+.mo-student-table td { white-space: normal; }
+.mo-student-table td strong { line-height: 1.35; }
+.mo-contact-cell { color: var(--ink) !important; font-size: 11px !important; white-space: nowrap !important; }
+.mo-progress-cell { display: flex; align-items: center; gap: 9px; min-width: 112px; }
+.mo-progress-cell strong { min-width: 26px; font-family: "JetBrains Mono", monospace; font-size: 11px !important; text-align: right; }
+.mo-progress-track { width: 70px; height: 6px; overflow: hidden; border-radius: 999px; background: #e8edf7; }
+.mo-progress-track span { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width .2s ease; }
+.mo-status.pending { color: #b45309; }
+.mo-detail-actions { display: grid; gap: 5px; min-width: 150px; }
+.mo-detail-action { display: inline-flex; align-items: center; gap: 6px; width: fit-content; padding: 5px 7px; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--accent-dark); cursor: pointer; font: inherit; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.mo-detail-action:hover { border-color: var(--accent-border); background: var(--accent-soft); }
+.mo-student-drawer { width: min(620px, 100%); }
+.mo-detail-status-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 4px; }
+.mo-detail-tabs { display: flex; gap: 4px; margin-top: 20px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.mo-detail-tabs button { display: inline-flex; align-items: center; gap: 6px; padding: 8px 9px; border: 0; border-radius: 6px; background: transparent; color: var(--muted); cursor: pointer; font: inherit; font-size: 11px; font-weight: 700; }
+.mo-detail-tabs button:hover, .mo-detail-tabs button.active { background: var(--accent-soft); color: var(--accent-dark); }
+.mo-drawer-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.mo-drawer-section-heading h3 { margin: 0; }
+.mo-drawer-section-heading span { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
+.mo-drawer-section-heading > strong { color: var(--accent-dark); font-family: "JetBrains Mono", monospace; font-size: 16px; }
+.mo-checklist-items { display: grid; gap: 8px; }
+.mo-checklist-item { display: grid; grid-template-columns: 20px 1fr; column-gap: 10px; align-items: start; padding: 12px; border: 1px solid var(--line); border-radius: 9px; cursor: pointer; transition: background-color .16s ease, border-color .16s ease; }
+.mo-checklist-item:hover { border-color: var(--accent-border); background: #fbfcff; }
+.mo-checklist-item input { position: absolute; opacity: 0; pointer-events: none; }
+.mo-check-box { width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid #b8c4da; border-radius: 6px; color: transparent; }
+.mo-checklist-item.checked { border-color: #b6dfc9; background: #f2fcf6; }
+.mo-checklist-item.checked .mo-check-box { border-color: #159c63; background: #159c63; color: #fff; }
+.mo-checklist-copy strong, .mo-checklist-copy small { display: block; }
+.mo-checklist-copy strong { color: var(--ink); font-size: 11px; line-height: 1.35; }
+.mo-checklist-copy small { margin-top: 4px; color: var(--muted); font-size: 10px; line-height: 1.4; }
+.mo-checklist-notes { display: block; margin-top: 18px; }
+.mo-checklist-notes > span { display: block; margin-bottom: 7px; color: var(--ink); font-size: 12px; font-weight: 700; }
+.mo-checklist-notes textarea { width: 100%; resize: vertical; padding: 10px 11px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); font: inherit; font-size: 11px; line-height: 1.5; outline: none; }
+.mo-checklist-notes textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(36, 87, 214, .1); }
+.mo-student-drawer-footer { display: flex; align-items: flex-start; gap: 7px; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; line-height: 1.45; }
+@media (max-width: 900px) { .mo-student-summary { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .mo-student-summary { grid-template-columns: 1fr; } }

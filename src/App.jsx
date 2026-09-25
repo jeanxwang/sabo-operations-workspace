@@ -12,9 +12,7 @@ import AcademicUniversities from "./pages/AcademicUniversities";
 import AcademicScholarships from "./pages/AcademicScholarships";
 import OpsDashboard from "./pages/OpsDashboard";
 import OpsOnboardingReports from "./pages/OpsOnboardingReports";
-import MOHandover from "./pages/MOHandover";
-import MOStudentProfiles from "./pages/MOStudentProfiles";
-import MOOnboardingChecklist from "./pages/MOOnboardingChecklist";
+import MOStudents from "./pages/MOStudents";
 
 export default function App() {
   const navigate = useNavigate();
@@ -154,31 +152,17 @@ export default function App() {
       />
 
       <Route
-        path="/mo/handover"
+        path="/mo/students"
         element={
           <ProtectedRoute allowedRoles={["mo"]}>
-            <MOHandover user={currentUser} onLogout={handleLogout} />
+            <MOStudents user={currentUser} onLogout={handleLogout} />
           </ProtectedRoute>
         }
       />
 
-      <Route
-        path="/mo/student-profiles"
-        element={
-          <ProtectedRoute allowedRoles={["mo"]}>
-            <MOStudentProfiles user={currentUser} onLogout={handleLogout} />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/mo/onboarding-checklist"
-        element={
-          <ProtectedRoute allowedRoles={["mo"]}>
-            <MOOnboardingChecklist user={currentUser} onLogout={handleLogout} />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/mo/handover" element={<Navigate to="/mo/students" replace />} />
+      <Route path="/mo/student-profiles" element={<Navigate to="/mo/students" replace />} />
+      <Route path="/mo/onboarding-checklist" element={<Navigate to="/mo/students" replace />} />
 
       <Route
         path="/student-buddy/students/:studentId"
@@ -230,7 +214,7 @@ function getDefaultRouteByRole(role) {
     rania: "/rania/dashboard",
     academic: "/academic/dashboard",
     ops: "/ops/dashboard",
-    mo: "/mo/handover",
+    mo: "/mo/students",
   };
 
   return routes[role] || "/";
