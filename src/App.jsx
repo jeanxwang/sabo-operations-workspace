@@ -13,6 +13,7 @@ import AcademicScholarships from "./pages/AcademicScholarships";
 import OpsDashboard from "./pages/OpsDashboard";
 import OpsOnboardingReports from "./pages/OpsOnboardingReports";
 import MOStudents from "./pages/MOStudents";
+import LPCheckerDashboard from "./pages/LPCheckerDashboard";
 
 export default function App() {
   const navigate = useNavigate();
@@ -165,6 +166,15 @@ export default function App() {
       <Route path="/mo/onboarding-checklist" element={<Navigate to="/mo/students" replace />} />
 
       <Route
+        path="/lp-checker/learning-plans"
+        element={
+          <ProtectedRoute allowedRoles={["lp-checker"]}>
+            <LPCheckerDashboard user={currentUser} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/student-buddy/students/:studentId"
         element={
           <ProtectedRoute allowedRoles={["student-buddy"]}>
@@ -215,6 +225,7 @@ function getDefaultRouteByRole(role) {
     academic: "/academic/dashboard",
     ops: "/ops/dashboard",
     mo: "/mo/students",
+    "lp-checker": "/lp-checker/learning-plans",
   };
 
   return routes[role] || "/";
