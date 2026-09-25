@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   ClipboardList,
+  ClipboardCheck,
   FileText,
   Grid2X2,
   LogOut,
@@ -53,6 +54,10 @@ export default function MOStudentProfiles({ user, onLogout }) {
           <NavLink to="/mo/student-profiles" className={navLinkClass}>
             <Grid2X2 size={22} />
             <span>Profil SLMS</span>
+          </NavLink>
+          <NavLink to="/mo/onboarding-checklist" className={navLinkClass}>
+            <ClipboardCheck size={22} />
+            <span>Onboarding Checklist</span>
           </NavLink>
         </nav>
 

@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import {
   FileText,
   Grid2X2,
+  ClipboardCheck,
   LogOut,
   Search,
   Users,
@@ -58,6 +59,10 @@ export default function MOHandover({ user, onLogout }) {
           <NavLink to="/mo/student-profiles" className={navLinkClass}>
             <Grid2X2 size={22} />
             <span>Profil SLMS</span>
+          </NavLink>
+          <NavLink to="/mo/onboarding-checklist" className={navLinkClass}>
+            <ClipboardCheck size={22} />
+            <span>Onboarding Checklist</span>
           </NavLink>
         </nav>
 
