@@ -31,8 +31,8 @@ const FILTERS = [
   { id: "new-students", label: "Student baru" },
   { id: "attention", label: "Checklist belum lengkap" },
   { id: "ready", label: "Checklist lengkap" },
-  { id: "activation-done", label: "Aktivasi selesai" },
-  { id: "profile-complete", label: "Profil lengkap" },
+  { id: "activation-pending", label: "Belum aktivasi" },
+  { id: "profile-incomplete", label: "Profil belum lengkap" },
   { id: "sla-overdue", label: "SLA overdue" },
 ];
 
@@ -56,11 +56,11 @@ export default function OpsDashboard({ user, onLogout }) {
   const newStudents = students.filter((student) => student.isNewStudent);
   const readyCount = newStudents.filter(isOpsStudentReady).length;
   const attentionCount = newStudentCount - readyCount;
-  const activationDoneCount = newStudents.filter(
-    (student) => student.activation === "done"
+  const activationPendingCount = newStudents.filter(
+    (student) => student.activation !== "done"
   ).length;
-  const profileCompleteCount = newStudents.filter(
-    (student) => student.profile === "done"
+  const profileIncompleteCount = newStudents.filter(
+    (student) => student.profile !== "done"
   ).length;
   const slaOverdueMilestoneCount = newStudents.reduce(
     (total, student) => total + getOpsSlaSummary(student).overdueCount,
@@ -86,8 +86,8 @@ export default function OpsDashboard({ user, onLogout }) {
         (activeFilter === "new-students" && student.isNewStudent) ||
         (activeFilter === "ready" && student.isNewStudent && isOpsStudentReady(student)) ||
         (activeFilter === "attention" && student.isNewStudent && !isOpsStudentReady(student)) ||
-        (activeFilter === "activation-done" && student.isNewStudent && student.activation === "done") ||
-        (activeFilter === "profile-complete" && student.isNewStudent && student.profile === "done") ||
+        (activeFilter === "activation-pending" && student.isNewStudent && student.activation !== "done") ||
+        (activeFilter === "profile-incomplete" && student.isNewStudent && student.profile !== "done") ||
         (activeFilter === "sla-overdue" && student.isNewStudent && getOpsSlaSummary(student).overdueCount > 0);
 
       return matchesSearch && matchesFilter;
@@ -208,24 +208,24 @@ export default function OpsDashboard({ user, onLogout }) {
               active={activeFilter === "ready"}
             />
             <OpsStatCard
-              label="Aktivasi LMS selesai"
-              value={activationDoneCount}
-              helper="Checklist aktivasi sudah selesai"
+              label="Belum aktivasi"
+              value={activationPendingCount}
+              helper="Belum checklist di LMS"
               icon={ClipboardCheck}
-              tone="blue"
+              tone="orange"
               interactive
-              onClick={() => handleScorecardClick("activation-done")}
-              active={activeFilter === "activation-done"}
+              onClick={() => handleScorecardClick("activation-pending")}
+              active={activeFilter === "activation-pending"}
             />
             <OpsStatCard
-              label="Profil LMS lengkap"
-              value={profileCompleteCount}
-              helper="Checklist profil sudah lengkap"
+              label="Profil belum lengkap"
+              value={profileIncompleteCount}
+              helper="Masih perlu dilengkapi di LMS"
               icon={UserCheck}
-              tone="green"
+              tone="orange"
               interactive
-              onClick={() => handleScorecardClick("profile-complete")}
-              active={activeFilter === "profile-complete"}
+              onClick={() => handleScorecardClick("profile-incomplete")}
+              active={activeFilter === "profile-incomplete"}
             />
             <OpsStatCard
               label="SLA overdue"
@@ -284,10 +284,10 @@ export default function OpsDashboard({ user, onLogout }) {
                             ? newStudentCount
                             : filter.id === "ready"
                             ? readyCount
-                            : filter.id === "activation-done"
-                              ? activationDoneCount
-                              : filter.id === "profile-complete"
-                                ? profileCompleteCount
+                            : filter.id === "activation-pending"
+                              ? activationPendingCount
+                              : filter.id === "profile-incomplete"
+                                ? profileIncompleteCount
                                 : filter.id === "sla-overdue"
                                   ? slaOverdueStudentCount
                                   : attentionCount}
