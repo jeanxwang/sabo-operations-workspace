@@ -46,6 +46,7 @@ function navLinkClass({ isActive }) {
 }
 
 export default function OpsDashboard({ user, onLogout }) {
+  const displayName = getDisplayName(user?.name);
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [dateFrom, setDateFrom] = useState("");
@@ -189,10 +190,10 @@ export default function OpsDashboard({ user, onLogout }) {
           <div className="ops-page-heading fade-in-up" style={{ "--delay": "0ms" }}>
             <div>
               <p className="ops-eyebrow">NEW STUDENT READINESS</p>
-              <h1>Monitor student baru</h1>
+              <h1>Welcome back, {displayName}!</h1>
               <p className="ops-page-description">
-                Pantau lifecycle student baru mulai dari checklist LMS,
-                onboarding session, hingga learning plan.
+                Monitor student baru mulai dari checklist LMS, onboarding
+                session, hingga learning plan.
               </p>
             </div>
             <div className="ops-sync-status">
@@ -648,6 +649,12 @@ function getInitials(name) {
     .join("")
     .slice(0, 2)
     .toUpperCase();
+}
+
+function getDisplayName(name) {
+  if (!name) return "Operator";
+  const nameParts = name.trim().split(" ");
+  return nameParts[nameParts.length - 1];
 }
 
 function parsePaymentDate(value) {

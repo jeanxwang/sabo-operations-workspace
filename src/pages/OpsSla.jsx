@@ -104,7 +104,7 @@ export default function OpsSla({ user, onLogout }) {
 
       <section className="dashboard-main">
         <header className="topbar">
-          <div className="breadcrumbs"><span>SABO Operations</span><span className="breadcrumb-separator">›</span><strong>Ops · SLA monitoring</strong></div>
+          <div className="breadcrumbs"><span>SABO Operations</span><span className="breadcrumb-separator">›</span><span>Ops</span><span className="breadcrumb-separator">›</span><strong>SLA monitoring</strong></div>
           <TopbarActions />
         </header>
 
@@ -210,4 +210,3 @@ function getInitials(name) {
   if (!name) return "OP";
   return name.split(" ").map((word) => word[0]).join("").slice(0, 2).toUpperCase();
 }
-
