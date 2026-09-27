@@ -3,15 +3,12 @@ import { NavLink } from "react-router-dom";
 import {
   CheckCircle2,
   CalendarDays,
-  ClipboardCheck,
   ChevronDown,
-  ClockAlert,
   ExternalLink,
   FileText,
   Grid2X2,
   LogOut,
   Search,
-  UserCheck,
   Users,
   X,
 } from "lucide-react";
@@ -41,6 +38,13 @@ const SLA_SHORT_LABELS = {
   diagnostic: "Diagnostic",
   lpChecked: "LP checked",
   lpReleased: "LP released",
+};
+
+const MOCK_OPS_OVERVIEW = {
+  total: 350,
+  activationPending: 200,
+  profileIncomplete: 100,
+  ready: 10,
 };
 
 function navLinkClass({ isActive }) {
@@ -77,13 +81,15 @@ export default function OpsDashboard({ user, onLogout }) {
   const profileIncompleteCount = newStudents.filter(
     (student) => student.profile !== "done"
   ).length;
-  const slaOverdueMilestoneCount = newStudents.reduce(
-    (total, student) => total + getOpsSlaSummary(student).overdueCount,
-    0
-  );
   const slaOverdueStudentCount = newStudents.filter(
     (student) => getOpsSlaSummary(student).overdueCount > 0
   ).length;
+  const overviewStats = getOverviewStats({
+    filteredRowCount: dateFilteredStudents.length,
+    totalRowCount: students.length,
+    isDateFiltered: Boolean(dateFrom || dateTo),
+    isInvalid: dateRangeIsInvalid,
+  });
 
   const filteredStudents = useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase();
@@ -201,57 +207,55 @@ export default function OpsDashboard({ user, onLogout }) {
             </div>
           </div>
 
-          <section className="ops-stat-grid" aria-label="Ringkasan student baru">
-            <OpsStatCard
-              label="Student baru"
-              value={newStudentCount}
-              helper="Masuk dalam monitoring"
-              icon={Users}
-              tone="blue"
-              interactive
-              onClick={() => handleScorecardClick("new-students")}
-              active={activeFilter === "new-students"}
-            />
-            <OpsStatCard
-              label="Siap diproses"
-              value={readyCount}
-              helper="Dua checklist selesai"
-              icon={CheckCircle2}
-              tone="green"
-              interactive
-              onClick={() => handleScorecardClick("ready")}
-              active={activeFilter === "ready"}
-            />
-            <OpsStatCard
-              label="Belum aktivasi"
-              value={activationPendingCount}
-              helper="Belum checklist di LMS"
-              icon={ClipboardCheck}
-              tone="orange"
-              interactive
-              onClick={() => handleScorecardClick("activation-pending")}
-              active={activeFilter === "activation-pending"}
-            />
-            <OpsStatCard
-              label="Profil belum lengkap"
-              value={profileIncompleteCount}
-              helper="Masih perlu dilengkapi di LMS"
-              icon={UserCheck}
-              tone="orange"
-              interactive
-              onClick={() => handleScorecardClick("profile-incomplete")}
-              active={activeFilter === "profile-incomplete"}
-            />
-            <OpsStatCard
-              label="SLA overdue"
-              value={slaOverdueStudentCount}
-              helper={`${slaOverdueMilestoneCount} milestone melewati deadline`}
-              icon={ClockAlert}
-              tone="red"
-              interactive
-              onClick={() => handleScorecardClick("sla-overdue")}
-              active={activeFilter === "sla-overdue"}
-            />
+          <section className="ops-readiness-overview fade-in-up" aria-label="Statistik readiness student" style={{ "--delay": "80ms" }}>
+            <header className="ops-overview-header">
+              <div>
+                <p className="ops-overview-eyebrow">STUDENT READINESS</p>
+                <h2>Statistik student</h2>
+                <p>Gambaran kesiapan student dari seluruh data yang dapat dipantau Ops.</p>
+              </div>
+              <div className="ops-overview-total">
+                <strong>{overviewStats.total}</strong>
+                <span>Total student</span>
+              </div>
+            </header>
+
+            <div className="ops-overview-body">
+              <div className="ops-readiness-donut" style={{ "--ready-rate": `${overviewStats.readyPercent}%` }}>
+                <div><strong>{overviewStats.readyPercent}%</strong><span>siap diproses</span></div>
+              </div>
+              <div className="ops-readiness-bars">
+                <ReadinessBar
+                  label="Belum aktivasi"
+                  value={overviewStats.activationPending}
+                  total={overviewStats.total}
+                  tone="orange"
+                  active={activeFilter === "activation-pending"}
+                  onClick={() => handleScorecardClick("activation-pending")}
+                />
+                <ReadinessBar
+                  label="Profil belum lengkap"
+                  value={overviewStats.profileIncomplete}
+                  total={overviewStats.total}
+                  tone="orange"
+                  active={activeFilter === "profile-incomplete"}
+                  onClick={() => handleScorecardClick("profile-incomplete")}
+                />
+                <ReadinessBar
+                  label="Siap diproses"
+                  value={overviewStats.ready}
+                  total={overviewStats.total}
+                  tone="green"
+                  active={activeFilter === "ready"}
+                  onClick={() => handleScorecardClick("ready")}
+                />
+              </div>
+            </div>
+
+            <footer className="ops-overview-footer">
+              <span>Data agregat seluruh student</span>
+              <span>Kategori dapat saling overlap karena satu student bisa memiliki lebih dari satu checklist.</span>
+            </footer>
           </section>
 
           <section className="ops-monitor-card fade-in-up" style={{ "--delay": "120ms" }}>
@@ -414,29 +418,50 @@ export default function OpsDashboard({ user, onLogout }) {
   );
 }
 
-function OpsStatCard({ label, value, helper, icon: Icon, tone, interactive, onClick, active }) {
-  const className = `ops-stat-card tone-${tone}${interactive ? " interactive" : ""}${active ? " active" : ""}`;
+function ReadinessBar({ label, value, total, tone, active, onClick }) {
+  const percentage = total ? Math.round((value / total) * 100) : 0;
 
   return (
-    <article
-      className={className}
+    <button
+      type="button"
+      className={`ops-readiness-bar tone-${tone}${active ? " active" : ""}`}
       onClick={onClick}
-      onKeyDown={(event) => {
-        if (interactive && (event.key === "Enter" || event.key === " ")) {
-          event.preventDefault();
-          onClick();
-        }
-      }}
-      role={interactive ? "button" : undefined}
-      tabIndex={interactive ? 0 : undefined}
-      aria-pressed={interactive ? active : undefined}
+      aria-pressed={active}
     >
-      <div className="ops-stat-icon"><Icon size={18} /></div>
-      <span>{label}</span>
-      <strong>{value}</strong>
-      <small>{helper}</small>
-    </article>
+      <span className="ops-readiness-bar-heading">
+        <span><i />{label}</span>
+        <strong>{value} <small>({percentage}%)</small></strong>
+      </span>
+      <span className="ops-readiness-track"><span style={{ width: `${percentage}%` }} /></span>
+    </button>
   );
+}
+
+function getOverviewStats({ filteredRowCount, totalRowCount, isDateFiltered, isInvalid }) {
+  if (isInvalid) {
+    return { ...MOCK_OPS_OVERVIEW, total: 0, activationPending: 0, profileIncomplete: 0, ready: 0, readyPercent: 0 };
+  }
+
+  if (!isDateFiltered) {
+    return {
+      ...MOCK_OPS_OVERVIEW,
+      readyPercent: Math.round((MOCK_OPS_OVERVIEW.ready / MOCK_OPS_OVERVIEW.total) * 100),
+    };
+  }
+
+  const ratio = totalRowCount ? filteredRowCount / totalRowCount : 0;
+  const activationPending = Math.round(MOCK_OPS_OVERVIEW.activationPending * ratio);
+  const profileIncomplete = Math.round(MOCK_OPS_OVERVIEW.profileIncomplete * ratio);
+  const ready = Math.round(MOCK_OPS_OVERVIEW.ready * ratio);
+  const total = Math.round(MOCK_OPS_OVERVIEW.total * ratio);
+
+  return {
+    total,
+    activationPending,
+    profileIncomplete,
+    ready,
+    readyPercent: total ? Math.round((ready / total) * 100) : 0,
+  };
 }
 
 function ChecklistBadge({ done }) {

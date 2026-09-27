@@ -77,6 +77,145 @@
   margin-bottom: 24px;
 }
 
+.ops-readiness-overview {
+  overflow: hidden;
+  margin-bottom: 24px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
+  box-shadow: 0 14px 36px rgba(35, 74, 155, 0.07);
+}
+
+.ops-overview-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.ops-overview-eyebrow {
+  margin: 0 0 6px;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+}
+
+.ops-overview-header h2 {
+  margin: 0;
+  font-size: 19px;
+}
+
+.ops-overview-header p:not(.ops-overview-eyebrow) {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.ops-overview-total {
+  min-width: 128px;
+  padding: 10px 14px;
+  border: 1px solid var(--accent-border);
+  border-radius: 10px;
+  background: var(--accent-soft);
+  text-align: right;
+}
+
+.ops-overview-total strong,
+.ops-overview-total span { display: block; }
+
+.ops-overview-total strong {
+  color: var(--accent-dark);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.ops-overview-total span {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.ops-overview-body {
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  align-items: center;
+  gap: 28px;
+  padding: 24px;
+}
+
+.ops-readiness-donut {
+  --ready-rate: 0%;
+  width: 172px;
+  height: 172px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: conic-gradient(#159c63 var(--ready-rate), #e8edf7 var(--ready-rate) 100%);
+  position: relative;
+}
+
+.ops-readiness-donut::before {
+  position: absolute;
+  inset: 13px;
+  border-radius: 50%;
+  background: #ffffff;
+  content: "";
+}
+
+.ops-readiness-donut > div { position: relative; z-index: 1; text-align: center; }
+.ops-readiness-donut strong,
+.ops-readiness-donut span { display: block; }
+.ops-readiness-donut strong { color: var(--ink); font-family: "JetBrains Mono", monospace; font-size: 28px; line-height: 1; }
+.ops-readiness-donut span { margin-top: 5px; color: var(--muted); font-size: 10px; font-weight: 600; }
+
+.ops-readiness-bars { display: grid; gap: 14px; }
+
+.ops-readiness-bar {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transition: border-color .16s ease, background-color .16s ease;
+}
+
+.ops-readiness-bar:hover,
+.ops-readiness-bar.active { border-color: var(--accent-border); background: #ffffff; }
+.ops-readiness-bar-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 12px; font-weight: 600; }
+.ops-readiness-bar-heading > span { display: inline-flex; align-items: center; gap: 8px; }
+.ops-readiness-bar-heading i { width: 8px; height: 8px; display: inline-block; border-radius: 50%; background: var(--bar-color); }
+.ops-readiness-bar-heading strong { color: var(--ink); font-family: "JetBrains Mono", monospace; font-size: 12px; }
+.ops-readiness-bar-heading strong small { color: var(--muted); font-family: "Inter", sans-serif; font-size: 10px; font-weight: 500; }
+.ops-readiness-bar.tone-orange { --bar-color: #d97706; }
+.ops-readiness-bar.tone-green { --bar-color: #159c63; }
+.ops-readiness-track { height: 8px; overflow: hidden; border-radius: 999px; background: #e8edf7; }
+.ops-readiness-track span { display: block; height: 100%; border-radius: inherit; background: var(--bar-color); transition: width .25s ease; }
+
+.ops-overview-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 24px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.ops-overview-footer span:last-child { text-align: right; }
+
 .ops-stat-card {
   position: relative;
   min-height: 142px;
@@ -893,6 +1032,17 @@
   .ops-page-heading h1 {
     font-size: 27px;
   }
+
+  .ops-overview-header,
+  .ops-overview-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .ops-overview-total { align-self: stretch; text-align: left; }
+  .ops-overview-body { grid-template-columns: 1fr; }
+  .ops-readiness-donut { width: 150px; height: 150px; }
+  .ops-overview-footer span:last-child { text-align: left; }
 
   .ops-sync-status {
     align-self: flex-start;
