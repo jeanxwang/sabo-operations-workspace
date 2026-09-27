@@ -924,6 +924,12 @@
   margin-top: 14px;
 }
 
+.ops-assignment-divider {
+  height: 1px;
+  margin: 8px 0;
+  background: var(--line);
+}
+
 .ops-assign-form label {
   color: var(--ink);
   font-size: 11px;

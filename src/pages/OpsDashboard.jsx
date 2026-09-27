@@ -19,6 +19,7 @@ import {
   isOpsStudentReady,
   getOpsSlaSummary,
   LEARNING_SYSTEM_ASSIGN_URL,
+  mockOpsLPCheckers,
   mockOpsMOs,
   mockOpsStudents,
 } from "../data/mockOpsStudents";
@@ -120,6 +121,24 @@ export default function OpsDashboard({ user, onLogout }) {
     setSelectedStudent((currentStudent) =>
       currentStudent?.id === studentId
         ? { ...currentStudent, assignedMo: selectedMo.name }
+        : currentStudent
+    );
+  }
+
+  function handleTagLpChecker(studentId, lpCheckerId) {
+    const selectedLpChecker = mockOpsLPCheckers.find((checker) => checker.id === lpCheckerId);
+    if (!selectedLpChecker) return;
+
+    setStudents((currentStudents) =>
+      currentStudents.map((student) =>
+        student.id === studentId
+          ? { ...student, assignedLpChecker: selectedLpChecker.name }
+          : student
+      )
+    );
+    setSelectedStudent((currentStudent) =>
+      currentStudent?.id === studentId
+        ? { ...currentStudent, assignedLpChecker: selectedLpChecker.name }
         : currentStudent
     );
   }
@@ -347,6 +366,7 @@ export default function OpsDashboard({ user, onLogout }) {
                     <th>LP checked</th>
                     <th>LP released</th>
                     <th>MO tag</th>
+                    <th>LP checker</th>
                     <th aria-label="Aksi" />
                   </tr>
                 </thead>
@@ -370,6 +390,11 @@ export default function OpsDashboard({ user, onLogout }) {
                         <td>
                           <span className={`ops-assignment-cell ${student.assignedMo ? "assigned" : "unassigned"}`}>
                             {student.assignedMo || "Belum diassign"}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`ops-assignment-cell ${student.assignedLpChecker ? "assigned" : "unassigned"}`}>
+                            {student.assignedLpChecker || "Belum diassign"}
                           </span>
                         </td>
                         <td>
@@ -400,7 +425,9 @@ export default function OpsDashboard({ user, onLogout }) {
         <OpsStudentDetail
           student={selectedStudent}
           mos={mockOpsMOs}
+          lpCheckers={mockOpsLPCheckers}
           onTagMo={handleTagMo}
+          onTagLpChecker={handleTagLpChecker}
           learningSystemUrl={LEARNING_SYSTEM_ASSIGN_URL}
           onClose={() => setSelectedStudent(null)}
         />
@@ -504,10 +531,12 @@ function formatDate(date) {
   }).format(date);
 }
 
-function OpsStudentDetail({ student, mos, onTagMo, learningSystemUrl, onClose }) {
+function OpsStudentDetail({ student, mos, lpCheckers, onTagMo, onTagLpChecker, learningSystemUrl, onClose }) {
   const ready = isOpsStudentReady(student);
   const assignedMo = mos.find((mo) => mo.name === student.assignedMo);
   const [pendingMoId, setPendingMoId] = useState(assignedMo?.id ?? "");
+  const assignedLpChecker = lpCheckers.find((checker) => checker.name === student.assignedLpChecker);
+  const [pendingLpCheckerId, setPendingLpCheckerId] = useState(assignedLpChecker?.id ?? "");
   const learningSystemHref = `${learningSystemUrl}?student_id=${encodeURIComponent(student.id)}`;
   const { milestones } = getOpsSlaSummary(student);
 
@@ -620,6 +649,35 @@ function OpsStudentDetail({ student, mos, onTagMo, learningSystemUrl, onClose })
                 onClick={() => onTagMo(student.id, pendingMoId)}
               >
                 {student.assignedMo ? "Simpan perubahan tag" : "Simpan tag MO"}
+              </button>
+
+              <div className="ops-assignment-divider" />
+              <label htmlFor="ops-lp-checker-select">Tag LP Checker di SABO</label>
+              <div className="ops-select-wrapper">
+                <select
+                  id="ops-lp-checker-select"
+                  value={pendingLpCheckerId}
+                  onChange={(event) => setPendingLpCheckerId(event.target.value)}
+                >
+                  <option value="" disabled>Pilih LP Checker</option>
+                  {lpCheckers.map((checker) => (
+                    <option key={checker.id} value={checker.id}>
+                      {checker.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={16} aria-hidden="true" />
+              </div>
+              {student.assignedLpChecker && (
+                <small>LP Checker saat ini: {student.assignedLpChecker}</small>
+              )}
+              <button
+                type="button"
+                className="ops-assign-button"
+                disabled={!pendingLpCheckerId}
+                onClick={() => onTagLpChecker(student.id, pendingLpCheckerId)}
+              >
+                {student.assignedLpChecker ? "Simpan perubahan tag" : "Simpan tag LP Checker"}
               </button>
             </div>
           )}
