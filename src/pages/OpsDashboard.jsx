@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   CalendarDays,
   ChevronDown,
+  ClockAlert,
   ExternalLink,
   FileText,
   Grid2X2,
@@ -31,14 +32,7 @@ const FILTERS = [
   { id: "ready", label: "Checklist lengkap" },
   { id: "activation-pending", label: "Belum aktivasi" },
   { id: "profile-incomplete", label: "Profil belum lengkap" },
-  { id: "sla-overdue", label: "SLA overdue" },
 ];
-
-const SLA_SHORT_LABELS = {
-  diagnostic: "Diagnostic",
-  lpChecked: "LP checked",
-  lpReleased: "LP released",
-};
 
 const MOCK_OPS_OVERVIEW = {
   total: 350,
@@ -81,9 +75,6 @@ export default function OpsDashboard({ user, onLogout }) {
   const profileIncompleteCount = newStudents.filter(
     (student) => student.profile !== "done"
   ).length;
-  const slaOverdueStudentCount = newStudents.filter(
-    (student) => getOpsSlaSummary(student).overdueCount > 0
-  ).length;
   const overviewStats = getOverviewStats({
     filteredRowCount: dateFilteredStudents.length,
     totalRowCount: students.length,
@@ -108,8 +99,7 @@ export default function OpsDashboard({ user, onLogout }) {
         (activeFilter === "ready" && student.isNewStudent && isOpsStudentReady(student)) ||
         (activeFilter === "attention" && student.isNewStudent && !isOpsStudentReady(student)) ||
         (activeFilter === "activation-pending" && student.isNewStudent && student.activation !== "done") ||
-        (activeFilter === "profile-incomplete" && student.isNewStudent && student.profile !== "done") ||
-        (activeFilter === "sla-overdue" && student.isNewStudent && getOpsSlaSummary(student).overdueCount > 0);
+        (activeFilter === "profile-incomplete" && student.isNewStudent && student.profile !== "done");
 
       return matchesSearch && matchesFilter;
     });
@@ -160,6 +150,10 @@ export default function OpsDashboard({ user, onLogout }) {
           <NavLink to="/ops/onboarding-reports" className={navLinkClass}>
             <FileText size={22} />
             <span>Onboarding Session</span>
+          </NavLink>
+          <NavLink to="/ops/sla" className={navLinkClass}>
+            <ClockAlert size={22} />
+            <span>SLA monitoring</span>
           </NavLink>
         </nav>
 
@@ -264,8 +258,8 @@ export default function OpsDashboard({ user, onLogout }) {
                 <h2>Progress student baru</h2>
                 <p>
                   Pantau checklist LMS dan progress onboarding student dari satu
-                  tabel terpusat. SLA: diagnostic D+1, LP checked D+2, dan LP
-                  released D+3 setelah onboarding selesai.
+                  tabel terpusat. Monitoring deadline untuk setiap milestone
+                  tersedia di halaman SLA monitoring.
                 </p>
               </div>
               <span className="ops-readiness-rule">
@@ -325,9 +319,7 @@ export default function OpsDashboard({ user, onLogout }) {
                               ? activationPendingCount
                               : filter.id === "profile-incomplete"
                                 ? profileIncompleteCount
-                                : filter.id === "sla-overdue"
-                                  ? slaOverdueStudentCount
-                                  : attentionCount}
+                            : attentionCount}
                       </span>
                     </button>
                   ))}
@@ -347,7 +339,6 @@ export default function OpsDashboard({ user, onLogout }) {
                     <th>Email</th>
                     <th>No. HP</th>
                     <th>Payment date</th>
-                    <th>SLA</th>
                     <th>Aktivasi LMS</th>
                     <th>Profil LMS</th>
                     <th>Onboarding session</th>
@@ -369,7 +360,6 @@ export default function OpsDashboard({ user, onLogout }) {
                         <td className="ops-contact-cell">{student.email}</td>
                         <td className="ops-contact-cell">{student.phone}</td>
                         <td className="ops-date-cell">{student.paymentDate}</td>
-                        <td><SlaSummaryCell student={student} /></td>
                         <td><ChecklistBadge done={student.activation === "done"} /></td>
                         <td><ChecklistBadge done={student.profile === "done"} /></td>
                         <td><OpsStatusBadge status={student.onboarding} /></td>
@@ -490,22 +480,6 @@ function OpsStatusBadge({ status }) {
       <span className="ops-status-indicator" aria-hidden="true" />
       {label}
     </span>
-  );
-}
-
-function SlaSummaryCell({ student }) {
-  const { milestones, overdueCount } = getOpsSlaSummary(student);
-  const overdueMilestones = milestones.filter((milestone) => milestone.status === "overdue");
-
-  if (overdueCount === 0) {
-    return <span className="ops-sla-cell-clear">Tidak ada overdue</span>;
-  }
-
-  return (
-    <div className="ops-sla-cell-overdue">
-      <strong>{overdueCount} overdue</strong>
-      <span>{overdueMilestones.map((milestone) => SLA_SHORT_LABELS[milestone.id]).join(", ")}</span>
-    </div>
   );
 }
 

@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import {
   CalendarDays,
   CheckCircle2,
+  ClockAlert,
   Clock3,
   Eye,
   FileText,
@@ -86,6 +87,10 @@ export default function OpsOnboardingReports({ user, onLogout }) {
           <NavLink to="/ops/onboarding-reports" className={navLinkClass}>
             <FileText size={22} />
             <span>Onboarding Session</span>
+          </NavLink>
+          <NavLink to="/ops/sla" className={navLinkClass}>
+            <ClockAlert size={22} />
+            <span>SLA monitoring</span>
           </NavLink>
         </nav>
 

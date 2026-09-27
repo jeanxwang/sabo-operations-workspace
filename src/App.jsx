@@ -12,6 +12,7 @@ import AcademicUniversities from "./pages/AcademicUniversities";
 import AcademicScholarships from "./pages/AcademicScholarships";
 import OpsDashboard from "./pages/OpsDashboard";
 import OpsOnboardingReports from "./pages/OpsOnboardingReports";
+import OpsSla from "./pages/OpsSla";
 import MOStudents from "./pages/MOStudents";
 import LPCheckerDashboard from "./pages/LPCheckerDashboard";
 
@@ -148,6 +149,15 @@ export default function App() {
         element={
           <ProtectedRoute allowedRoles={["ops"]}>
             <OpsOnboardingReports user={currentUser} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/ops/sla"
+        element={
+          <ProtectedRoute allowedRoles={["ops"]}>
+            <OpsSla user={currentUser} onLogout={handleLogout} />
           </ProtectedRoute>
         }
       />
