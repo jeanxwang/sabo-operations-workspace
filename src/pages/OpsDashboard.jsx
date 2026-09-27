@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   CheckCircle2,
+  CalendarDays,
   ClipboardCheck,
   ChevronDown,
   ClockAlert,
@@ -49,11 +50,25 @@ function navLinkClass({ isActive }) {
 export default function OpsDashboard({ user, onLogout }) {
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [students, setStudents] = useState(mockOpsStudents);
 
-  const newStudentCount = students.filter((student) => student.isNewStudent).length;
-  const newStudents = students.filter((student) => student.isNewStudent);
+  const dateRangeIsInvalid = Boolean(dateFrom && dateTo && dateFrom > dateTo);
+  const dateFilteredStudents = useMemo(() => {
+    return students.filter((student) => {
+      if (dateRangeIsInvalid) return false;
+
+      const paymentDate = parsePaymentDate(student.paymentDate);
+      const afterStart = !dateFrom || paymentDate >= dateFrom;
+      const beforeEnd = !dateTo || paymentDate <= dateTo;
+      return afterStart && beforeEnd;
+    });
+  }, [dateFrom, dateRangeIsInvalid, dateTo, students]);
+
+  const newStudents = dateFilteredStudents.filter((student) => student.isNewStudent);
+  const newStudentCount = newStudents.length;
   const readyCount = newStudents.filter(isOpsStudentReady).length;
   const attentionCount = newStudentCount - readyCount;
   const activationPendingCount = newStudents.filter(
@@ -73,7 +88,7 @@ export default function OpsDashboard({ user, onLogout }) {
   const filteredStudents = useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase();
 
-    return students.filter((student) => {
+    return dateFilteredStudents.filter((student) => {
       const matchesSearch =
         !keyword ||
         student.name.toLowerCase().includes(keyword) ||
@@ -92,7 +107,7 @@ export default function OpsDashboard({ user, onLogout }) {
 
       return matchesSearch && matchesFilter;
     });
-  }, [activeFilter, searchKeyword, students]);
+  }, [activeFilter, dateFilteredStudents, searchKeyword]);
 
   function handleTagMo(studentId, moId) {
     const selectedMo = mockOpsMOs.find((mo) => mo.id === moId);
@@ -265,6 +280,24 @@ export default function OpsDashboard({ user, onLogout }) {
                 />
               </label>
 
+              <div className="ops-date-filter" aria-label="Filter payment date">
+                <CalendarDays size={16} />
+                <label>
+                  <span>Dari</span>
+                  <input type="date" value={dateFrom} onChange={(event) => setDateFrom(event.target.value)} />
+                </label>
+                <span className="ops-date-separator">—</span>
+                <label>
+                  <span>Sampai</span>
+                  <input type="date" value={dateTo} onChange={(event) => setDateTo(event.target.value)} />
+                </label>
+                {(dateFrom || dateTo) && (
+                  <button type="button" className="ops-clear-date" onClick={() => { setDateFrom(""); setDateTo(""); }}>
+                    Reset
+                  </button>
+                )}
+              </div>
+
               <div className="ops-toolbar-filter-row">
                 <div className="ops-filter-tabs" role="tablist" aria-label="Filter student">
                   {FILTERS.map((filter) => (
@@ -279,7 +312,7 @@ export default function OpsDashboard({ user, onLogout }) {
                       {filter.label}
                       <span>
                         {filter.id === "all"
-                          ? students.length
+                          ? dateFilteredStudents.length
                           : filter.id === "new-students"
                             ? newStudentCount
                             : filter.id === "ready"
@@ -297,6 +330,10 @@ export default function OpsDashboard({ user, onLogout }) {
                 </div>
               </div>
             </div>
+
+            {dateRangeIsInvalid && (
+              <p className="ops-date-error" role="alert">Tanggal mulai tidak boleh lebih besar dari tanggal akhir.</p>
+            )}
 
             <div className="ops-table-wrapper">
               <table className="ops-table">
@@ -612,4 +649,24 @@ function getInitials(name) {
     .join("")
     .slice(0, 2)
     .toUpperCase();
+}
+
+function parsePaymentDate(value) {
+  const [day, month, year] = value.split(" ");
+  const monthIndex = {
+    Jan: "01",
+    Feb: "02",
+    Mar: "03",
+    Apr: "04",
+    May: "05",
+    Jun: "06",
+    Jul: "07",
+    Aug: "08",
+    Sep: "09",
+    Oct: "10",
+    Nov: "11",
+    Dec: "12",
+  }[month];
+
+  return `${year}-${monthIndex}-${day.padStart(2, "0")}`;
 }
