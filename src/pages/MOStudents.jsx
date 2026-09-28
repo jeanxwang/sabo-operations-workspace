@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
-  Check,
   CheckCircle2,
   ClipboardCheck,
   FileText,
@@ -17,7 +16,6 @@ import { mockMoHandoverForms } from "../data/mockMoHandoverForms";
 import {
   getChecklistProgress,
   mockMoOnboardingChecklists,
-  ONBOARDING_CHECKLIST_ITEMS,
 } from "../data/mockMoOnboardingChecklists";
 import { mockMoStudentProfiles } from "../data/mockMoStudentProfiles";
 import "../pages/StudentBuddyDashboard.css";
@@ -40,14 +38,15 @@ function buildStudentRecords() {
 }
 
 export default function MOStudents({ user, onLogout }) {
+  const navigate = useNavigate();
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [records, setRecords] = useState(buildStudentRecords);
+  const [records] = useState(buildStudentRecords);
   const [selectedStudentId, setSelectedStudentId] = useState(null);
   const [selectedDetail, setSelectedDetail] = useState("handover");
 
   const selectedStudent = records.find((record) => record.studentId === selectedStudentId);
-  const onboardingDoneCount = records.filter((record) => record.onboarding?.checklist.session).length;
-  const checklistDoneCount = records.filter((record) => getChecklistProgress(record.onboarding).isComplete).length;
+  const onboardingDoneCount = records.filter((record) => getRecordChecklist(record).session).length;
+  const checklistDoneCount = records.filter((record) => getChecklistProgress({ checklist: getRecordChecklist(record) }).isComplete).length;
 
   const filteredStudents = useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase();
@@ -61,32 +60,6 @@ export default function MOStudents({ user, onLogout }) {
         .includes(keyword)
     );
   }, [records, searchKeyword]);
-
-  function updateChecklist(itemId, checked) {
-    setRecords((currentRecords) =>
-      currentRecords.map((record) =>
-        record.studentId === selectedStudentId
-          ? {
-              ...record,
-              onboarding: {
-                ...record.onboarding,
-                checklist: { ...record.onboarding.checklist, [itemId]: checked },
-              },
-            }
-          : record
-      )
-    );
-  }
-
-  function updateNotes(notes) {
-    setRecords((currentRecords) =>
-      currentRecords.map((record) =>
-        record.studentId === selectedStudentId
-          ? { ...record, onboarding: { ...record.onboarding, notes } }
-          : record
-      )
-    );
-  }
 
   function openDetail(studentId, detail) {
     setSelectedStudentId(studentId);
@@ -139,14 +112,14 @@ export default function MOStudents({ user, onLogout }) {
           <div className="mo-page-heading fade-in-up" style={{ "--delay": "0ms" }}>
             <div>
               <p className="mo-eyebrow">MENTOR ONBOARDING</p>
-              <h1>Data onboarding student</h1>
+              <h1>Welcome back, {getFirstName(user?.name || "MO Team")}!</h1>
               <p>
                 Satu tabel untuk melihat form handover, profil SLMS, dan progres
                 onboarding setiap student.
               </p>
             </div>
             <div className="mo-read-only-note mo-editable-note">
-              <ClipboardCheck size={16} /> Checklist bisa diperbarui
+              <ClipboardCheck size={16} /> Checklist diisi melalui report
             </div>
           </div>
 
@@ -183,13 +156,14 @@ export default function MOStudents({ user, onLogout }) {
                     <th>Form handover</th>
                     <th>Profil SLMS</th>
                     <th>Onboarding</th>
-                    <th>Checklist</th>
+                    <th>Report onboarding</th>
                     <th>Detail</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredStudents.map((record) => {
-                    const progress = getChecklistProgress(record.onboarding);
+                    const progress = getChecklistProgress({ checklist: getRecordChecklist(record) });
+                    const reportStatus = getReportStatus(record.studentId);
                     return (
                       <tr key={record.studentId}>
                         <td>
@@ -203,9 +177,18 @@ export default function MOStudents({ user, onLogout }) {
                         <td><StatusPill label="Lengkap" tone="complete" /></td>
                         <td>{record.onboarding.onboardingDate ? <StatusPill label="Sudah dilakukan" tone="complete" /> : <StatusPill label="Belum dilakukan" tone="pending" />}</td>
                         <td>
-                          <div className="mo-progress-cell">
-                            <div className="mo-progress-track"><span style={{ width: `${(progress.completed / progress.total) * 100}%` }} /></div>
-                            <strong>{progress.completed}/{progress.total}</strong>
+                          <div className="mo-report-action-cell">
+                            <StatusPill
+                              label={reportStatus === "submitted" ? "Submitted" : reportStatus === "draft" ? "Draft" : "Belum dibuat"}
+                              tone={reportStatus === "submitted" ? "complete" : reportStatus === "draft" ? "info" : "pending"}
+                            />
+                            <div className="mo-progress-cell">
+                              <div className="mo-progress-track"><span style={{ width: `${(progress.completed / progress.total) * 100}%` }} /></div>
+                              <strong>{progress.completed}/{progress.total} checklist</strong>
+                            </div>
+                            <button type="button" className="mo-detail-action" onClick={() => navigate(`/mo/students/${record.studentId}/onboarding-report`)}>
+                              {reportStatus === "belum" ? "Isi report" : "Buka report"}
+                            </button>
                           </div>
                         </td>
                         <td>
@@ -215,9 +198,6 @@ export default function MOStudents({ user, onLogout }) {
                             </button>
                             <button type="button" className="mo-detail-action" onClick={() => openDetail(record.studentId, "profile")}>
                               <User size={13} /> Lihat profil SLMS
-                            </button>
-                            <button type="button" className="mo-detail-action" onClick={() => openDetail(record.studentId, "checklist")}>
-                              <ClipboardCheck size={13} /> Lihat checklist
                             </button>
                           </div>
                         </td>
@@ -238,8 +218,7 @@ export default function MOStudents({ user, onLogout }) {
           activeSection={selectedDetail}
           onSectionChange={setSelectedDetail}
           onClose={closeDetail}
-          onToggle={updateChecklist}
-          onNotesChange={updateNotes}
+          onOpenReport={() => navigate(`/mo/students/${selectedStudent.studentId}/onboarding-report`)}
         />
       )}
     </main>
@@ -254,8 +233,33 @@ function StatusPill({ label, tone }) {
   return <span className={`mo-status ${tone}`}><span />{label}</span>;
 }
 
-function StudentDetailDrawer({ student, activeSection, onSectionChange, onClose, onToggle, onNotesChange }) {
-  const progress = getChecklistProgress(student.onboarding);
+function getReportStatus(studentId) {
+  if (localStorage.getItem(`mo_onboarding_report_${studentId}`)) return "submitted";
+  if (localStorage.getItem(`mo_onboarding_report_draft_${studentId}`)) return "draft";
+  return "belum";
+}
+
+function getRecordChecklist(record) {
+  const storedReport = localStorage.getItem(`mo_onboarding_report_${record.studentId}`)
+    || localStorage.getItem(`mo_onboarding_report_draft_${record.studentId}`);
+
+  if (storedReport) {
+    try {
+      const parsed = JSON.parse(storedReport);
+      if (parsed.form?.checklist) return parsed.form.checklist;
+    } catch {
+      // Fall back to the mock checklist when local storage contains invalid data.
+    }
+  }
+
+  return record.onboarding?.checklist || {};
+}
+
+function getFirstName(name) {
+  return name.trim().split(" ")[0];
+}
+
+function StudentDetailDrawer({ student, activeSection, onSectionChange, onClose, onOpenReport }) {
   const profile = student.profile;
 
   return (
@@ -275,16 +279,12 @@ function StudentDetailDrawer({ student, activeSection, onSectionChange, onClose,
         <nav className="mo-detail-tabs" aria-label="Detail data student">
           <button type="button" className={activeSection === "handover" ? "active" : ""} onClick={() => onSectionChange("handover")}><FileText size={14} /> Handover</button>
           <button type="button" className={activeSection === "profile" ? "active" : ""} onClick={() => onSectionChange("profile")}><User size={14} /> Profil SLMS</button>
-          <button type="button" className={activeSection === "checklist" ? "active" : ""} onClick={() => onSectionChange("checklist")}><ClipboardCheck size={14} /> Checklist</button>
         </nav>
 
         {activeSection === "handover" && <HandoverDetailSection student={student} />}
         {activeSection === "profile" && <ProfileDetailSection profile={profile} />}
-        {activeSection === "checklist" && (
-          <ChecklistDetailSection student={student} progress={progress} onToggle={onToggle} onNotesChange={onNotesChange} />
-        )}
-
-        <div className="mo-student-drawer-footer"><FileText size={15} /> Data handover dan profil bersumber dari sistem terkait. Checklist dapat diperbarui oleh MO.</div>
+        <div className="mo-student-drawer-footer"><FileText size={15} /> Data handover dan profil bersumber dari sistem terkait. Checklist dan report diisi melalui halaman report onboarding.</div>
+        <button type="button" className="mo-primary-button mo-drawer-report-button" onClick={onOpenReport}><ClipboardCheck size={15} /> Buka report onboarding</button>
       </aside>
     </div>
   );
@@ -331,24 +331,6 @@ function ProfileDetailSection({ profile }) {
       <div className="mo-note-block"><span>Minat</span><p>{profile.interests}</p></div>
       <div className="mo-note-block"><span>Tujuan student</span><p>{profile.studentGoals}</p></div>
     </DetailSection>
-  );
-}
-
-function ChecklistDetailSection({ student, progress, onToggle, onNotesChange }) {
-  return (
-    <section className="mo-detail-section">
-      <div className="mo-drawer-section-heading"><div><h3>Onboarding checklist</h3><span>{progress.completed} dari {progress.total} selesai</span></div><strong>{Math.round((progress.completed / progress.total) * 100)}%</strong></div>
-      <div className="mo-checklist-items">
-        {ONBOARDING_CHECKLIST_ITEMS.map((item) => (
-          <label className={`mo-checklist-item ${student.onboarding.checklist[item.id] ? "checked" : ""}`} key={item.id}>
-            <input type="checkbox" checked={Boolean(student.onboarding.checklist[item.id])} onChange={(event) => onToggle(item.id, event.target.checked)} />
-            <span className="mo-check-box"><Check size={14} /></span>
-            <span className="mo-checklist-copy"><strong>{item.label}</strong><small>{item.helper}</small></span>
-          </label>
-        ))}
-      </div>
-      <label className="mo-checklist-notes"><span>Catatan hasil onboarding</span><textarea rows="4" placeholder="Tulis ringkasan atau follow-up penting..." value={student.onboarding.notes} onChange={(event) => onNotesChange(event.target.value)} /></label>
-    </section>
   );
 }
 

@@ -14,6 +14,7 @@ import OpsDashboard from "./pages/OpsDashboard";
 import OpsOnboardingReports from "./pages/OpsOnboardingReports";
 import OpsSla from "./pages/OpsSla";
 import MOStudents from "./pages/MOStudents";
+import MOOnboardingReport from "./pages/MOOnboardingReport";
 import LPCheckerDashboard from "./pages/LPCheckerDashboard";
 
 export default function App() {
@@ -167,6 +168,15 @@ export default function App() {
         element={
           <ProtectedRoute allowedRoles={["mo"]}>
             <MOStudents user={currentUser} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/mo/students/:studentId/onboarding-report"
+        element={
+          <ProtectedRoute allowedRoles={["mo"]}>
+            <MOOnboardingReport user={currentUser} onLogout={handleLogout} />
           </ProtectedRoute>
         }
       />
