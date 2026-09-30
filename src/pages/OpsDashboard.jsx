@@ -368,14 +368,14 @@ export default function OpsDashboard({ user, onLogout }) {
                     <th>Email</th>
                     <th>No. HP</th>
                     <th>Payment date</th>
+                    <th>MO tag</th>
                     <th>Aktivasi LMS</th>
                     <th>Profil LMS</th>
                     <th>Onboarding session</th>
                     <th>Diagnostic checking</th>
+                    <th>LP checker</th>
                     <th>LP checked</th>
                     <th>LP released</th>
-                    <th>MO tag</th>
-                    <th>LP checker</th>
                     <th aria-label="Aksi" />
                   </tr>
                 </thead>
@@ -390,22 +390,22 @@ export default function OpsDashboard({ user, onLogout }) {
                         <td className="ops-contact-cell">{student.email}</td>
                         <td className="ops-contact-cell">{student.phone}</td>
                         <td className="ops-date-cell">{student.paymentDate}</td>
-                        <td><ActivationCell student={student} /></td>
-                        <td><ChecklistBadge done={student.profile === "done"} /></td>
-                        <td><OpsStatusBadge status={student.onboarding} /></td>
-                        <td><OpsStatusBadge status={student.diagnostic} /></td>
-                        <td><OpsStatusBadge status={student.lpChecked} /></td>
-                        <td><OpsStatusBadge status={student.lpReleased} /></td>
                         <td>
                           <span className={`ops-assignment-cell ${student.assignedMo ? "assigned" : "unassigned"}`}>
                             {student.assignedMo || "Belum diassign"}
                           </span>
                         </td>
+                        <td><ActivationCell student={student} /></td>
+                        <td><ChecklistBadge done={student.profile === "done"} /></td>
+                        <td><OpsStatusBadge status={student.onboarding} /></td>
+                        <td><OpsStatusBadge status={student.diagnostic} /></td>
                         <td>
                           <span className={`ops-assignment-cell ${student.assignedLpChecker ? "assigned" : "unassigned"}`}>
                             {student.assignedLpChecker || "Belum diassign"}
                           </span>
                         </td>
+                        <td><OpsStatusBadge status={student.lpChecked} /></td>
+                        <td><OpsStatusBadge status={student.lpReleased} /></td>
                         <td>
                           <button
                             type="button"
