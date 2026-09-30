@@ -60,9 +60,9 @@ export default function MOHandover({ user, onLogout }) {
             <Grid2X2 size={22} />
             <span>Profil SLMS</span>
           </NavLink>
-          <NavLink to="/mo/onboarding-checklist" className={navLinkClass}>
+          <NavLink to="/mo/students" className={navLinkClass}>
             <ClipboardCheck size={22} />
-            <span>Onboarding Checklist</span>
+            <span>Data Onboarding</span>
           </NavLink>
         </nav>
 

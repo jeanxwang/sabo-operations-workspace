@@ -191,8 +191,38 @@ export const mockOpsStudents = [
   },
 ];
 
+export const ACTIVATION_WINDOW_DAYS = 90;
+
 export function isOpsStudentReady(student) {
   return student.activation === "done" && student.profile === "done";
+}
+
+export function getActivationSummary(student, referenceDate = new Date()) {
+  const paymentDate = parseOpsDate(student.paymentDate);
+
+  if (!paymentDate) {
+    return {
+      status: "unavailable",
+      deadline: null,
+      elapsedDays: null,
+      remainingDays: null,
+    };
+  }
+
+  const deadline = addDays(paymentDate, ACTIVATION_WINDOW_DAYS);
+  const elapsedDays = differenceInDays(referenceDate, paymentDate);
+  const remainingDays = ACTIVATION_WINDOW_DAYS - elapsedDays;
+
+  let status = "on-track";
+  if (student.activation === "done") {
+    status = "done";
+  } else if (remainingDays < 0) {
+    status = "overdue";
+  } else if (remainingDays <= 7) {
+    status = "urgent";
+  }
+
+  return { status, deadline, elapsedDays, remainingDays };
 }
 
 export const OPS_REFERENCE_DATE = new Date("2026-09-24T12:00:00");
@@ -207,6 +237,36 @@ function addDays(date, days) {
   const result = new Date(date);
   result.setDate(result.getDate() + days);
   return result;
+}
+
+function differenceInDays(laterDate, earlierDate) {
+  const later = new Date(laterDate);
+  const earlier = new Date(earlierDate);
+  later.setHours(0, 0, 0, 0);
+  earlier.setHours(0, 0, 0, 0);
+  return Math.floor((later - earlier) / 86400000);
+}
+
+function parseOpsDate(value) {
+  if (!value) return null;
+  const [day, month, year] = value.split(" ");
+  const monthIndex = {
+    Jan: 0,
+    Feb: 1,
+    Mar: 2,
+    Apr: 3,
+    May: 4,
+    Jun: 5,
+    Jul: 6,
+    Aug: 7,
+    Sep: 8,
+    Oct: 9,
+    Nov: 10,
+    Dec: 11,
+  }[month];
+
+  if (!day || !year || monthIndex === undefined) return null;
+  return new Date(Number(year), monthIndex, Number(day));
 }
 
 export function getOpsSlaMilestones(student) {

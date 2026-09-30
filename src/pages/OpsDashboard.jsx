@@ -16,7 +16,9 @@ import {
 import schotersLogo from "../assets/schoters-logo.png";
 import TopbarActions from "../components/TopbarActions";
 import {
+  ACTIVATION_WINDOW_DAYS,
   isOpsStudentReady,
+  getActivationSummary,
   getOpsSlaSummary,
   LEARNING_SYSTEM_ASSIGN_URL,
   mockOpsLPCheckers,
@@ -32,6 +34,7 @@ const FILTERS = [
   { id: "attention", label: "Checklist belum lengkap" },
   { id: "ready", label: "Checklist lengkap" },
   { id: "activation-pending", label: "Belum aktivasi" },
+  { id: "activation-overdue", label: "Aktivasi overdue" },
   { id: "profile-incomplete", label: "Profil belum lengkap" },
 ];
 
@@ -77,6 +80,9 @@ export default function OpsDashboard({ user, onLogout }) {
   const profileIncompleteCount = newStudents.filter(
     (student) => student.profile !== "done"
   ).length;
+  const activationOverdueCount = newStudents.filter(
+    (student) => getActivationSummary(student).status === "overdue"
+  ).length;
   const overviewStats = getOverviewStats({
     filteredRowCount: dateFilteredStudents.length,
     totalRowCount: students.length,
@@ -101,6 +107,7 @@ export default function OpsDashboard({ user, onLogout }) {
         (activeFilter === "ready" && student.isNewStudent && isOpsStudentReady(student)) ||
         (activeFilter === "attention" && student.isNewStudent && !isOpsStudentReady(student)) ||
         (activeFilter === "activation-pending" && student.isNewStudent && student.activation !== "done") ||
+        (activeFilter === "activation-overdue" && student.isNewStudent && getActivationSummary(student).status === "overdue") ||
         (activeFilter === "profile-incomplete" && student.isNewStudent && student.profile !== "done");
 
       return matchesSearch && matchesFilter;
@@ -283,7 +290,7 @@ export default function OpsDashboard({ user, onLogout }) {
                 </p>
               </div>
               <span className="ops-readiness-rule">
-                <CheckCircle2 size={16} /> Gate awal: Aktivasi + Profil
+                <CheckCircle2 size={16} /> Gate awal: Aktivasi + Profil · Aktivasi maksimal {ACTIVATION_WINDOW_DAYS} hari sejak payment
               </span>
             </header>
 
@@ -337,6 +344,8 @@ export default function OpsDashboard({ user, onLogout }) {
                             ? readyCount
                             : filter.id === "activation-pending"
                               ? activationPendingCount
+                              : filter.id === "activation-overdue"
+                                ? activationOverdueCount
                               : filter.id === "profile-incomplete"
                                 ? profileIncompleteCount
                             : attentionCount}
@@ -381,7 +390,7 @@ export default function OpsDashboard({ user, onLogout }) {
                         <td className="ops-contact-cell">{student.email}</td>
                         <td className="ops-contact-cell">{student.phone}</td>
                         <td className="ops-date-cell">{student.paymentDate}</td>
-                        <td><ChecklistBadge done={student.activation === "done"} /></td>
+                        <td><ActivationCell student={student} /></td>
                         <td><ChecklistBadge done={student.profile === "done"} /></td>
                         <td><OpsStatusBadge status={student.onboarding} /></td>
                         <td><OpsStatusBadge status={student.diagnostic} /></td>
@@ -491,6 +500,28 @@ function ChecklistBadge({ done }) {
   );
 }
 
+function ActivationCell({ student }) {
+  const summary = getActivationSummary(student);
+
+  if (summary.status === "unavailable") {
+    return <span className="ops-activation-cell"><ChecklistBadge done={false} /><small>Payment date belum tersedia</small></span>;
+  }
+
+  if (summary.status === "done") {
+    return <span className="ops-activation-cell"><ChecklistBadge done /><small>Aktivasi selesai</small><small>Deadline {formatDate(summary.deadline)}</small></span>;
+  }
+
+  const isOverdue = summary.status === "overdue";
+  return (
+    <span className={`ops-activation-cell ${isOverdue ? "overdue" : ""}`}>
+      <ChecklistBadge done={false} />
+      <small>{isOverdue ? `Terlambat ${Math.abs(summary.remainingDays)} hari` : `Selisih ${summary.elapsedDays} hari dari payment`}</small>
+      <small>{isOverdue ? "Deadline terlewati" : `Sisa ${summary.remainingDays} hari dari ${ACTIVATION_WINDOW_DAYS}`}</small>
+      <small>Deadline {formatDate(summary.deadline)}</small>
+    </span>
+  );
+}
+
 const OPS_STATUS_LABELS = {
   done: "Selesai",
   pending: "Belum",
@@ -585,6 +616,7 @@ function OpsStudentDetail({ student, mos, lpCheckers, onTagMo, onTagLpChecker, l
             <div><dt>Email</dt><dd>{student.email}</dd></div>
             <div><dt>No. HP</dt><dd>{student.phone}</dd></div>
             <div><dt>Payment date</dt><dd>{student.paymentDate}</dd></div>
+            <ActivationMeta student={student} />
             <div><dt>Tanggal masuk</dt><dd>{student.joinedAt}</dd></div>
             <div><dt>Ops owner</dt><dd>{student.assignedTo}</dd></div>
           </dl>
@@ -684,6 +716,20 @@ function OpsStudentDetail({ student, mos, lpCheckers, onTagMo, onTagLpChecker, l
         </section>
       </aside>
     </div>
+  );
+}
+
+function ActivationMeta({ student }) {
+  const summary = getActivationSummary(student);
+  if (summary.status === "unavailable") {
+    return <div><dt>Deadline aktivasi</dt><dd>Belum dapat dihitung</dd></div>;
+  }
+
+  return (
+    <>
+      <div><dt>Deadline aktivasi</dt><dd>{formatDate(summary.deadline)}</dd></div>
+      <div><dt>Selisih payment date</dt><dd>{summary.elapsedDays} hari berjalan · {summary.status === "done" ? "aktivasi selesai" : summary.remainingDays < 0 ? `${Math.abs(summary.remainingDays)} hari terlambat` : `sisa ${summary.remainingDays} hari`}</dd></div>
+    </>
   );
 }
 

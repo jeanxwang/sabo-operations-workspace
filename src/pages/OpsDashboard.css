@@ -582,6 +582,10 @@
   background: currentColor;
 }
 
+.ops-activation-cell { display: grid !important; gap: 3px; min-width: 126px; }
+.ops-activation-cell small { color: var(--muted); font-size: 9px; line-height: 1.25; }
+.ops-activation-cell.overdue small { color: #b91c1c; font-weight: 700; }
+
 .ops-status-badge {
   display: inline-flex !important;
   align-items: center;
