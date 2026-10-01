@@ -301,6 +301,71 @@ export function getOpsSlaSummary(student) {
   };
 }
 
+export const OPS_SLA_EVENT_DEFINITIONS = [
+  {
+    id: "update-learning-plan",
+    label: "Update Learning Plan",
+    description: "Learning plan sudah diperiksa dan diperbarui setelah proses diagnosing.",
+    targetPercent: 90,
+    ownerType: "lpChecker",
+    completed: (student) => student.lpChecked === "done",
+  },
+  {
+    id: "student-gets-lp",
+    label: "Student Dapat LP",
+    description: "Learning plan sudah dirilis dan dapat diteruskan kepada student.",
+    targetPercent: 90,
+    ownerType: "lpChecker",
+    completed: (student) => student.lpReleased === "done",
+  },
+  {
+    id: "mentor-onboarding-matchmaking",
+    label: "Matchmaking Mentor Onboarding",
+    description: "Student sudah memiliki mentor onboarding yang ditag di SABO.",
+    targetPercent: 90,
+    ownerType: "mo",
+    completed: (student) => Boolean(student.assignedMo),
+  },
+  {
+    id: "mentor-hybrid-matchmaking",
+    label: "Matchmaking Mentor Hybrid",
+    description: "Student sudah memiliki tag mentor dan proses onboarding sudah dijadwalkan atau selesai.",
+    targetPercent: 90,
+    ownerType: "mo",
+    completed: (student) => Boolean(student.assignedMo) && ["scheduled", "done"].includes(student.onboarding),
+  },
+];
+
+export function getOpsSlaEventMetrics(students = mockOpsStudents) {
+  return OPS_SLA_EVENT_DEFINITIONS.map((event) => {
+    const records = students.filter((student) => student.isNewStudent).map((student) => ({
+      student,
+      completed: event.completed(student),
+      owner: getSlaEventOwner(student, event.ownerType),
+    }));
+    const completedCount = records.filter((record) => record.completed).length;
+    const totalCount = records.length;
+    const completionPercent = totalCount ? Math.round((completedCount / totalCount) * 100) : 0;
+    const owners = [...new Set(records.map((record) => record.owner))];
+
+    return {
+      ...event,
+      records,
+      totalCount,
+      completedCount,
+      pendingCount: totalCount - completedCount,
+      completionPercent,
+      owners,
+    };
+  });
+}
+
+function getSlaEventOwner(student, ownerType) {
+  if (ownerType === "lpChecker") return student.assignedLpChecker || "LP Checker belum ditag";
+  if (ownerType === "mo") return student.assignedMo || "MO belum ditag";
+  return student.assignedTo || "Ops Team";
+}
+
 export const mockOpsMOs = [
   { id: "mo-sarah", name: "Sarah Wijaya" },
   { id: "mo-rio", name: "Rio Aditya" },
