@@ -228,7 +228,7 @@ export function getActivationSummary(student, referenceDate = new Date()) {
 export const OPS_REFERENCE_DATE = new Date("2026-09-24T12:00:00");
 
 export const OPS_SLA_RULES = [
-  { id: "diagnostic", label: "Diagnostic checking", daysAfterOnboarding: 1 },
+  { id: "diagnostic", label: "Diagnosing checklist", daysAfterOnboarding: 1 },
   { id: "lpChecked", label: "LP checked", daysAfterOnboarding: 2 },
   { id: "lpReleased", label: "LP released", daysAfterOnboarding: 3 },
 ];

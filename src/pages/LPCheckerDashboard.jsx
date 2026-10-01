@@ -3,6 +3,8 @@ import { NavLink } from "react-router-dom";
 import {
   BookOpen,
   CheckCircle2,
+  ClipboardCheck,
+  Eye,
   FileText,
   LogOut,
   Search,
@@ -81,7 +83,9 @@ export default function LPCheckerDashboard({ user, onLogout }) {
           <div className="breadcrumbs">
             <span>SABO Operations</span>
             <span className="breadcrumb-separator">›</span>
-            <strong>LP Checker</strong>
+            <span>LP Checker</span>
+            <span className="breadcrumb-separator">›</span>
+            <strong>LP Creation</strong>
           </div>
           <TopbarActions />
         </header>
@@ -90,42 +94,44 @@ export default function LPCheckerDashboard({ user, onLogout }) {
           <div className="lp-page-heading fade-in-up" style={{ "--delay": "0ms" }}>
             <div>
               <p className="lp-eyebrow">LEARNING PLAN</p>
-              <h1>LP creation student</h1>
-              <p>Melihat learning plan yang dibuat setelah sesi onboarding dan diagnostic checking student.</p>
+              <h1>LP Creation</h1>
+              <p>Lihat learning plan student yang dibuat setelah sesi onboarding dan diagnosing checklist.</p>
             </div>
-            <div className="lp-read-only-note"><FileText size={16} /> View only</div>
+            <div className="lp-read-only-note"><Eye size={16} /> Hanya lihat</div>
           </div>
 
           <section className="lp-summary-grid" aria-label="Ringkasan learning plan">
             <SummaryCard label="Total LP" value={counts.all} icon={Users} tone="blue" />
-            <SummaryCard label="Menunggu review" value={counts.review} icon={FileText} tone="orange" />
+            <SummaryCard label="Menunggu validasi" value={counts.review} icon={FileText} tone="orange" />
+            <SummaryCard label="Sudah divalidasi" value={counts.checked} icon={ClipboardCheck} tone="purple" />
             <SummaryCard label="Sudah dirilis" value={counts.released} icon={CheckCircle2} tone="green" />
           </section>
 
           <section className="lp-card fade-in-up" style={{ "--delay": "120ms" }}>
             <header className="lp-card-header">
               <div>
-                <h2>Daftar LP creation</h2>
-                <p>Learning plan yang digenerate berdasarkan profil dan hasil onboarding student.</p>
+                <h2>Learning plan student</h2>
+                <p>Daftar LP yang dibuat oleh LP Maker berdasarkan hasil onboarding dan diagnosing student.</p>
               </div>
-              <span>{filteredLps.length} LP</span>
+              <span>{filteredLps.length} LP ditampilkan</span>
             </header>
 
             <div className="lp-toolbar">
               <label className="lp-search">
                 <Search size={18} />
-                <input type="search" placeholder="Cari student, ID LP, program, atau jurusan..." value={searchKeyword} onChange={(event) => setSearchKeyword(event.target.value)} />
+                <input aria-label="Cari learning plan" type="search" placeholder="Cari student, ID LP, program, atau jurusan..." value={searchKeyword} onChange={(event) => setSearchKeyword(event.target.value)} />
               </label>
-              <div className="lp-filter-tabs" role="tablist" aria-label="Filter status LP">
+              <div className="lp-filter-tabs" role="group" aria-label="Filter status LP">
                 <FilterButton active={statusFilter === "all"} onClick={() => setStatusFilter("all")} label="Semua" count={counts.all} />
-                <FilterButton active={statusFilter === "review"} onClick={() => setStatusFilter("review")} label="Review" count={counts.review} />
-                <FilterButton active={statusFilter === "checked"} onClick={() => setStatusFilter("checked")} label="Sudah dicek" count={counts.checked} />
+                <FilterButton active={statusFilter === "review"} onClick={() => setStatusFilter("review")} label="Menunggu validasi" count={counts.review} />
+                <FilterButton active={statusFilter === "checked"} onClick={() => setStatusFilter("checked")} label="Sudah divalidasi" count={counts.checked} />
                 <FilterButton active={statusFilter === "released"} onClick={() => setStatusFilter("released")} label="Dirilis" count={counts.released} />
               </div>
             </div>
 
             <div className="lp-table-wrapper">
-              <table className="lp-table">
+              <table className="lp-table" id="lp-table">
+                <caption className="sr-only">Daftar learning plan student</caption>
                 <thead>
                   <tr>
                     <th>Student</th>
@@ -144,7 +150,7 @@ export default function LPCheckerDashboard({ user, onLogout }) {
                       <td><strong>{lp.createdBy.split(" · ")[0]}</strong><span>{lp.createdBy.split(" · ")[1]}</span></td>
                       <td className="lp-muted-cell">{lp.createdAt}</td>
                       <td><LpStatus status={lp.status} /></td>
-                      <td><button type="button" className="lp-detail-button" onClick={() => setSelectedLp(lp)}>Lihat LP</button></td>
+                      <td><button type="button" className="lp-detail-button" aria-label={`Lihat detail LP ${lp.id}`} onClick={() => setSelectedLp(lp)}>Lihat detail</button></td>
                     </tr>
                   ))}
                   {filteredLps.length === 0 && <tr className="lp-empty-row"><td colSpan={6}>Tidak ada LP yang sesuai.</td></tr>}
@@ -165,7 +171,7 @@ function SummaryCard({ label, value, icon: Icon, tone }) {
 }
 
 function FilterButton({ active, onClick, label, count }) {
-  return <button type="button" className={active ? "active" : ""} role="tab" aria-selected={active} onClick={onClick}>{label}<span>{count}</span></button>;
+  return <button type="button" className={active ? "active" : ""} aria-pressed={active} onClick={onClick}>{label}<span>{count}</span></button>;
 }
 
 function LpStatus({ status }) {
@@ -182,7 +188,7 @@ function LpDetailDrawer({ lp, onClose }) {
           <button type="button" className="lp-close-button" aria-label="Tutup detail" onClick={onClose}><X size={18} /></button>
         </header>
 
-        <div className="lp-drawer-status"><LpStatus status={lp.status} /><span>View only</span></div>
+        <div className="lp-drawer-status"><LpStatus status={lp.status} /><span>Hanya lihat</span></div>
 
         <DetailSection title="Informasi student">
           <DetailItem label="Email" value={lp.email} />

@@ -372,7 +372,7 @@ export default function OpsDashboard({ user, onLogout }) {
                     <th>Aktivasi LMS</th>
                     <th>Profil LMS</th>
                     <th>Onboarding session</th>
-                    <th>Diagnostic checking</th>
+                    <th>Diagnosing checklist</th>
                     <th>LP checker</th>
                     <th>LP checked</th>
                     <th>LP released</th>

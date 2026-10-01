@@ -10,7 +10,7 @@ export const mockLpCreations = [
     targetMajor: "Business Analytics",
     targetCountries: "Australia, United Kingdom",
     targetIntake: "Fall 2027",
-    createdBy: "Sarah Wijaya · MO",
+    createdBy: "Sarah Wijaya · LP Maker",
     createdAt: "22 Sep 2026, 14.18",
     updatedAt: "23 Sep 2026, 10.05",
     status: "review",
@@ -34,7 +34,7 @@ export const mockLpCreations = [
     targetMajor: "Psychology",
     targetCountries: "United States, Canada",
     targetIntake: "Fall 2027",
-    createdBy: "Rio Aditya · MO",
+    createdBy: "Rio Aditya · LP Maker",
     createdAt: "24 Sep 2026, 09.35",
     updatedAt: "24 Sep 2026, 09.35",
     status: "review",
@@ -58,7 +58,7 @@ export const mockLpCreations = [
     targetMajor: "Computer Science",
     targetCountries: "Singapore, Australia",
     targetIntake: "Fall 2028",
-    createdBy: "Sarah Wijaya · MO",
+    createdBy: "Sarah Wijaya · LP Maker",
     createdAt: "18 Sep 2026, 15.42",
     updatedAt: "20 Sep 2026, 11.12",
     status: "checked",
@@ -82,7 +82,7 @@ export const mockLpCreations = [
     targetMajor: "Public Policy",
     targetCountries: "United Kingdom, Germany",
     targetIntake: "Fall 2027",
-    createdBy: "Celine Tan · MO",
+    createdBy: "Nadia Pratama · LP Maker",
     createdAt: "20 Sep 2026, 16.08",
     updatedAt: "21 Sep 2026, 13.20",
     status: "released",
@@ -98,8 +98,7 @@ export const mockLpCreations = [
 ];
 
 export const LP_STATUS = {
-  review: { label: "Menunggu review", tone: "review" },
-  checked: { label: "Sudah dicek", tone: "checked" },
+  review: { label: "Menunggu validasi", tone: "review" },
+  checked: { label: "Sudah divalidasi", tone: "checked" },
   released: { label: "Sudah dirilis", tone: "released" },
 };
-
