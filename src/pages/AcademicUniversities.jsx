@@ -11,10 +11,13 @@ import "./AcademicMasterData.css";
 const EMPTY_FORM = { university: "", country: "", program: "", degreeLevel: "S1" };
 
 export default function AcademicUniversities({ user, onLogout }) {
+  const isLpChecker = user?.role === "lp-checker";
+  const canManage = !isLpChecker;
+  const roleLabel = isLpChecker ? "LP Checker" : "Academic";
   const [searchParams] = useSearchParams();
   const universityApi = useUniversityPrograms();
 
-  const [formOpen, setFormOpen] = useState(searchParams.get("add") === "1");
+  const [formOpen, setFormOpen] = useState(canManage && searchParams.get("add") === "1");
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitError, setSubmitError] = useState("");
@@ -77,9 +80,9 @@ export default function AcademicUniversities({ user, onLogout }) {
           <div className="breadcrumbs">
             <span>SABO Operations</span>
             <span className="breadcrumb-separator">›</span>
-            <span>Academic</span>
+            <span>{roleLabel}</span>
             <span className="breadcrumb-separator">›</span>
-            <strong>University &amp; Program</strong>
+            <strong>Master Data · University &amp; Program</strong>
           </div>
           <TopbarActions />
         </header>
@@ -87,10 +90,10 @@ export default function AcademicUniversities({ user, onLogout }) {
         <section className="master-data-content fade-in-up" style={{ "--delay": "0ms" }}>
           <div className="master-data-header-row">
             <h1>University &amp; Program ({universityApi.items.length})</h1>
-            <button type="button" className="outline-button" onClick={openAddForm}>
+            {canManage && <button type="button" className="outline-button" onClick={openAddForm}>
               <Plus size={18} />
               Tambah Program
-            </button>
+            </button>}
           </div>
 
           {formOpen && (
@@ -167,7 +170,7 @@ export default function AcademicUniversities({ user, onLogout }) {
                   <th>Negara</th>
                   <th>Program</th>
                   <th>Jenjang</th>
-                  <th>Aksi</th>
+                  {canManage && <th>Aksi</th>}
                 </tr>
               </thead>
               <tbody>
@@ -179,7 +182,7 @@ export default function AcademicUniversities({ user, onLogout }) {
                     <td>{item.country}</td>
                     <td>{item.program}</td>
                     <td className="mono-cell">{item.degreeLevel}</td>
-                    <td>
+                    {canManage && <td>
                       <div className="row-actions">
                         <button
                           type="button"
@@ -198,12 +201,12 @@ export default function AcademicUniversities({ user, onLogout }) {
                           <Trash2 size={14} />
                         </button>
                       </div>
-                    </td>
+                    </td>}
                   </tr>
                 ))}
                 {universityApi.items.length === 0 && (
                   <tr className="empty-row">
-                    <td colSpan={5}>
+                    <td colSpan={canManage ? 5 : 4}>
                       {universityApi.loading ? "Memuat data..." : "Belum ada data."}
                     </td>
                   </tr>

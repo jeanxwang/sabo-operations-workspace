@@ -1,21 +1,19 @@
 import { useMemo, useState } from "react";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 import {
-  BookOpen,
   CheckCircle2,
   ClipboardCheck,
   Database,
   ExternalLink,
   FileText,
   Globe2,
-  LogOut,
   Save,
   Search,
   ShieldCheck,
   Users,
   X,
 } from "lucide-react";
-import schotersLogo from "../assets/schoters-logo.png";
+import AcademicSidebar from "../components/AcademicSidebar";
 import TopbarActions from "../components/TopbarActions";
 import { mockMoHandoverForms } from "../data/mockMoHandoverForms";
 import { mockMoStudentProfiles } from "../data/mockMoStudentProfiles";
@@ -91,30 +89,7 @@ export default function LPCheckerDashboard({ user, onLogout }) {
 
   return (
     <main className="dashboard-page lp-page">
-      <aside className="sidebar">
-        <header className="sidebar-brand">
-          <img className="sidebar-brand-logo" src={schotersLogo} alt="Schoters" />
-          <span>SABO</span>
-        </header>
-
-        <nav className="sidebar-nav" aria-label="Main navigation">
-          <NavLink to="/lp-checker/learning-plans" end className="sidebar-link">
-            <BookOpen size={22} />
-            <span>LP Creation</span>
-          </NavLink>
-        </nav>
-
-        <footer className="sidebar-profile">
-          <span className="profile-avatar">{getInitials(user?.name)}</span>
-          <span>
-            <strong>{user?.name || "LP Checker"}</strong>
-            <small>LP Checker</small>
-          </span>
-          <button type="button" className="sidebar-logout-button" aria-label="Keluar" title="Keluar" onClick={onLogout}>
-            <LogOut size={17} />
-          </button>
-        </footer>
-      </aside>
+      <AcademicSidebar user={user} onLogout={onLogout} mode="lp-checker" />
 
       <section className="dashboard-main">
         <header className="topbar">
@@ -205,23 +180,7 @@ export default function LPCheckerDashboard({ user, onLogout }) {
 function LPReviewPage({ user, onLogout, lp, activeTab, onBack, onUpdate }) {
   return (
     <main className="dashboard-page lp-page">
-      <aside className="sidebar">
-        <header className="sidebar-brand">
-          <img className="sidebar-brand-logo" src={schotersLogo} alt="Schoters" />
-          <span>SABO</span>
-        </header>
-        <nav className="sidebar-nav" aria-label="Main navigation">
-          <NavLink to="/lp-checker/learning-plans" end className="sidebar-link active">
-            <BookOpen size={22} />
-            <span>LP Creation</span>
-          </NavLink>
-        </nav>
-        <footer className="sidebar-profile">
-          <span className="profile-avatar">{getInitials(user?.name)}</span>
-          <span><strong>{user?.name || "LP Checker"}</strong><small>LP Checker</small></span>
-          <button type="button" className="sidebar-logout-button" aria-label="Keluar" title="Keluar" onClick={onLogout}><LogOut size={17} /></button>
-        </footer>
-      </aside>
+      <AcademicSidebar user={user} onLogout={onLogout} mode="lp-checker" />
       <section className="dashboard-main">
         <header className="topbar">
           <div className="breadcrumbs">
@@ -241,11 +200,7 @@ function LPReviewPage({ user, onLogout, lp, activeTab, onBack, onUpdate }) {
 function NotFoundReviewPage({ user, onLogout, onBack }) {
   return (
     <main className="dashboard-page lp-page">
-      <aside className="sidebar">
-        <header className="sidebar-brand"><img className="sidebar-brand-logo" src={schotersLogo} alt="Schoters" /><span>SABO</span></header>
-        <nav className="sidebar-nav" aria-label="Main navigation"><NavLink to="/lp-checker/learning-plans" end className="sidebar-link active"><BookOpen size={22} /><span>LP Creation</span></NavLink></nav>
-        <footer className="sidebar-profile"><span className="profile-avatar">{getInitials(user?.name)}</span><span><strong>{user?.name || "LP Checker"}</strong><small>LP Checker</small></span><button type="button" className="sidebar-logout-button" aria-label="Keluar" title="Keluar" onClick={onLogout}><LogOut size={17} /></button></footer>
-      </aside>
+      <AcademicSidebar user={user} onLogout={onLogout} mode="lp-checker" />
       <section className="dashboard-main"><header className="topbar"><div className="breadcrumbs"><span>SABO Operations</span><span className="breadcrumb-separator">›</span><strong>LP Checker</strong></div><TopbarActions /></header><section className="lp-content"><div className="lp-card lp-not-found"><h1>Learning plan tidak ditemukan</h1><p>LP yang ingin dibuka tidak tersedia.</p><button type="button" className="lp-primary-action" onClick={onBack}>Kembali ke daftar LP</button></div></section></section>
     </main>
   );
@@ -685,9 +640,4 @@ function DetailSection({ title, children }) {
 
 function DetailItem({ label, value }) {
   return <div className="lp-detail-item"><span>{label}</span><strong>{value}</strong></div>;
-}
-
-function getInitials(name) {
-  if (!name) return "LP";
-  return name.split(" ").map((word) => word[0]).join("").slice(0, 2).toUpperCase();
 }

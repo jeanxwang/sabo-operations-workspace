@@ -137,6 +137,24 @@ export default function App() {
       />
 
       <Route
+        path="/lp-checker/master-data/universities"
+        element={
+          <ProtectedRoute allowedRoles={["lp-checker"]}>
+            <AcademicUniversities user={currentUser} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/lp-checker/master-data/scholarships"
+        element={
+          <ProtectedRoute allowedRoles={["lp-checker"]}>
+            <AcademicScholarships user={currentUser} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/ops/dashboard"
         element={
           <ProtectedRoute allowedRoles={["ops"]}>

@@ -8,7 +8,12 @@ function navLinkClass({ isActive }) {
   return `sidebar-link ${isActive ? "active" : ""}`;
 }
 
-export default function AcademicSidebar({ user, onLogout }) {
+export default function AcademicSidebar({ user, onLogout, mode = "academic" }) {
+  const isLpChecker = mode === "lp-checker" || user?.role === "lp-checker";
+  const basePath = isLpChecker ? "/lp-checker/master-data" : "/academic";
+  const primaryPath = isLpChecker ? "/lp-checker/learning-plans" : "/academic/dashboard";
+  const roleLabel = isLpChecker ? "LP Checker" : "Academic";
+
   return (
     <aside className="sidebar">
       <header className="sidebar-brand">
@@ -17,9 +22,9 @@ export default function AcademicSidebar({ user, onLogout }) {
       </header>
 
       <nav className="sidebar-nav" aria-label="Main navigation">
-        <NavLink to="/academic/dashboard" end className={navLinkClass}>
-          <Grid2X2 size={22} />
-          <span>Dashboard</span>
+        <NavLink to={primaryPath} end={!isLpChecker} className={navLinkClass}>
+          {isLpChecker ? <BookOpen size={22} /> : <Grid2X2 size={22} />}
+          <span>{isLpChecker ? "LP Creation" : "Dashboard"}</span>
         </NavLink>
 
         <div className="academic-sidebar-group">
@@ -27,12 +32,12 @@ export default function AcademicSidebar({ user, onLogout }) {
           <div className="academic-sidebar-divider" aria-hidden="true" />
 
           <div className="academic-sidebar-subnav">
-            <NavLink to="/academic/universities" className={navLinkClass}>
+            <NavLink to={`${basePath}/universities`} className={navLinkClass}>
               <BookOpen size={20} />
               <span>University &amp; Program</span>
             </NavLink>
 
-            <NavLink to="/academic/scholarships" className={navLinkClass}>
+            <NavLink to={`${basePath}/scholarships`} className={navLinkClass}>
               <Award size={20} />
               <span>Scholarship</span>
             </NavLink>
@@ -44,7 +49,7 @@ export default function AcademicSidebar({ user, onLogout }) {
         <span className="profile-avatar">{getInitials(user?.name)}</span>
         <span>
           <strong>{user?.name || "Academic Team"}</strong>
-          <small>Academic</small>
+            <small>{roleLabel}</small>
         </span>
         <button
           type="button"
