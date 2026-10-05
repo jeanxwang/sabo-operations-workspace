@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   AlertTriangle,
+  CalendarDays,
   CheckCircle2,
   ClockAlert,
   FileText,
@@ -29,9 +30,15 @@ export default function OpsSla({ user, onLogout }) {
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [ownerFilter, setOwnerFilter] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [selectedEvent, setSelectedEvent] = useState(null);
 
-  const eventMetrics = useMemo(() => getOpsSlaEventMetrics(mockOpsStudents), []);
+  const eventMetrics = useMemo(() => getOpsSlaEventMetrics(mockOpsStudents, {
+    from: dateFrom ? parseDateInput(dateFrom) : null,
+    to: dateTo ? parseDateInput(dateTo) : null,
+  }), [dateFrom, dateTo]);
+  const filteredStudentCount = useMemo(() => new Set(eventMetrics.flatMap((event) => event.records.map((record) => record.student.id))).size, [eventMetrics]);
   const ownerOptions = useMemo(() => [...new Set(eventMetrics.flatMap((event) => event.owners))].sort(), [eventMetrics]);
   const filteredEventMetrics = useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase();
@@ -105,6 +112,16 @@ export default function OpsSla({ user, onLogout }) {
             <span className="ops-sla-rule-note"><Timer size={15} /> Target pemenuhan setiap event: 90%</span>
           </div>
 
+          <section className="ops-sla-date-card" aria-label="Filter tanggal SLA">
+            <div className="ops-sla-date-title"><CalendarDays size={17} /><div><strong>Periode monitoring</strong><span>Filter berdasarkan tanggal event SLA. Setiap event dapat memiliki tanggal yang berbeda untuk setiap student.</span></div></div>
+            <div className="ops-sla-date-fields">
+              <label><span>Dari</span><input type="date" value={dateFrom} max={dateTo || undefined} onChange={(event) => setDateFrom(event.target.value)} /></label>
+              <span className="ops-sla-date-separator">—</span>
+              <label><span>Sampai</span><input type="date" value={dateTo} min={dateFrom || undefined} onChange={(event) => setDateTo(event.target.value)} /></label>
+              {(dateFrom || dateTo) && <button type="button" className="ops-sla-reset-date" onClick={() => { setDateFrom(""); setDateTo(""); }}>Reset tanggal</button>}
+            </div>
+          </section>
+
           <section className="ops-sla-stat-grid" aria-label="Ringkasan SLA">
             <SlaStat label="Total event SLA" value={overview.totalEvents} icon={Users} tone="blue" />
             <SlaStat label="% SLA terpenuhi" value={`${overview.fulfillmentPercent}%`} icon={CheckCircle2} tone="green" />
@@ -116,7 +133,7 @@ export default function OpsSla({ user, onLogout }) {
           <section className="ops-sla-card fade-in-up" style={{ "--delay": "120ms" }}>
             <header className="ops-sla-card-header">
               <div><h2>SLA terpenuhi berdasarkan event</h2><p>Lihat performa setiap event SAA dan orang yang bertanggung jawab untuk menindaklanjutinya.</p></div>
-              <span><Users size={15} /> {eventMetrics.length} event</span>
+              <span><Users size={15} /> {eventMetrics.length} event · {filteredStudentCount} student</span>
             </header>
             <div className="ops-sla-toolbar">
               <label className="ops-sla-search"><Search size={18} /><input type="search" placeholder="Cari event atau penanggung jawab..." value={searchKeyword} onChange={(event) => setSearchKeyword(event.target.value)} /></label>
@@ -131,11 +148,12 @@ export default function OpsSla({ user, onLogout }) {
             </div>
             <div className="ops-sla-table-wrapper">
               <table className="ops-sla-table">
-                <thead><tr><th>Program category</th><th>Event</th><th>% Target</th><th>% Terpenuhi</th><th>SLA terpenuhi</th><th>SLA tidak terpenuhi</th><th>Penanggung jawab</th><th aria-label="Aksi" /></tr></thead>
+                <thead><tr><th>Program category</th><th>Event</th><th>Tanggal event</th><th>% Target</th><th>% Terpenuhi</th><th>SLA terpenuhi</th><th>SLA tidak terpenuhi</th><th>Penanggung jawab</th><th aria-label="Aksi" /></tr></thead>
                 <tbody>
                   {filteredEventMetrics.map((event) => <tr key={event.id}>
                       <td><strong>SAA</strong><span>Student onboarding</span></td>
                       <td><strong>{event.label}</strong><span>{event.description}</span></td>
+                      <td><strong>{getEventDateSummary(event.records)}</strong><span>{event.records.length} aktivitas</span></td>
                       <td><strong>{event.targetPercent}%</strong></td>
                       <td><SlaPercent value={event.completionPercent} target={event.targetPercent} /></td>
                       <td><strong className="ops-sla-count-complete">{event.completedCount}</strong><span>dari {event.totalCount} student</span></td>
@@ -144,7 +162,7 @@ export default function OpsSla({ user, onLogout }) {
                       <td><button type="button" className="ops-sla-detail-button" onClick={() => setSelectedEvent(event)}>Lihat detail</button></td>
                     </tr>
                   )}
-                  {filteredEventMetrics.length === 0 && <tr className="ops-sla-empty"><td colSpan={8}>Tidak ada event yang sesuai dengan filter.</td></tr>}
+                  {filteredEventMetrics.length === 0 && <tr className="ops-sla-empty"><td colSpan={9}>Tidak ada event yang sesuai dengan filter.</td></tr>}
                 </tbody>
               </table>
             </div>
@@ -176,7 +194,7 @@ function SlaEventDetail({ event, onClose }) {
       <header className="ops-sla-drawer-header"><div><span>SAA · SLA EVENT</span><h2 id="ops-sla-event-title">{event.label}</h2><p>{event.description}</p></div><button type="button" className="ops-sla-close" aria-label="Tutup detail" onClick={onClose}><X size={18} /></button></header>
       <div className={`ops-sla-drawer-summary ${event.completionPercent < event.targetPercent ? "has-overdue" : ""}`}><strong>{event.completionPercent}% terpenuhi</strong><span>Target {event.targetPercent}% · {event.completedCount} dari {event.totalCount} student</span></div>
       <section className="ops-sla-detail-meta"><h3>Penanggung jawab</h3><OwnerList owners={event.owners} /></section>
-      <section className="ops-sla-event-students"><h3>Daftar student</h3>{event.records.map(({ student, completed, owner }) => <div className="ops-sla-event-student" key={student.id}><div><strong>{student.name}</strong><span>{student.id} · {owner}</span></div><span className={`ops-sla-event-status ${completed ? "complete" : "pending"}`}>{completed ? "Terpenuhi" : "Belum terpenuhi"}</span></div>)}</section>
+      <section className="ops-sla-event-students"><h3>Daftar student</h3>{event.records.map(({ student, completed, owner, eventDate }) => <div className="ops-sla-event-student" key={student.id}><div><strong>{student.name}</strong><span>{student.id} · {owner} · {eventDate ? formatOpsDate(eventDate) : "Tanggal belum tersedia"}</span></div><span className={`ops-sla-event-status ${completed ? "complete" : "pending"}`}>{completed ? "Terpenuhi" : "Belum terpenuhi"}</span></div>)}</section>
     </aside>
   </div>;
 }
@@ -184,4 +202,23 @@ function SlaEventDetail({ event, onClose }) {
 function getInitials(name) {
   if (!name) return "OP";
   return name.split(" ").map((word) => word[0]).join("").slice(0, 2).toUpperCase();
+}
+
+function parseDateInput(value) {
+  if (!value) return null;
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function getEventDateSummary(records) {
+  const dates = [...new Set(records.map((record) => record.eventDate).filter(Boolean))].sort();
+  if (dates.length === 0) return "Belum tersedia";
+  if (dates.length === 1) return formatOpsDate(dates[0]);
+  return `${formatOpsDate(dates[0])} – ${formatOpsDate(dates[dates.length - 1])}`;
+}
+
+function formatOpsDate(value) {
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return "Belum tersedia";
+  return new Intl.DateTimeFormat("id-ID", { day: "2-digit", month: "short", year: "numeric" }).format(date);
 }

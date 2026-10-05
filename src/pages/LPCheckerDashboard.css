@@ -183,6 +183,9 @@
 .lp-primary-action { border: 1px solid var(--lp-accent); background: var(--lp-accent); color: #fff; }
 .lp-primary-action:hover:not(:disabled) { background: var(--lp-accent-dark); }
 .lp-primary-action:disabled { cursor: not-allowed; opacity: .45; }
+.lp-release-action { border-color: #159c63; background: #159c63; }
+.lp-release-action:hover:not(:disabled) { border-color: #117a4d; background: #117a4d; }
+.lp-release-action:disabled { border-color: var(--line); background: #f3f4f6; color: var(--muted); }
 .lp-note-block { padding: 12px; border-radius: 9px; background: #f8faff; }
 .lp-note-block + .lp-note-block { margin-top: 8px; }
 .lp-note-block > span { color: var(--muted); font-size: 10px; font-weight: 700; }

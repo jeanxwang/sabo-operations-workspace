@@ -193,6 +193,19 @@ export const mockOpsStudents = [
 
 export const ACTIVATION_WINDOW_DAYS = 90;
 
+// Tanggal aktual/terjadwal tiap event SLA. Nantinya nilai ini berasal dari
+// timestamp aktivitas, bukan dari satu tanggal student.
+export const OPS_SLA_EVENT_DATES = {
+  "ST-26091": { "update-learning-plan": "2026-09-23", "student-gets-lp": "2026-09-24", "mentor-onboarding-matchmaking": "2026-09-20", "mentor-hybrid-matchmaking": "2026-09-21" },
+  "ST-26092": { "update-learning-plan": "2026-09-25", "student-gets-lp": "2026-09-26", "mentor-onboarding-matchmaking": "2026-09-22", "mentor-hybrid-matchmaking": "2026-09-23" },
+  "ST-26093": { "update-learning-plan": "2026-09-24", "student-gets-lp": "2026-09-25", "mentor-onboarding-matchmaking": "2026-09-21", "mentor-hybrid-matchmaking": "2026-09-22" },
+  "ST-26094": { "update-learning-plan": "2026-09-23", "student-gets-lp": "2026-09-24", "mentor-onboarding-matchmaking": "2026-09-20", "mentor-hybrid-matchmaking": "2026-09-21" },
+  "ST-26095": { "update-learning-plan": "2026-09-24", "student-gets-lp": "2026-09-25", "mentor-onboarding-matchmaking": "2026-09-21", "mentor-hybrid-matchmaking": "2026-09-23" },
+  "ST-26096": { "update-learning-plan": "2026-09-22", "student-gets-lp": "2026-09-23", "mentor-onboarding-matchmaking": "2026-09-18", "mentor-hybrid-matchmaking": "2026-09-19" },
+  "ST-26097": { "update-learning-plan": "2026-09-19", "student-gets-lp": "2026-09-20", "mentor-onboarding-matchmaking": "2026-09-16", "mentor-hybrid-matchmaking": "2026-09-17" },
+  "ST-26098": { "update-learning-plan": "2026-09-23", "student-gets-lp": "2026-09-24", "mentor-onboarding-matchmaking": "2026-09-20", "mentor-hybrid-matchmaking": "2026-09-21" },
+};
+
 export function isOpsStudentReady(student) {
   return student.activation === "done" && student.profile === "done";
 }
@@ -309,6 +322,7 @@ export const OPS_SLA_EVENT_DEFINITIONS = [
     targetPercent: 90,
     ownerType: "lpChecker",
     completed: (student) => student.lpChecked === "done",
+    eventDate: (student) => OPS_SLA_EVENT_DATES[student.id]?.["update-learning-plan"],
   },
   {
     id: "student-gets-lp",
@@ -317,6 +331,7 @@ export const OPS_SLA_EVENT_DEFINITIONS = [
     targetPercent: 90,
     ownerType: "lpChecker",
     completed: (student) => student.lpReleased === "done",
+    eventDate: (student) => OPS_SLA_EVENT_DATES[student.id]?.["student-gets-lp"],
   },
   {
     id: "mentor-onboarding-matchmaking",
@@ -325,6 +340,7 @@ export const OPS_SLA_EVENT_DEFINITIONS = [
     targetPercent: 90,
     ownerType: "mo",
     completed: (student) => Boolean(student.assignedMo),
+    eventDate: (student) => OPS_SLA_EVENT_DATES[student.id]?.["mentor-onboarding-matchmaking"],
   },
   {
     id: "mentor-hybrid-matchmaking",
@@ -333,16 +349,19 @@ export const OPS_SLA_EVENT_DEFINITIONS = [
     targetPercent: 90,
     ownerType: "mo",
     completed: (student) => Boolean(student.assignedMo) && ["scheduled", "done"].includes(student.onboarding),
+    eventDate: (student) => OPS_SLA_EVENT_DATES[student.id]?.["mentor-hybrid-matchmaking"],
   },
 ];
 
-export function getOpsSlaEventMetrics(students = mockOpsStudents) {
+export function getOpsSlaEventMetrics(students = mockOpsStudents, dateRange = {}) {
+  const { from = null, to = null } = dateRange;
   return OPS_SLA_EVENT_DEFINITIONS.map((event) => {
     const records = students.filter((student) => student.isNewStudent).map((student) => ({
       student,
       completed: event.completed(student),
       owner: getSlaEventOwner(student, event.ownerType),
-    }));
+      eventDate: event.eventDate?.(student) || null,
+    })).filter((record) => isWithinSlaDateRange(record.eventDate, from, to));
     const completedCount = records.filter((record) => record.completed).length;
     const totalCount = records.length;
     const completionPercent = totalCount ? Math.round((completedCount / totalCount) * 100) : 0;
@@ -358,6 +377,16 @@ export function getOpsSlaEventMetrics(students = mockOpsStudents) {
       owners,
     };
   });
+}
+
+function isWithinSlaDateRange(value, from, to) {
+  if (!from && !to) return true;
+  if (!value) return false;
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return false;
+  if (from && date < from) return false;
+  if (to && date > to) return false;
+  return true;
 }
 
 function getSlaEventOwner(student, ownerType) {

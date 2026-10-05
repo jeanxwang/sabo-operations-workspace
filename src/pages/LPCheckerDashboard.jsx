@@ -9,6 +9,7 @@ import {
   Globe2,
   Save,
   Search,
+  Send,
   ShieldCheck,
   Users,
   X,
@@ -235,13 +236,14 @@ function LpDetailDrawer({ lp, activeTab = "diagnosing", onClose, onUpdate, fullP
   const externalReferences = getExternalReferenceLinks(lp);
   const internalSources = getInternalSourcePreviews(lp);
   const allChecksComplete = Object.values(checks).every(Boolean);
+  const canRelease = lp.status === "checked" && allChecksComplete;
 
   function updateCheck(id) {
     setChecks((currentChecks) => ({ ...currentChecks, [id]: !currentChecks[id] }));
     setSaveMessage("");
   }
 
-  function saveChanges({ validate = false } = {}) {
+  function saveChanges({ validate = false, release = false } = {}) {
     const parsedFocusAreas = parseLines(focusAreas);
     const parsedMilestones = parseLines(milestones);
 
@@ -250,8 +252,17 @@ function LpDetailDrawer({ lp, activeTab = "diagnosing", onClose, onUpdate, fullP
       return;
     }
 
-    if (validate && !allChecksComplete) {
+    if ((validate || release) && !allChecksComplete) {
       setSaveMessage("Centang seluruh checklist validasi sebelum menandai LP sudah divalidasi.");
+      return;
+    }
+
+    if (release && lp.status !== "checked") {
+      setSaveMessage("Validasi LP terlebih dahulu sebelum merilisnya.");
+      return;
+    }
+
+    if (release && !window.confirm(`Rilis learning plan ${lp.id} untuk ${lp.studentName}?`)) {
       return;
     }
 
@@ -261,15 +272,15 @@ function LpDetailDrawer({ lp, activeTab = "diagnosing", onClose, onUpdate, fullP
       focusAreas: parsedFocusAreas,
       milestones: parsedMilestones,
       notes: notes.trim(),
-      status: validate ? (lp.status === "released" ? "released" : "checked") : "review",
+      status: release ? "released" : validate ? (lp.status === "released" ? "released" : "checked") : "review",
       updatedAt: formatUpdatedAt(),
     };
 
     onUpdate(updatedLp);
-    if (!validate) {
+    if (!validate && !release) {
       setChecks({ student: false, target: false, external: false });
     }
-    setSaveMessage(validate ? "LP berhasil ditandai sudah divalidasi." : "Revisi LP tersimpan dan menunggu validasi ulang.");
+    setSaveMessage(release ? "LP berhasil dirilis dan siap diteruskan ke student serta tim terkait." : validate ? "LP berhasil ditandai sudah divalidasi." : "Revisi LP tersimpan dan menunggu validasi ulang.");
   }
 
   const reviewShellClass = fullPage ? "lp-review-document" : "lp-drawer-backdrop";
@@ -352,7 +363,8 @@ function LpDetailDrawer({ lp, activeTab = "diagnosing", onClose, onUpdate, fullP
           {saveMessage && <p className="lp-save-message" role="status">{saveMessage}</p>}
           <div className="lp-action-buttons">
             <button type="button" className="lp-secondary-action" onClick={() => saveChanges()}><Save size={15} /> Simpan revisi</button>
-            <button type="button" className="lp-primary-action" disabled={!allChecksComplete} onClick={() => saveChanges({ validate: true })}><ShieldCheck size={15} /> Tandai sudah divalidasi</button>
+            <button type="button" className="lp-primary-action" disabled={!allChecksComplete || lp.status !== "review"} onClick={() => saveChanges({ validate: true })}><ShieldCheck size={15} /> {lp.status === "review" ? "Tandai sudah divalidasi" : "Sudah divalidasi"}</button>
+            <button type="button" className="lp-primary-action lp-release-action" disabled={!canRelease} title={lp.status === "review" ? "Validasi LP terlebih dahulu" : lp.status === "released" ? "LP sudah dirilis" : "Rilis learning plan"} onClick={() => saveChanges({ release: true })}><Send size={15} /> {lp.status === "released" ? "LP sudah dirilis" : "Rilis LP"}</button>
           </div>
         </div>
       </aside>
