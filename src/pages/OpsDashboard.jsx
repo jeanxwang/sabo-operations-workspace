@@ -33,16 +33,24 @@ const FILTERS = [
   { id: "new-students", label: "Student baru" },
   { id: "attention", label: "Checklist belum lengkap" },
   { id: "ready", label: "Checklist lengkap" },
-  { id: "activation-pending", label: "Belum aktivasi" },
-  { id: "activation-overdue", label: "Aktivasi overdue" },
-  { id: "profile-incomplete", label: "Profil belum lengkap" },
+  { id: "activation-pending", label: "Belum aktivasi (masa tunda)" },
+  { id: "activation-overdue", label: "Belum aktivasi (lewat masa tunda)" },
+  { id: "profile-incomplete", label: "Belum melengkapi profil" },
+  { id: "mentor-onboarding-waiting", label: "Menunggu assignment mentor onboarding" },
+  { id: "onboarding-pending", label: "Belum menjalankan sesi onboarding" },
+  { id: "learning-plan-pending", label: "Menunggu learning plan" },
+  { id: "dedicated-mentor-pending", label: "Menunggu mentor dedicated" },
 ];
 
 const MOCK_OPS_OVERVIEW = {
   total: 350,
-  activationPending: 200,
+  activationPending: 150,
+  activationOverdue: 50,
   profileIncomplete: 100,
-  ready: 10,
+  mentorOnboardingWaiting: 10,
+  onboardingPending: 24,
+  learningPlanPending: 16,
+  dedicatedMentorPending: 8,
 };
 
 function navLinkClass({ isActive }) {
@@ -75,13 +83,23 @@ export default function OpsDashboard({ user, onLogout }) {
   const readyCount = newStudents.filter(isOpsStudentReady).length;
   const attentionCount = newStudentCount - readyCount;
   const activationPendingCount = newStudents.filter(
-    (student) => student.activation !== "done"
+    (student) => student.activation !== "done" && getActivationSummary(student).status !== "overdue"
   ).length;
   const profileIncompleteCount = newStudents.filter(
     (student) => student.profile !== "done"
   ).length;
   const activationOverdueCount = newStudents.filter(
     (student) => getActivationSummary(student).status === "overdue"
+  ).length;
+  const mentorOnboardingWaitingCount = readyCount;
+  const onboardingPendingCount = newStudents.filter(
+    (student) => student.onboarding !== "done"
+  ).length;
+  const learningPlanPendingCount = newStudents.filter(
+    (student) => student.onboarding === "done" && student.lpReleased !== "done"
+  ).length;
+  const dedicatedMentorPendingCount = newStudents.filter(
+    (student) => student.onboarding === "done" && !student.assignedDedicatedMentor
   ).length;
   const overviewStats = getOverviewStats({
     filteredRowCount: dateFilteredStudents.length,
@@ -106,9 +124,13 @@ export default function OpsDashboard({ user, onLogout }) {
         (activeFilter === "new-students" && student.isNewStudent) ||
         (activeFilter === "ready" && student.isNewStudent && isOpsStudentReady(student)) ||
         (activeFilter === "attention" && student.isNewStudent && !isOpsStudentReady(student)) ||
-        (activeFilter === "activation-pending" && student.isNewStudent && student.activation !== "done") ||
+        (activeFilter === "activation-pending" && student.isNewStudent && student.activation !== "done" && getActivationSummary(student).status !== "overdue") ||
         (activeFilter === "activation-overdue" && student.isNewStudent && getActivationSummary(student).status === "overdue") ||
-        (activeFilter === "profile-incomplete" && student.isNewStudent && student.profile !== "done");
+        (activeFilter === "profile-incomplete" && student.isNewStudent && student.profile !== "done") ||
+        (activeFilter === "mentor-onboarding-waiting" && student.isNewStudent && isOpsStudentReady(student)) ||
+        (activeFilter === "onboarding-pending" && student.isNewStudent && student.onboarding !== "done") ||
+        (activeFilter === "learning-plan-pending" && student.isNewStudent && student.onboarding === "done" && student.lpReleased !== "done") ||
+        (activeFilter === "dedicated-mentor-pending" && student.isNewStudent && student.onboarding === "done" && !student.assignedDedicatedMentor);
 
       return matchesSearch && matchesFilter;
     });
@@ -242,12 +264,19 @@ export default function OpsDashboard({ user, onLogout }) {
             </header>
 
             <div className="ops-overview-body">
-              <div className="ops-readiness-donut" style={{ "--ready-rate": `${overviewStats.readyPercent}%` }}>
-                <div><strong>{overviewStats.readyPercent}%</strong><span>siap diproses</span></div>
-              </div>
+              <button
+                type="button"
+                className={`ops-readiness-donut${activeFilter === "mentor-onboarding-waiting" ? " active" : ""}`}
+                style={{ "--ready-rate": `${overviewStats.mentorOnboardingWaitingPercent}%` }}
+                aria-label={`Filter student menunggu assignment mentor onboarding: ${overviewStats.mentorOnboardingWaiting} student`}
+                aria-pressed={activeFilter === "mentor-onboarding-waiting"}
+                onClick={() => handleScorecardClick("mentor-onboarding-waiting")}
+              >
+                <div><strong>{overviewStats.mentorOnboardingWaitingPercent}%</strong><span>menunggu assignment mentor onboarding</span></div>
+              </button>
               <div className="ops-readiness-bars">
                 <ReadinessBar
-                  label="Belum aktivasi"
+                  label="Belum aktivasi (masa tunda)"
                   value={overviewStats.activationPending}
                   total={overviewStats.total}
                   tone="orange"
@@ -255,7 +284,15 @@ export default function OpsDashboard({ user, onLogout }) {
                   onClick={() => handleScorecardClick("activation-pending")}
                 />
                 <ReadinessBar
-                  label="Profil belum lengkap"
+                  label="Belum aktivasi (lewat masa tunda)"
+                  value={overviewStats.activationOverdue}
+                  total={overviewStats.total}
+                  tone="red"
+                  active={activeFilter === "activation-overdue"}
+                  onClick={() => handleScorecardClick("activation-overdue")}
+                />
+                <ReadinessBar
+                  label="Belum melengkapi profil"
                   value={overviewStats.profileIncomplete}
                   total={overviewStats.total}
                   tone="orange"
@@ -263,19 +300,35 @@ export default function OpsDashboard({ user, onLogout }) {
                   onClick={() => handleScorecardClick("profile-incomplete")}
                 />
                 <ReadinessBar
-                  label="Siap diproses"
-                  value={overviewStats.ready}
+                  label="Belum menjalankan sesi onboarding"
+                  value={overviewStats.onboardingPending}
                   total={overviewStats.total}
-                  tone="green"
-                  active={activeFilter === "ready"}
-                  onClick={() => handleScorecardClick("ready")}
+                  tone="purple"
+                  active={activeFilter === "onboarding-pending"}
+                  onClick={() => handleScorecardClick("onboarding-pending")}
+                />
+                <ReadinessBar
+                  label="Menunggu learning plan"
+                  value={overviewStats.learningPlanPending}
+                  total={overviewStats.total}
+                  tone="blue"
+                  active={activeFilter === "learning-plan-pending"}
+                  onClick={() => handleScorecardClick("learning-plan-pending")}
+                />
+                <ReadinessBar
+                  label="Menunggu assignment mentor dedicated"
+                  value={overviewStats.dedicatedMentorPending}
+                  total={overviewStats.total}
+                  tone="teal"
+                  active={activeFilter === "dedicated-mentor-pending"}
+                  onClick={() => handleScorecardClick("dedicated-mentor-pending")}
                 />
               </div>
             </div>
 
             <footer className="ops-overview-footer">
-              <span>Data agregat seluruh student</span>
-              <span>Kategori dapat saling overlap karena satu student bisa memiliki lebih dari satu checklist.</span>
+              <span>Klik metrik untuk memfilter tabel student</span>
+              <span>Data agregat seluruh student · Kategori dapat saling overlap</span>
             </footer>
           </section>
 
@@ -348,7 +401,15 @@ export default function OpsDashboard({ user, onLogout }) {
                                 ? activationOverdueCount
                               : filter.id === "profile-incomplete"
                                 ? profileIncompleteCount
-                            : attentionCount}
+                                : filter.id === "mentor-onboarding-waiting"
+                                  ? mentorOnboardingWaitingCount
+                                  : filter.id === "onboarding-pending"
+                                    ? onboardingPendingCount
+                                    : filter.id === "learning-plan-pending"
+                                      ? learningPlanPendingCount
+                                      : filter.id === "dedicated-mentor-pending"
+                                        ? dedicatedMentorPendingCount
+                                        : attentionCount}
                       </span>
                     </button>
                   ))}
@@ -454,6 +515,7 @@ function ReadinessBar({ label, value, total, tone, active, onClick }) {
       className={`ops-readiness-bar tone-${tone}${active ? " active" : ""}`}
       onClick={onClick}
       aria-pressed={active}
+      title={`${label}: ${value} student (${percentage}%)`}
     >
       <span className="ops-readiness-bar-heading">
         <span><i />{label}</span>
@@ -466,28 +528,47 @@ function ReadinessBar({ label, value, total, tone, active, onClick }) {
 
 function getOverviewStats({ filteredRowCount, totalRowCount, isDateFiltered, isInvalid }) {
   if (isInvalid) {
-    return { ...MOCK_OPS_OVERVIEW, total: 0, activationPending: 0, profileIncomplete: 0, ready: 0, readyPercent: 0 };
+    return {
+      ...MOCK_OPS_OVERVIEW,
+      total: 0,
+      activationPending: 0,
+      activationOverdue: 0,
+      profileIncomplete: 0,
+      mentorOnboardingWaiting: 0,
+      onboardingPending: 0,
+      learningPlanPending: 0,
+      dedicatedMentorPending: 0,
+      mentorOnboardingWaitingPercent: 0,
+    };
   }
 
   if (!isDateFiltered) {
     return {
       ...MOCK_OPS_OVERVIEW,
-      readyPercent: Math.round((MOCK_OPS_OVERVIEW.ready / MOCK_OPS_OVERVIEW.total) * 100),
+      mentorOnboardingWaitingPercent: Math.round((MOCK_OPS_OVERVIEW.mentorOnboardingWaiting / MOCK_OPS_OVERVIEW.total) * 100),
     };
   }
 
   const ratio = totalRowCount ? filteredRowCount / totalRowCount : 0;
   const activationPending = Math.round(MOCK_OPS_OVERVIEW.activationPending * ratio);
+  const activationOverdue = Math.round(MOCK_OPS_OVERVIEW.activationOverdue * ratio);
   const profileIncomplete = Math.round(MOCK_OPS_OVERVIEW.profileIncomplete * ratio);
-  const ready = Math.round(MOCK_OPS_OVERVIEW.ready * ratio);
+  const mentorOnboardingWaiting = Math.round(MOCK_OPS_OVERVIEW.mentorOnboardingWaiting * ratio);
+  const onboardingPending = Math.round(MOCK_OPS_OVERVIEW.onboardingPending * ratio);
+  const learningPlanPending = Math.round(MOCK_OPS_OVERVIEW.learningPlanPending * ratio);
+  const dedicatedMentorPending = Math.round(MOCK_OPS_OVERVIEW.dedicatedMentorPending * ratio);
   const total = Math.round(MOCK_OPS_OVERVIEW.total * ratio);
 
   return {
     total,
     activationPending,
+    activationOverdue,
     profileIncomplete,
-    ready,
-    readyPercent: total ? Math.round((ready / total) * 100) : 0,
+      mentorOnboardingWaiting,
+    onboardingPending,
+    learningPlanPending,
+    dedicatedMentorPending,
+    mentorOnboardingWaitingPercent: total ? Math.round((mentorOnboardingWaiting / total) * 100) : 0,
   };
 }
 
@@ -593,7 +674,7 @@ function OpsStudentDetail({ student, mos, lpCheckers, onTagMo, onTagLpChecker, l
 
         <div className="ops-drawer-readiness">
           <span className={`ops-readiness-badge ${ready ? "ready" : "waiting"}`}>
-            {ready ? "Siap diproses" : "Menunggu checklist"}
+            {ready ? "Menunggu assignment mentor onboarding" : "Menunggu checklist"}
           </span>
           <p>
             {ready
