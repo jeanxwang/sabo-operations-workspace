@@ -1,5 +1,61 @@
 .lp-page { --lp-accent: #2457d6; --lp-accent-dark: #1742ad; --lp-soft: #eef4ff; }
 .lp-content { padding: 34px 32px 48px; }
+.lp-review-content { min-height: calc(100vh - 72px); }
+.lp-back-link { display: inline-flex; align-items: center; margin: 0 0 16px; padding: 0; border: 0; background: transparent; color: var(--lp-accent-dark); cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; }
+.lp-back-link:hover { text-decoration: underline; }
+.lp-full-page-backdrop { position: static; display: block; background: transparent; }
+.lp-full-page-drawer { width: 100%; height: auto; overflow: visible; padding: 0; background: transparent; box-shadow: none; }
+.lp-full-page-drawer > .lp-drawer-header, .lp-full-page-drawer > .lp-drawer-status, .lp-full-page-drawer > .lp-review-callout, .lp-full-page-drawer > .lp-detail-section, .lp-full-page-drawer > .lp-drawer-actions { padding-left: 22px; padding-right: 22px; }
+.lp-full-page-drawer > .lp-drawer-header { padding-top: 22px; }
+.lp-full-page-drawer { border: 1px solid var(--line); border-radius: 14px; background: #fff; box-shadow: 0 14px 36px rgba(35,74,155,.07); }
+.lp-full-page-drawer > .lp-drawer-actions { padding-bottom: 22px; }
+.lp-recommendations-section { padding-top: 20px; }
+.lp-section-heading-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.lp-section-heading-row h3 { margin: 0; }
+.lp-section-heading-row p { margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+.lp-section-heading-row > span, .lp-inline-recommendation-heading > span { color: var(--muted); font-size: 10px; white-space: nowrap; }
+.lp-inline-recommendations { padding: 12px; border: 1px solid var(--line); border-radius: 9px; background: #fbfcff; }
+.lp-inline-recommendations + .lp-inline-recommendations { margin-top: 9px; }
+.lp-inline-recommendation-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; color: var(--ink); font-size: 12px; }
+.lp-inline-recommendation-list { display: grid; gap: 6px; }
+.lp-inline-recommendation { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px; border: 1px solid var(--line); border-radius: 7px; background: #fff; }
+.lp-inline-recommendation > div:first-child { min-width: 0; }
+.lp-inline-recommendation strong, .lp-inline-recommendation small, .lp-inline-recommendation span { display: block; }
+.lp-inline-recommendation strong { color: var(--ink); font-size: 11px; }
+.lp-inline-recommendation > div:first-child span { margin-top: 3px; color: var(--muted); font-size: 10px; }
+.lp-inline-recommendation-meta { display: flex; align-items: center; justify-content: flex-end; gap: 10px; color: var(--muted); font-size: 10px; white-space: nowrap; }
+.lp-inline-recommendation-meta .lp-status { color: inherit; }
+.lp-inline-recommendation-meta a { color: var(--lp-accent-dark); font-size: 10px; font-weight: 700; text-decoration: none; }
+.lp-inline-recommendation-meta a:hover { text-decoration: underline; }
+.lp-inline-empty { margin: 0; color: var(--muted); font-size: 11px; }
+.lp-recommendation-tabs { display: flex; gap: 4px; margin: 14px 0 10px; padding-bottom: 3px; border-bottom: 1px solid var(--line); }
+.lp-recommendation-tabs button { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; padding: 0 10px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--muted); cursor: pointer; font: inherit; font-size: 11px; font-weight: 700; }
+.lp-recommendation-tabs button:hover, .lp-recommendation-tabs button.active { border-bottom-color: var(--lp-accent); color: var(--lp-accent-dark); }
+.lp-recommendation-tabs button span { min-width: 18px; padding: 2px 5px; border-radius: 999px; background: var(--lp-soft); color: var(--lp-accent-dark); font-size: 10px; text-align: center; }
+.lp-recommendation-table-wrapper { max-height: 390px; overflow: auto; border: 1px solid var(--line); border-radius: 9px; }
+.lp-review-recommendation-table { min-width: 900px; }
+.lp-review-recommendation-table th { padding: 11px 13px; }
+.lp-review-recommendation-table thead th { position: sticky; top: 0; z-index: 1; box-shadow: 0 1px 0 var(--line); }
+.lp-review-recommendation-table td { padding: 12px 13px; }
+.lp-review-recommendation-table td strong { font-size: 11px; }
+.lp-recommendation-eligibility { max-width: 220px; white-space: normal; line-height: 1.4; }
+.lp-table-source-link { color: var(--lp-accent-dark); font-size: 10px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.lp-table-source-link:hover { text-decoration: underline; }
+.lp-not-found { padding: 32px; }
+.lp-not-found h1 { margin: 0; font-size: 22px; }
+.lp-not-found p { margin: 8px 0 18px; color: var(--muted); font-size: 13px; }
+.lp-review-document { display: block; width: 100%; }
+.lp-review-document-content { display: block; width: 100%; padding: 0; }
+.lp-review-document .lp-drawer-header { padding-top: 0; }
+.lp-review-document .lp-drawer-header,
+.lp-review-document .lp-drawer-status,
+.lp-review-document .lp-review-callout,
+.lp-review-document .lp-detail-section,
+.lp-review-document .lp-drawer-actions { padding-left: 0; padding-right: 0; }
+.lp-workspace-tabs { display: flex; gap: 7px; margin-bottom: 24px; padding-bottom: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.lp-workspace-tab { display: inline-flex; align-items: center; gap: 7px; min-height: 35px; padding: 0 10px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--muted); cursor: pointer; font: inherit; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.lp-workspace-tab:hover { color: var(--lp-accent-dark); }
+.lp-workspace-tab.active { border-bottom-color: var(--lp-accent); color: var(--lp-accent-dark); }
 .lp-page-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; margin-bottom: 28px; }
 .lp-eyebrow { margin: 0 0 8px; color: var(--lp-accent); font-size: 11px; font-weight: 700; letter-spacing: .12em; }
 .lp-page-heading h1 { margin: 0; color: var(--ink); font-size: 32px; line-height: 1.1; letter-spacing: -.04em; }
@@ -15,6 +71,9 @@
 .lp-summary-card.tone-purple { --tone: #7c3aed; --tone-soft: #f3eefe; }
 .lp-summary-card.tone-green { --tone: #149b62; --tone-soft: #eafaf2; }
 .lp-card { overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: #fff; box-shadow: 0 14px 36px rgba(35,74,155,.07); }
+.lp-recommendation-card { overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: #fff; box-shadow: 0 14px 36px rgba(35,74,155,.07); }
+.lp-back-to-creation { flex-shrink: 0; min-height: 36px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--lp-accent-dark); cursor: pointer; font: inherit; font-size: 11px; font-weight: 700; }
+.lp-back-to-creation:hover { border-color: var(--lp-accent-border); background: var(--lp-soft); }
 .lp-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 22px; border-bottom: 1px solid var(--line); }
 .lp-card-header h2 { margin: 0; font-size: 19px; }
 .lp-card-header p { margin: 6px 0 0; color: var(--muted); font-size: 12px; }
@@ -28,6 +87,10 @@
 .lp-filter-tabs button span { min-width: 18px; padding: 2px 5px; border-radius: 999px; background: #fff; font-size: 10px; text-align: center; }
 .lp-table-wrapper { overflow-x: auto; }
 .lp-table { width: 100%; min-width: 1020px; border-collapse: collapse; text-align: left; }
+.lp-recommendation-table { min-width: 1180px; }
+.lp-recommendation-toolbar { align-items: flex-start; }
+.lp-fit-score { color: var(--lp-accent-dark) !important; }
+.lp-status.revision { color: #c2410c; }
 .lp-table th { padding: 12px 22px; background: #f8faff; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
 .lp-table td { padding: 15px 22px; border-top: 1px solid var(--line); color: var(--ink); font-size: 12px; vertical-align: middle; white-space: nowrap; }
 .lp-table td strong, .lp-table td span { display: block; }
@@ -41,6 +104,8 @@
 .lp-status.released { color: #15803d; }
 .lp-detail-button { padding: 6px 8px; border: 0; border-radius: 6px; background: transparent; color: var(--lp-accent-dark); cursor: pointer; font: inherit; font-size: 11px; font-weight: 700; }
 .lp-detail-button:hover { background: var(--lp-soft); }
+.lp-open-source-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: 100%; min-height: 38px; margin-top: 24px; border-radius: 8px; background: var(--lp-accent); color: #fff; font-size: 11px; font-weight: 700; text-decoration: none; }
+.lp-open-source-button:hover { background: var(--lp-accent-dark); }
 .lp-empty-row td { padding: 38px 22px; color: var(--muted); text-align: center; }
 .lp-drawer-backdrop { position: fixed; inset: 0; z-index: 10; display: flex; justify-content: flex-end; background: rgba(15,33,76,.28); }
 .lp-drawer { width: min(540px, 100%); height: 100%; overflow-y: auto; padding: 26px; background: #fff; box-shadow: -12px 0 34px rgba(17,42,95,.16); }
@@ -51,12 +116,69 @@
 .lp-close-button { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--muted); cursor: pointer; }
 .lp-close-button:hover { background: var(--lp-soft); color: var(--lp-accent-dark); }
 .lp-drawer-status { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 20px 0; color: var(--muted); font-size: 11px; }
+.lp-review-callout { display: flex; gap: 10px; padding: 13px; border: 1px solid #cddcff; border-radius: 10px; background: #f3f7ff; color: var(--lp-accent-dark); }
+.lp-review-callout > svg { flex-shrink: 0; margin-top: 1px; }
+.lp-review-callout strong { display: block; font-size: 12px; }
+.lp-review-callout p { margin: 4px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
 .lp-detail-section { margin-top: 24px; }
 .lp-detail-section h3 { margin: 0 0 10px; font-size: 14px; }
 .lp-detail-grid { display: grid; gap: 9px; }
 .lp-detail-item { display: flex; justify-content: space-between; gap: 18px; padding-bottom: 9px; border-bottom: 1px solid var(--line); }
 .lp-detail-item span { color: var(--muted); font-size: 11px; }
 .lp-detail-item strong { max-width: 64%; color: var(--ink); font-size: 11px; text-align: right; }
+.lp-source-group { padding: 12px; border: 1px solid var(--line); border-radius: 9px; background: #fbfcff; }
+.lp-source-group + .lp-source-group { margin-top: 9px; }
+.lp-source-heading { display: flex; align-items: center; gap: 7px; color: var(--ink); font-size: 12px; }
+.lp-source-heading svg { color: var(--lp-accent); }
+.lp-source-group p { margin: 6px 0 9px; color: var(--muted); font-size: 11px; line-height: 1.45; }
+.lp-source-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.lp-source-tags button { padding: 5px 8px; border: 1px solid transparent; border-radius: 999px; background: var(--lp-soft); color: var(--lp-accent-dark); cursor: pointer; font: inherit; font-size: 10px; font-weight: 600; }
+.lp-source-tags button:hover, .lp-source-tags button.active { border-color: var(--lp-accent-border); background: #dfeaff; }
+.lp-source-preview { margin-top: 10px; padding: 11px; border: 1px solid #cddcff; border-radius: 8px; background: #fff; }
+.lp-source-preview-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.lp-source-preview-header strong, .lp-source-preview-header small { display: block; }
+.lp-source-preview-header strong { color: var(--ink); font-size: 11px; }
+.lp-source-preview-header small { margin-top: 3px; color: var(--muted); font-size: 10px; line-height: 1.35; }
+.lp-source-preview-header button { border: 0; background: transparent; color: var(--lp-accent-dark); cursor: pointer; font: inherit; font-size: 10px; font-weight: 700; }
+.lp-source-preview-sections { max-height: 430px; overflow-y: auto; margin-top: 10px; padding-right: 4px; }
+.lp-source-preview-sections section + section { margin-top: 15px; }
+.lp-source-preview-sections h4 { margin: 0 0 7px; color: var(--lp-accent-dark); font-size: 10px; letter-spacing: .02em; }
+.lp-source-preview-grid { display: grid; gap: 7px; }
+.lp-source-preview-grid > div { display: grid; grid-template-columns: 110px 1fr; gap: 10px; padding-top: 7px; border-top: 1px solid var(--line); }
+.lp-source-preview-grid span { color: var(--muted); font-size: 10px; }
+.lp-source-preview-grid strong { color: var(--ink); font-size: 10px; line-height: 1.4; }
+.lp-reference-list { display: grid; gap: 6px; }
+.lp-reference-link { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 9px; border: 1px solid var(--line); border-radius: 7px; background: #fff; color: var(--ink); text-decoration: none; }
+.lp-reference-link:hover { border-color: var(--lp-accent-border); background: var(--lp-soft); }
+.lp-reference-link > span { min-width: 0; }
+.lp-reference-link strong, .lp-reference-link small { display: block; }
+.lp-reference-link strong { font-size: 11px; }
+.lp-reference-link small { margin-top: 2px; color: var(--muted); font-size: 10px; }
+.lp-reference-link > svg { flex-shrink: 0; color: var(--lp-accent); }
+.lp-edit-field { display: grid; gap: 6px; }
+.lp-edit-field + .lp-edit-field { margin-top: 9px; }
+.lp-edit-field > span { color: var(--muted); font-size: 10px; font-weight: 700; }
+.lp-edit-field > span small { font-weight: 500; }
+.lp-edit-field textarea { width: 100%; min-height: 66px; resize: vertical; padding: 9px 10px; border: 1px solid var(--line); border-radius: 7px; background: #fff; color: var(--ink); font: inherit; font-size: 11px; line-height: 1.45; outline: none; }
+.lp-edit-field textarea:focus { border-color: var(--lp-accent); box-shadow: 0 0 0 3px rgba(36,87,214,.1); }
+.lp-validation-check { display: grid; grid-template-columns: auto auto 1fr; align-items: start; gap: 8px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
+.lp-validation-check + .lp-validation-check { margin-top: 7px; }
+.lp-validation-check input { position: absolute; opacity: 0; pointer-events: none; }
+.lp-validation-box { width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 5px; color: transparent; }
+.lp-validation-check.checked { border-color: #b6dfc9; background: #f2fcf6; }
+.lp-validation-check.checked .lp-validation-box { border-color: #159c63; background: #159c63; color: #fff; }
+.lp-validation-check strong, .lp-validation-check small { display: block; }
+.lp-validation-check strong { font-size: 11px; }
+.lp-validation-check small { margin-top: 3px; color: var(--muted); font-size: 10px; line-height: 1.35; }
+.lp-drawer-actions { margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--line); }
+.lp-save-message { margin: 0 0 10px; padding: 8px 10px; border-radius: 7px; background: #f3f7ff; color: var(--lp-accent-dark); font-size: 11px; line-height: 1.4; }
+.lp-action-buttons { display: flex; justify-content: flex-end; gap: 8px; }
+.lp-secondary-action, .lp-primary-action { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 11px; border-radius: 7px; cursor: pointer; font: inherit; font-size: 11px; font-weight: 700; }
+.lp-secondary-action { border: 1px solid var(--line); background: #fff; color: var(--ink); }
+.lp-secondary-action:hover { border-color: var(--lp-accent-border); background: var(--lp-soft); }
+.lp-primary-action { border: 1px solid var(--lp-accent); background: var(--lp-accent); color: #fff; }
+.lp-primary-action:hover:not(:disabled) { background: var(--lp-accent-dark); }
+.lp-primary-action:disabled { cursor: not-allowed; opacity: .45; }
 .lp-note-block { padding: 12px; border-radius: 9px; background: #f8faff; }
 .lp-note-block + .lp-note-block { margin-top: 8px; }
 .lp-note-block > span { color: var(--muted); font-size: 10px; font-weight: 700; }
@@ -66,3 +188,39 @@
 @media (max-width: 1100px) { .lp-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 760px) { .lp-content { padding: 26px 20px 40px; } .lp-page-heading, .lp-toolbar, .lp-card-header { align-items: flex-start; flex-direction: column; } .lp-page-heading h1 { font-size: 27px; } .lp-search { width: 100%; min-width: 0; } .lp-filter-tabs { width: 100%; } }
 @media (max-width: 480px) { .lp-summary-grid { grid-template-columns: 1fr; } }
+
+/* LP review is a real route, so it must not inherit the modal/drawer treatment. */
+.lp-drawer-backdrop.lp-full-page-backdrop {
+  position: static;
+  inset: auto;
+  z-index: auto;
+  display: block;
+  min-height: 0;
+  background: transparent;
+}
+.lp-drawer.lp-full-page-drawer {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.lp-full-page-drawer > .lp-drawer-header,
+.lp-full-page-drawer > .lp-drawer-status,
+.lp-full-page-drawer > .lp-review-callout,
+.lp-full-page-drawer > .lp-detail-section,
+.lp-full-page-drawer > .lp-drawer-actions {
+  padding-left: 0;
+  padding-right: 0;
+}
+.lp-full-page-drawer > .lp-drawer-header {
+  padding-top: 0;
+}
+.lp-full-page-drawer > .lp-close-button,
+.lp-full-page-drawer .lp-close-button {
+  display: none;
+}

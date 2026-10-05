@@ -195,6 +195,15 @@ export default function App() {
       />
 
       <Route
+        path="/lp-checker/learning-plans/:lpId"
+        element={
+          <ProtectedRoute allowedRoles={["lp-checker"]}>
+            <LPCheckerDashboard user={currentUser} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/student-buddy/students/:studentId"
         element={
           <ProtectedRoute allowedRoles={["student-buddy"]}>
