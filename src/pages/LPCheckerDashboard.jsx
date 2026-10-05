@@ -35,7 +35,8 @@ import "./LPCheckerDashboard.css";
 
 export default function LPCheckerDashboard({ user, onLogout }) {
   const navigate = useNavigate();
-  const { lpId } = useParams();
+  const { lpId, lpTab = "diagnosing" } = useParams();
+  const activeReviewTab = ["diagnosing", "scholarships", "universities"].includes(lpTab) ? lpTab : "diagnosing";
   const [searchKeyword, setSearchKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [lps, setLps] = useState(mockLpCreations);
@@ -81,6 +82,7 @@ export default function LPCheckerDashboard({ user, onLogout }) {
         user={user}
         onLogout={onLogout}
         lp={selectedLp}
+        activeTab={activeReviewTab}
         onBack={() => navigate("/lp-checker/learning-plans")}
         onUpdate={handleUpdateLp}
       />
@@ -200,7 +202,7 @@ export default function LPCheckerDashboard({ user, onLogout }) {
   );
 }
 
-function LPReviewPage({ user, onLogout, lp, onBack, onUpdate }) {
+function LPReviewPage({ user, onLogout, lp, activeTab, onBack, onUpdate }) {
   return (
     <main className="dashboard-page lp-page">
       <aside className="sidebar">
@@ -229,7 +231,7 @@ function LPReviewPage({ user, onLogout, lp, onBack, onUpdate }) {
         </header>
         <section className="lp-content lp-review-content">
           <button type="button" className="lp-back-link" onClick={onBack}>← Kembali ke daftar LP</button>
-          <LpDetailDrawer lp={lp} onClose={onBack} onUpdate={onUpdate} fullPage />
+          <LpDetailDrawer lp={lp} activeTab={activeTab} onClose={onBack} onUpdate={onUpdate} fullPage />
         </section>
       </section>
     </main>
@@ -267,7 +269,7 @@ function LpStatus({ status }) {
   return <span className={`lp-status ${config.tone}`}><span />{config.label}</span>;
 }
 
-function LpDetailDrawer({ lp, onClose, onUpdate, fullPage = false }) {
+function LpDetailDrawer({ lp, activeTab = "diagnosing", onClose, onUpdate, fullPage = false }) {
   const [objective, setObjective] = useState(lp.objective);
   const [focusAreas, setFocusAreas] = useState(lp.focusAreas.join("\n"));
   const [milestones, setMilestones] = useState(lp.milestones.join("\n"));
@@ -333,6 +335,9 @@ function LpDetailDrawer({ lp, onClose, onUpdate, fullPage = false }) {
           <div><strong>Validasi sebelum LP diteruskan</strong><p>Bandingkan isi LP dengan data student, hasil diagnosing checklist, serta sumber resmi universitas dan beasiswa.</p></div>
         </div>
 
+        <ReviewTabNavigation lpId={lp.id} activeTab={activeTab} />
+
+        {activeTab === "diagnosing" && <>
         <DetailSection title="Informasi student">
           <DetailItem label="Email" value={lp.email} />
           <DetailItem label="No. HP" value={lp.phone} />
@@ -377,8 +382,10 @@ function LpDetailDrawer({ lp, onClose, onUpdate, fullPage = false }) {
           <label className="lp-edit-field"><span>Milestone awal <small>(satu item per baris)</small></span><textarea value={milestones} onChange={(event) => setMilestones(event.target.value)} rows={4} /></label>
           <label className="lp-edit-field"><span>Catatan onboarding</span><textarea value={notes} onChange={(event) => setNotes(event.target.value)} rows={3} /></label>
         </DetailSection>
+        </>}
 
-        <LpRecommendationSections lpId={lp.id} />
+        {activeTab === "scholarships" && <RecommendationReviewSection lpId={lp.id} type="scholarships" />}
+        {activeTab === "universities" && <RecommendationReviewSection lpId={lp.id} type="universities" />}
 
         <DetailSection title="Checklist validasi">
           <ValidationCheck checked={checks.student} onChange={() => updateCheck("student")} label="Data student sesuai" detail="Handover, profil SLMS, dan diagnosing checklist sudah dicocokkan." />
@@ -398,27 +405,33 @@ function LpDetailDrawer({ lp, onClose, onUpdate, fullPage = false }) {
   );
 }
 
-function LpRecommendationSections({ lpId }) {
+function ReviewTabNavigation({ lpId, activeTab }) {
+  const tabs = [
+    { id: "diagnosing", label: "Hasil Diagnosing" },
+    { id: "scholarships", label: "Rekomendasi Beasiswa" },
+    { id: "universities", label: "Rekomendasi Universitas" },
+  ];
+
+  return (
+    <nav className="lp-review-tabs" aria-label="Review learning plan">
+      {tabs.map((tab) => <NavLink key={tab.id} to={`/lp-checker/learning-plans/${lpId}/${tab.id}`} className={({ isActive }) => `lp-review-tab ${isActive || activeTab === tab.id ? "active" : ""}`} role="tab" aria-selected={activeTab === tab.id}>{tab.label}</NavLink>)}
+    </nav>
+  );
+}
+
+function RecommendationReviewSection({ lpId, type }) {
   const universities = mockLpUniversityRecommendations.filter((recommendation) => recommendation.lpId === lpId);
   const scholarships = mockLpScholarshipRecommendations.filter((recommendation) => recommendation.lpId === lpId);
-  const [activeTab, setActiveTab] = useState("universities");
-  const rows = activeTab === "universities" ? universities : scholarships;
+  const rows = type === "universities" ? universities : scholarships;
+  const isUniversity = type === "universities";
 
   return (
     <section className="lp-detail-section lp-recommendations-section">
       <div className="lp-section-heading-row">
-        <div><h3>Rekomendasi dalam learning plan</h3><p>Daftar rekomendasi ini terhubung langsung dengan LP student yang sedang direview.</p></div>
-        <span>{universities.length + scholarships.length} item</span>
+        <div><h3>{isUniversity ? "Rekomendasi universitas" : "Rekomendasi beasiswa"}</h3><p>Daftar rekomendasi yang terhubung langsung dengan learning plan student ini.</p></div>
+        <span>{rows.length} item</span>
       </div>
-      <div className="lp-recommendation-tabs" role="tablist" aria-label="Jenis rekomendasi learning plan">
-        <button type="button" role="tab" aria-selected={activeTab === "universities"} className={activeTab === "universities" ? "active" : ""} onClick={() => setActiveTab("universities")}>
-          Rekomendasi Universitas <span>{universities.length}</span>
-        </button>
-        <button type="button" role="tab" aria-selected={activeTab === "scholarships"} className={activeTab === "scholarships" ? "active" : ""} onClick={() => setActiveTab("scholarships")}>
-          Rekomendasi Beasiswa <span>{scholarships.length}</span>
-        </button>
-      </div>
-      <RecommendationTable rows={rows} type={activeTab} />
+      <RecommendationTable rows={rows} type={type} />
     </section>
   );
 }

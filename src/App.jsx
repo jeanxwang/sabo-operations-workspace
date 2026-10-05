@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import StudentBuddyDashboard from "./pages/StudentBuddyDashboard";
 import StudentBuddyStudents from "./pages/StudentBuddyStudents";
@@ -198,6 +198,15 @@ export default function App() {
         path="/lp-checker/learning-plans/:lpId"
         element={
           <ProtectedRoute allowedRoles={["lp-checker"]}>
+            <LPReviewRedirect />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/lp-checker/learning-plans/:lpId/:lpTab"
+        element={
+          <ProtectedRoute allowedRoles={["lp-checker"]}>
             <LPCheckerDashboard user={currentUser} onLogout={handleLogout} />
           </ProtectedRoute>
         }
@@ -233,6 +242,11 @@ function ProtectedRoute({ allowedRoles, children }) {
   }
 
   return children;
+}
+
+function LPReviewRedirect() {
+  const { lpId } = useParams();
+  return <Navigate to={`/lp-checker/learning-plans/${lpId}/diagnosing`} replace />;
 }
 
 function getCurrentUser() {
