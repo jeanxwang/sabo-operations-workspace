@@ -212,7 +212,15 @@ export default function AcademicDashboard({ user, onLogout }) {
                         <span className="academic-verify-meta">
                           {item.provider} • {item.coverage} • {item.level}
                         </span>
-                        <p className="academic-verify-note">{item.aiNote}</p>
+                        <p className="academic-verify-note">{getVerificationHeadline(item)}</p>
+                        <button
+                          type="button"
+                          className="academic-verify-change-trigger"
+                          onClick={() => setSelectedVerification(item)}
+                        >
+                          <span>{getVerificationChangeLabel(item)}</span>
+                          <ChevronRight size={14} />
+                        </button>
                       </div>
 
                       <div className="academic-verify-actions">
@@ -296,17 +304,13 @@ export default function AcademicDashboard({ user, onLogout }) {
               </div>
             </div>
 
+            <div className="academic-detail-section academic-change-section">
+              <span>Kolom yang diubah AI</span>
+              <VerificationChanges item={selectedVerification} />
+            </div>
             <div className="academic-detail-section">
-              <span>Ringkasan AI</span>
+              <span>Konteks update</span>
               <p>{selectedVerification.aiDetails || selectedVerification.aiNote}</p>
-            </div>
-            <div className="academic-detail-section">
-              <span>Indikasi eligibility</span>
-              <p>{selectedVerification.eligibility || "Belum tersedia. Cek sumber resmi untuk detail lengkap."}</p>
-            </div>
-            <div className="academic-detail-section">
-              <span>Langkah pendaftaran</span>
-              <p>{selectedVerification.applicationSteps || "Ikuti instruksi pada situs resmi beasiswa."}</p>
             </div>
 
             <footer className="academic-detail-modal-footer">
@@ -333,4 +337,61 @@ function getDisplayName(name) {
   if (!name) return "Academic Team";
   const nameParts = name.trim().split(" ");
   return nameParts[nameParts.length - 1];
+}
+
+function getVerificationHeadline(item) {
+  const changes = getVerificationChanges(item);
+  if (changes.length === 0) return item.aiNote;
+  if (changes.every((change) => change.before === "Belum ada data")) {
+    return `${changes.length} kolom baru akan ditambahkan ke master data.`;
+  }
+  return `${changes.length} kolom master data berubah dan perlu diverifikasi.`;
+}
+
+function getVerificationChangeLabel(item) {
+  const changes = getVerificationChanges(item);
+  const isNewRecord = changes.length > 0 && changes.every((change) => change.before === "Belum ada data");
+  return `Lihat detail perubahan · ${changes.length} ${isNewRecord ? "kolom baru" : "kolom berubah"}`;
+}
+
+function VerificationChanges({ item, compact = false }) {
+  const changes = getVerificationChanges(item);
+  if (changes.length === 0) return null;
+
+  const visibleChanges = compact ? changes.slice(0, 2) : changes;
+  return (
+    <div className={`academic-change-list ${compact ? "compact" : ""}`}>
+      {visibleChanges.map((change) => (
+        <div key={change.field} className="academic-change-row">
+          <strong>{change.label}</strong>
+          <div className="academic-change-values">
+            <span className="academic-change-before">{change.before}</span>
+            <span className="academic-change-arrow">→</span>
+            <span className="academic-change-after">{change.after}</span>
+          </div>
+        </div>
+      ))}
+      {compact && changes.length > visibleChanges.length && (
+        <span className="academic-change-more">+{changes.length - visibleChanges.length} kolom lainnya</span>
+      )}
+    </div>
+  );
+}
+
+function getVerificationChanges(item) {
+  if (item.changes?.length) return item.changes;
+  if (item.id === "ver-2") {
+    return [{
+      field: "coverage",
+      label: "Cakupan / benefit",
+      before: "Full Funding",
+      after: item.coverage || "Full Funding + Living Allowance",
+    }];
+  }
+  return [
+    { field: "name", label: "Nama beasiswa", before: "Belum ada data", after: item.name || "—" },
+    { field: "provider", label: "Penyelenggara", before: "Belum ada data", after: item.provider || "—" },
+    { field: "coverage", label: "Cakupan / benefit", before: "Belum ada data", after: item.coverage || "—" },
+    { field: "level", label: "Jenjang", before: "Belum ada data", after: item.level || "—" },
+  ];
 }

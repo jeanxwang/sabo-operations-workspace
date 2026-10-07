@@ -42,7 +42,7 @@ function isSameScholarship(item, verification) {
 
 function createReviewForm(verification, existingItem) {
   const sourceUrl = verification.sourceUrl || SCHOLARSHIP_SOURCE_URLS[verification.id] || "";
-  return {
+  const baseForm = {
     ...EMPTY_FORM,
     ...(existingItem ?? {}),
     name: existingItem?.name || verification.name || "",
@@ -56,6 +56,11 @@ function createReviewForm(verification, existingItem) {
     sourceCheckedAt: existingItem?.sourceCheckedAt || "",
     status: existingItem?.status || "active",
   };
+
+  return (verification.changes ?? []).reduce((currentForm, change) => {
+    if (!change.field || !Object.prototype.hasOwnProperty.call(currentForm, change.field)) return currentForm;
+    return { ...currentForm, [change.field]: change.after ?? "" };
+  }, baseForm);
 }
 
 const SOURCE_PREVIEW_COLUMNS = [
