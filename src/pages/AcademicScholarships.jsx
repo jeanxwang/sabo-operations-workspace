@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { CheckCircle2, ExternalLink, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useScholarships } from "../hooks/useScholarships";
 import {
   SCHOLARSHIP_LEVEL_OPTIONS,
@@ -10,6 +10,12 @@ import AcademicSidebar from "../components/AcademicSidebar";
 import TopbarActions from "../components/TopbarActions";
 import "./StudentBuddyDashboard.css";
 import "./AcademicMasterData.css";
+import { useCollectionStore } from "../hooks/useCollectionStore";
+import {
+  SCHOLARSHIP_SOURCE_URLS,
+  SCHOLARSHIP_VERIFICATIONS_KEY,
+  mockScholarshipVerificationsSeed,
+} from "../data/mockScholarshipVerifications";
 
 const EMPTY_FORM = {
   name: "", provider: "", scholarshipType: "University Scholarship", fundingType: "",
@@ -24,6 +30,32 @@ function formatDate(value) {
   const parsed = new Date(`${value}T00:00:00`);
   if (Number.isNaN(parsed.getTime())) return value;
   return new Intl.DateTimeFormat("id-ID", { day: "2-digit", month: "short", year: "numeric" }).format(parsed);
+}
+
+function isSameScholarship(item, verification) {
+  const itemName = item.name?.trim().toLowerCase();
+  const verificationName = verification.name?.trim().toLowerCase();
+  const itemProvider = item.provider?.trim().toLowerCase();
+  const verificationProvider = verification.provider?.trim().toLowerCase();
+  return itemName === verificationName && (!verificationProvider || itemProvider === verificationProvider);
+}
+
+function createReviewForm(verification, existingItem) {
+  const sourceUrl = verification.sourceUrl || SCHOLARSHIP_SOURCE_URLS[verification.id] || "";
+  return {
+    ...EMPTY_FORM,
+    ...(existingItem ?? {}),
+    name: existingItem?.name || verification.name || "",
+    provider: existingItem?.provider || verification.provider || "",
+    coverage: existingItem?.coverage || verification.coverage || "",
+    level: existingItem?.level || verification.level || "S1",
+    fundingType: existingItem?.fundingType || "",
+    eligibilityNotes: existingItem?.eligibilityNotes || verification.eligibility || "",
+    benefitNotes: existingItem?.benefitNotes || verification.applicationSteps || "",
+    sourceUrl: existingItem?.sourceUrl || sourceUrl,
+    sourceCheckedAt: existingItem?.sourceCheckedAt || "",
+    status: existingItem?.status || "active",
+  };
 }
 
 const SOURCE_PREVIEW_COLUMNS = [
@@ -50,15 +82,32 @@ function sourceCellValue(item, key) {
 }
 
 export default function AcademicScholarships({ user, onLogout }) {
+  const navigate = useNavigate();
   const isLpChecker = user?.role === "lp-checker";
   const canManage = !isLpChecker;
   const roleLabel = isLpChecker ? "LP Checker" : "Academic";
   const [searchParams] = useSearchParams();
   const scholarshipApi = useScholarships();
-  const [formOpen, setFormOpen] = useState(canManage && searchParams.get("add") === "1");
+  const reviewId = searchParams.get("review");
+  const verificationStore = useCollectionStore(
+    SCHOLARSHIP_VERIFICATIONS_KEY,
+    mockScholarshipVerificationsSeed
+  );
+  const reviewItem = verificationStore.items.find((item) => item.id === reviewId);
+  const [formOpen, setFormOpen] = useState(canManage && (searchParams.get("add") === "1" || Boolean(reviewId)));
   const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState(EMPTY_FORM);
+  const [form, setForm] = useState(() => (reviewItem ? createReviewForm(reviewItem) : EMPTY_FORM));
   const [submitError, setSubmitError] = useState("");
+
+  useEffect(() => {
+    if (!canManage || !reviewId || !reviewItem || scholarshipApi.loading) return;
+
+    const existingItem = scholarshipApi.items.find((item) => isSameScholarship(item, reviewItem));
+    setEditingId(existingItem?.id ?? null);
+    setForm(createReviewForm(reviewItem, existingItem));
+    setSubmitError("");
+    setFormOpen(true);
+  }, [canManage, reviewId, reviewItem, scholarshipApi.items, scholarshipApi.loading]);
 
   function updateField(field, value) {
     setForm((previous) => ({ ...previous, [field]: value }));
@@ -82,6 +131,7 @@ export default function AcademicScholarships({ user, onLogout }) {
     setFormOpen(false);
     setEditingId(null);
     setSubmitError("");
+    if (reviewId) navigate("/academic/scholarships", { replace: true });
   }
 
   async function handleSubmit(event) {
@@ -93,7 +143,12 @@ export default function AcademicScholarships({ user, onLogout }) {
     try {
       if (editingId) await scholarshipApi.updateItem(editingId, form);
       else await scholarshipApi.addItem(form);
-      closeForm();
+      if (reviewId) {
+        verificationStore.removeItem(reviewId);
+        navigate("/academic/scholarships", { replace: true });
+      } else {
+        closeForm();
+      }
     } catch (err) {
       setSubmitError(err.message);
     }
@@ -131,12 +186,26 @@ export default function AcademicScholarships({ user, onLogout }) {
             {canManage && <button type="button" className="outline-button" onClick={openAddForm}><Plus size={18} />Tambah Beasiswa</button>}
           </div>
 
+          {reviewItem && (
+            <section className="scholarship-review-banner" aria-label="Review update beasiswa dari AI">
+              <div className="scholarship-review-banner-icon"><CheckCircle2 size={18} /></div>
+              <div className="scholarship-review-banner-copy">
+                <strong>Review update dari AI sebelum dipublikasikan</strong>
+                <p>{reviewItem.aiNote}</p>
+                <span>Data yang disimpan di halaman ini akan menjadi data master beasiswa. Bandingkan dengan sumber resmi sebelum menandai selesai.</span>
+              </div>
+              <a className="scholarship-review-source" href={reviewItem.sourceUrl || SCHOLARSHIP_SOURCE_URLS[reviewItem.id]} target="_blank" rel="noreferrer">
+                <ExternalLink size={14} /> Buka sumber resmi
+              </a>
+            </section>
+          )}
+
           {scholarshipApi.error && <p className="master-data-form-error">{scholarshipApi.error}. Pastikan server backend sudah berjalan.</p>}
 
           {formOpen && (
             <form className="master-data-form scholarship-form" onSubmit={handleSubmit}>
               <div className="master-data-form-header">
-                <div><p className="master-data-eyebrow">Data scholarship</p><h3>{editingId ? "Edit Beasiswa" : "Tambah Beasiswa Baru"}</h3></div>
+                <div><p className="master-data-eyebrow">Data scholarship</p><h3>{reviewId ? (editingId ? "Validasi & Edit Beasiswa" : "Tambahkan Beasiswa dari Update AI") : editingId ? "Edit Beasiswa" : "Tambah Beasiswa Baru"}</h3></div>
                 <button type="button" className="icon-round-button" onClick={closeForm} aria-label="Tutup"><X size={16} /></button>
               </div>
               {submitError && <p className="master-data-form-error">{submitError}</p>}
@@ -162,7 +231,7 @@ export default function AcademicScholarships({ user, onLogout }) {
                 <label className="field-span-2"><span>URL Sumber Resmi</span><input type="url" value={form.sourceUrl} onChange={(e) => updateField("sourceUrl", e.target.value)} placeholder="https://..." /></label>
                 <label><span>Sumber Dicek Pada</span><input type="date" value={form.sourceCheckedAt} onChange={(e) => updateField("sourceCheckedAt", e.target.value)} /></label>
               </div>
-              <div className="master-data-form-actions"><button type="button" className="text-button" onClick={closeForm}>Batal</button><button type="submit" className="outline-button">{editingId ? "Simpan Perubahan" : "Tambah"}</button></div>
+              <div className="master-data-form-actions"><button type="button" className="text-button" onClick={closeForm}>Batal</button><button type="submit" className="outline-button">{reviewId ? "Simpan & Tandai Terverifikasi" : editingId ? "Simpan Perubahan" : "Tambah"}</button></div>
             </form>
           )}
 

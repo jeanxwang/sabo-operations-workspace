@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   ChevronRight,
   ExternalLink,
+  Pencil,
   Plus,
   X,
   XCircle,
@@ -68,6 +69,10 @@ export default function AcademicDashboard({ user, onLogout }) {
 
   function openSource(item) {
     window.open(getSourceUrl(item), "_blank", "noopener,noreferrer");
+  }
+
+  function openVerificationEditor(item) {
+    navigate(`/academic/scholarships?review=${encodeURIComponent(item.id)}`);
   }
 
   const totalUniversity = useCountUp(universityApi.items.length);
@@ -214,10 +219,10 @@ export default function AcademicDashboard({ user, onLogout }) {
                         <button
                           type="button"
                           className="outline-button academic-verify-source"
-                          onClick={() => openSource(item)}
+                          onClick={() => openVerificationEditor(item)}
                         >
-                          <ExternalLink size={15} />
-                          Verifikasi
+                          <Pencil size={15} />
+                          Verifikasi &amp; edit
                         </button>
                         <button
                           type="button"
@@ -307,6 +312,10 @@ export default function AcademicDashboard({ user, onLogout }) {
             <footer className="academic-detail-modal-footer">
               <button type="button" className="text-button" onClick={() => setSelectedVerification(null)}>
                 Tutup
+              </button>
+              <button type="button" className="outline-button" onClick={() => { setSelectedVerification(null); openVerificationEditor(selectedVerification); }}>
+                <Pencil size={16} />
+                Edit data lengkap
               </button>
               <button type="button" className="outline-button" onClick={() => openSource(selectedVerification)}>
                 <ExternalLink size={16} />
