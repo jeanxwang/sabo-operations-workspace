@@ -42,6 +42,11 @@ export default function AcademicDashboard({ user, onLogout }) {
         provider: item.provider,
         coverage: item.coverage,
         level: item.level,
+        fundingType: item.coverage,
+        eligibilityNotes: item.eligibility,
+        sourceUrl: getSourceUrl(item),
+        sourceCheckedAt: new Date().toISOString().slice(0, 10),
+        status: "active",
       });
       verificationStore.removeItem(item.id);
     } catch (err) {

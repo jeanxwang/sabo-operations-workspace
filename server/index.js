@@ -84,12 +84,23 @@ app.get("/api/scholarships", async (req, res) => {
 });
 
 app.post("/api/scholarships", async (req, res) => {
-  const { name, provider, coverage, level } = req.body;
+  const scholarship = normalizeScholarshipPayload(req.body);
+  if (!scholarship.name) {
+    return res.status(400).json({ error: "Nama scholarship wajib diisi" });
+  }
+
   try {
     const result = await pool.query(
-      `INSERT INTO scholarships (name, provider, coverage, level)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [name, provider, coverage, level]
+      `INSERT INTO scholarships (
+        name, provider, coverage, level, program_category, university, continent, country,
+        open_registration, earliest_deadline, currency, scholarship_type, funding_type,
+        benefit_notes, document_category, document_detail, eligibility_notes,
+        eligibility_criteria, source_url, source_checked_at, status
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
+        $17, $18, $19, $20, $21
+      ) RETURNING *`,
+      scholarshipValues(scholarship)
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -100,13 +111,23 @@ app.post("/api/scholarships", async (req, res) => {
 
 app.put("/api/scholarships/:id", async (req, res) => {
   const { id } = req.params;
-  const { name, provider, coverage, level } = req.body;
+  const scholarship = normalizeScholarshipPayload(req.body);
+  if (!scholarship.name) {
+    return res.status(400).json({ error: "Nama scholarship wajib diisi" });
+  }
+
   try {
     const result = await pool.query(
       `UPDATE scholarships
-       SET name = $1, provider = $2, coverage = $3, level = $4
-       WHERE id = $5 RETURNING *`,
-      [name, provider, coverage, level, id]
+       SET name = $1, provider = $2, coverage = $3, level = $4,
+           program_category = $5, university = $6, continent = $7, country = $8,
+           open_registration = $9, earliest_deadline = $10, currency = $11,
+           scholarship_type = $12, funding_type = $13, benefit_notes = $14,
+           document_category = $15, document_detail = $16, eligibility_notes = $17,
+           eligibility_criteria = $18, source_url = $19, source_checked_at = $20,
+           status = $21, updated_at = NOW()
+       WHERE id = $22 RETURNING *`,
+      [...scholarshipValues(scholarship), id]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Data tidak ditemukan" });
@@ -181,6 +202,67 @@ app.put("/api/students/:id", async (req, res) => {
     res.status(500).json({ error: "Gagal mengubah data student" });
   }
 });
+
+function normalizeScholarshipPayload(payload = {}) {
+  const text = (...keys) => {
+    const value = keys.map((key) => payload[key]).find((candidate) => candidate !== undefined && candidate !== null);
+    return typeof value === "string" ? value.trim() || null : value ?? null;
+  };
+  const object = (...keys) => {
+    const value = keys.map((key) => payload[key]).find((candidate) => candidate !== undefined && candidate !== null);
+    return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  };
+
+  return {
+    name: text("name", "scholarship"),
+    provider: text("provider"),
+    coverage: text("coverage", "funding_type"),
+    level: text("level", "degree"),
+    programCategory: text("programCategory", "program_category"),
+    university: text("university"),
+    continent: text("continent"),
+    country: text("country"),
+    openRegistration: text("openRegistration", "open_registration"),
+    earliestDeadline: text("earliestDeadline", "earliest_deadline"),
+    currency: text("currency", "currency_beasiswa"),
+    scholarshipType: text("scholarshipType", "scholarship_type"),
+    fundingType: text("fundingType", "funding_type"),
+    benefitNotes: text("benefitNotes", "benefit_notes", "notes_benefit"),
+    documentCategory: text("documentCategory", "document_category"),
+    documentDetail: text("documentDetail", "document_detail", "notes_document_detail"),
+    eligibilityNotes: text("eligibilityNotes", "eligibility_notes", "eligibility__notes_"),
+    eligibilityCriteria: object("eligibilityCriteria", "eligibility_criteria"),
+    sourceUrl: text("sourceUrl", "source_url"),
+    sourceCheckedAt: text("sourceCheckedAt", "source_checked_at"),
+    status: text("status") || "active",
+  };
+}
+
+function scholarshipValues(scholarship) {
+  return [
+    scholarship.name,
+    scholarship.provider,
+    scholarship.coverage,
+    scholarship.level,
+    scholarship.programCategory,
+    scholarship.university,
+    scholarship.continent,
+    scholarship.country,
+    scholarship.openRegistration,
+    scholarship.earliestDeadline,
+    scholarship.currency,
+    scholarship.scholarshipType,
+    scholarship.fundingType,
+    scholarship.benefitNotes,
+    scholarship.documentCategory,
+    scholarship.documentDetail,
+    scholarship.eligibilityNotes,
+    scholarship.eligibilityCriteria,
+    scholarship.sourceUrl,
+    scholarship.sourceCheckedAt,
+    scholarship.status,
+  ];
+}
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

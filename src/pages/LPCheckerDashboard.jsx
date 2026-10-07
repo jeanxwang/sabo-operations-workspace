@@ -7,10 +7,13 @@ import {
   ExternalLink,
   FileText,
   Globe2,
+  Pencil,
+  Plus,
   Save,
   Search,
   Send,
   ShieldCheck,
+  Trash2,
   Users,
   X,
 } from "lucide-react";
@@ -39,6 +42,8 @@ export default function LPCheckerDashboard({ user, onLogout }) {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [lps, setLps] = useState(mockLpCreations);
+  const [scholarshipRecommendations, setScholarshipRecommendations] = useState(mockLpScholarshipRecommendations);
+  const [universityRecommendations, setUniversityRecommendations] = useState(mockLpUniversityRecommendations);
 
   const counts = useMemo(
     () => ({
@@ -69,6 +74,32 @@ export default function LPCheckerDashboard({ user, onLogout }) {
     setLps((currentLps) => currentLps.map((lp) => (lp.id === updatedLp.id ? updatedLp : lp)));
   }
 
+  function handleAddRecommendation(type, recommendation) {
+    const setRecommendations = type === "universities" ? setUniversityRecommendations : setScholarshipRecommendations;
+    setRecommendations((currentRecommendations) => [...currentRecommendations, recommendation]);
+  }
+
+  function handleUpdateRecommendation(type, updatedRecommendation) {
+    const setRecommendations = type === "universities" ? setUniversityRecommendations : setScholarshipRecommendations;
+    setRecommendations((currentRecommendations) => currentRecommendations.map((recommendation) => (
+      recommendation.id === updatedRecommendation.id ? updatedRecommendation : recommendation
+    )));
+  }
+
+  function handleDeleteRecommendation(type, recommendationId) {
+    const setRecommendations = type === "universities" ? setUniversityRecommendations : setScholarshipRecommendations;
+    setRecommendations((currentRecommendations) => currentRecommendations.filter((recommendation) => recommendation.id !== recommendationId));
+  }
+
+  function handleRecommendationStatus(type, recommendationId, status) {
+    const setRecommendations = type === "universities" ? setUniversityRecommendations : setScholarshipRecommendations;
+    setRecommendations((currentRecommendations) => currentRecommendations.map((recommendation) => (
+      recommendation.id === recommendationId
+        ? { ...recommendation, status, sourceCheckedAt: status === "validated" ? formatUpdatedAt() : recommendation.sourceCheckedAt }
+        : recommendation
+    )));
+  }
+
   if (lpId) {
     const selectedLp = lps.find((lp) => lp.id === lpId);
 
@@ -84,6 +115,12 @@ export default function LPCheckerDashboard({ user, onLogout }) {
         activeTab={activeReviewTab}
         onBack={() => navigate("/lp-checker/learning-plans")}
         onUpdate={handleUpdateLp}
+        scholarshipRecommendations={scholarshipRecommendations}
+        universityRecommendations={universityRecommendations}
+        onAddRecommendation={handleAddRecommendation}
+        onUpdateRecommendation={handleUpdateRecommendation}
+        onDeleteRecommendation={handleDeleteRecommendation}
+        onRecommendationStatusChange={handleRecommendationStatus}
       />
     );
   }
@@ -178,7 +215,7 @@ export default function LPCheckerDashboard({ user, onLogout }) {
   );
 }
 
-function LPReviewPage({ user, onLogout, lp, activeTab, onBack, onUpdate }) {
+function LPReviewPage({ user, onLogout, lp, activeTab, onBack, onUpdate, scholarshipRecommendations, universityRecommendations, onAddRecommendation, onUpdateRecommendation, onDeleteRecommendation, onRecommendationStatusChange }) {
   return (
     <main className="dashboard-page lp-page">
       <AcademicSidebar user={user} onLogout={onLogout} mode="lp-checker" />
@@ -191,7 +228,19 @@ function LPReviewPage({ user, onLogout, lp, activeTab, onBack, onUpdate }) {
         </header>
         <section className="lp-content lp-review-content">
           <button type="button" className="lp-back-link" onClick={onBack}>← Kembali ke daftar LP</button>
-          <LpDetailDrawer lp={lp} activeTab={activeTab} onClose={onBack} onUpdate={onUpdate} fullPage />
+          <LpDetailDrawer
+            lp={lp}
+            activeTab={activeTab}
+            onClose={onBack}
+            onUpdate={onUpdate}
+            fullPage
+            scholarshipRecommendations={scholarshipRecommendations}
+            universityRecommendations={universityRecommendations}
+            onAddRecommendation={onAddRecommendation}
+            onUpdateRecommendation={onUpdateRecommendation}
+            onDeleteRecommendation={onDeleteRecommendation}
+            onRecommendationStatusChange={onRecommendationStatusChange}
+          />
         </section>
       </section>
     </main>
@@ -225,7 +274,7 @@ function LpStatus({ status }) {
   return <span className={`lp-status ${config.tone}`}><span />{config.label}</span>;
 }
 
-function LpDetailDrawer({ lp, activeTab = "diagnosing", onClose, onUpdate, fullPage = false }) {
+function LpDetailDrawer({ lp, activeTab = "diagnosing", onClose, onUpdate, fullPage = false, scholarshipRecommendations, universityRecommendations, onAddRecommendation, onUpdateRecommendation, onDeleteRecommendation, onRecommendationStatusChange }) {
   const [objective, setObjective] = useState(lp.objective);
   const [focusAreas, setFocusAreas] = useState(lp.focusAreas.join("\n"));
   const [milestones, setMilestones] = useState(lp.milestones.join("\n"));
@@ -233,10 +282,13 @@ function LpDetailDrawer({ lp, activeTab = "diagnosing", onClose, onUpdate, fullP
   const [checks, setChecks] = useState(() => getInitialValidationChecks(lp));
   const [saveMessage, setSaveMessage] = useState("");
   const [activeSource, setActiveSource] = useState(null);
+  const [recommendationMessage, setRecommendationMessage] = useState("");
   const externalReferences = getExternalReferenceLinks(lp);
   const internalSources = getInternalSourcePreviews(lp);
   const allChecksComplete = Object.values(checks).every(Boolean);
-  const canRelease = lp.status === "checked" && allChecksComplete;
+  const lpRecommendations = [...(scholarshipRecommendations ?? []), ...(universityRecommendations ?? [])].filter((recommendation) => recommendation.lpId === lp.id);
+  const allRecommendationsValidated = lpRecommendations.every((recommendation) => recommendation.status === "validated");
+  const canRelease = lp.status === "checked" && allChecksComplete && allRecommendationsValidated;
 
   function updateCheck(id) {
     setChecks((currentChecks) => ({ ...currentChecks, [id]: !currentChecks[id] }));
@@ -254,6 +306,11 @@ function LpDetailDrawer({ lp, activeTab = "diagnosing", onClose, onUpdate, fullP
 
     if ((validate || release) && !allChecksComplete) {
       setSaveMessage("Centang seluruh checklist validasi sebelum menandai LP sudah divalidasi.");
+      return;
+    }
+
+    if ((validate || release) && !allRecommendationsValidated) {
+      setSaveMessage("Validasi semua rekomendasi beasiswa dan universitas terlebih dahulu.");
       return;
     }
 
@@ -350,8 +407,10 @@ function LpDetailDrawer({ lp, activeTab = "diagnosing", onClose, onUpdate, fullP
         </DetailSection>
         </>}
 
-        {activeTab === "scholarships" && <RecommendationReviewSection lpId={lp.id} type="scholarships" />}
-        {activeTab === "universities" && <RecommendationReviewSection lpId={lp.id} type="universities" />}
+        {activeTab === "scholarships" && <RecommendationReviewSection lpId={lp.id} studentId={lp.studentId} studentName={lp.studentName} type="scholarships" recommendations={scholarshipRecommendations} onAdd={onAddRecommendation} onUpdate={onUpdateRecommendation} onDelete={onDeleteRecommendation} onStatusChange={onRecommendationStatusChange} onMessage={setRecommendationMessage} />}
+        {activeTab === "universities" && <RecommendationReviewSection lpId={lp.id} studentId={lp.studentId} studentName={lp.studentName} type="universities" recommendations={universityRecommendations} onAdd={onAddRecommendation} onUpdate={onUpdateRecommendation} onDelete={onDeleteRecommendation} onStatusChange={onRecommendationStatusChange} onMessage={setRecommendationMessage} />}
+
+        {recommendationMessage && <p className="lp-save-message" role="status">{recommendationMessage}</p>}
 
         <DetailSection title="Checklist validasi">
           <ValidationCheck checked={checks.student} onChange={() => updateCheck("student")} label="Data student sesuai" detail="Handover, profil SLMS, dan diagnosing checklist sudah dicocokkan." />
@@ -363,8 +422,8 @@ function LpDetailDrawer({ lp, activeTab = "diagnosing", onClose, onUpdate, fullP
           {saveMessage && <p className="lp-save-message" role="status">{saveMessage}</p>}
           <div className="lp-action-buttons">
             <button type="button" className="lp-secondary-action" onClick={() => saveChanges()}><Save size={15} /> Simpan revisi</button>
-            <button type="button" className="lp-primary-action" disabled={!allChecksComplete || lp.status !== "review"} onClick={() => saveChanges({ validate: true })}><ShieldCheck size={15} /> {lp.status === "review" ? "Tandai sudah divalidasi" : "Sudah divalidasi"}</button>
-            <button type="button" className="lp-primary-action lp-release-action" disabled={!canRelease} title={lp.status === "review" ? "Validasi LP terlebih dahulu" : lp.status === "released" ? "LP sudah dirilis" : "Rilis learning plan"} onClick={() => saveChanges({ release: true })}><Send size={15} /> {lp.status === "released" ? "LP sudah dirilis" : "Rilis LP"}</button>
+            <button type="button" className="lp-primary-action" disabled={!allChecksComplete || !allRecommendationsValidated || lp.status !== "review"} onClick={() => saveChanges({ validate: true })}><ShieldCheck size={15} /> {lp.status === "review" ? "Tandai sudah divalidasi" : "Sudah divalidasi"}</button>
+            <button type="button" className="lp-primary-action lp-release-action" disabled={!canRelease} title={!allRecommendationsValidated ? "Validasi semua rekomendasi terlebih dahulu" : lp.status === "review" ? "Validasi LP terlebih dahulu" : lp.status === "released" ? "LP sudah dirilis" : "Rilis learning plan"} onClick={() => saveChanges({ release: true })}><Send size={15} /> {lp.status === "released" ? "LP sudah dirilis" : "Rilis LP"}</button>
           </div>
         </div>
       </aside>
@@ -386,31 +445,77 @@ function ReviewTabNavigation({ lpId, activeTab }) {
   );
 }
 
-function RecommendationReviewSection({ lpId, type }) {
-  const universities = mockLpUniversityRecommendations.filter((recommendation) => recommendation.lpId === lpId);
-  const scholarships = mockLpScholarshipRecommendations.filter((recommendation) => recommendation.lpId === lpId);
-  const rows = type === "universities" ? universities : scholarships;
+function RecommendationReviewSection({ lpId, studentId, studentName, type, recommendations, onAdd, onUpdate, onDelete, onStatusChange, onMessage }) {
+  const rows = recommendations.filter((recommendation) => recommendation.lpId === lpId);
   const isUniversity = type === "universities";
+  const [formMode, setFormMode] = useState(null);
+  const [editingRecommendation, setEditingRecommendation] = useState(null);
+
+  function openAddForm() {
+    setEditingRecommendation(null);
+    setFormMode("add");
+  }
+
+  function openEditForm(recommendation) {
+    setEditingRecommendation(recommendation);
+    setFormMode("edit");
+  }
+
+  function closeForm() {
+    setEditingRecommendation(null);
+    setFormMode(null);
+  }
+
+  function handleFormSubmit(formValues) {
+    if (formMode === "edit") {
+      onUpdate(type, { ...editingRecommendation, ...formValues, status: "review", sourceCheckedAt: "" });
+      onMessage("Perubahan rekomendasi tersimpan dan statusnya dikembalikan ke menunggu validasi.");
+    } else {
+      const prefix = isUniversity ? "UNI" : "SCH";
+      onAdd(type, {
+        ...formValues,
+        id: `${prefix}-${Date.now()}`,
+        lpId,
+        studentId: studentId ?? rows[0]?.studentId ?? "",
+        studentName: studentName ?? rows[0]?.studentName ?? "",
+        status: "review",
+      });
+      onMessage("Rekomendasi baru ditambahkan dan menunggu validasi.");
+    }
+    closeForm();
+  }
+
+  function handleDelete(recommendation) {
+    if (!window.confirm(`Hapus rekomendasi ${isUniversity ? recommendation.university : recommendation.name}?`)) return;
+    onDelete(type, recommendation.id);
+    onMessage("Rekomendasi dihapus dari learning plan.");
+  }
+
+  function updateStatus(recommendation, status) {
+    onStatusChange(type, recommendation.id, status);
+    onMessage(status === "validated" ? "Rekomendasi berhasil divalidasi." : status === "needs-revision" ? "Rekomendasi ditandai perlu revisi." : "Status rekomendasi dikembalikan ke menunggu validasi.");
+  }
 
   return (
     <section className="lp-detail-section lp-recommendations-section">
       <div className="lp-section-heading-row">
-        <div><h3>{isUniversity ? "Rekomendasi universitas" : "Rekomendasi beasiswa"}</h3><p>Daftar rekomendasi yang terhubung langsung dengan learning plan student ini.</p></div>
-        <span>{rows.length} item</span>
+        <div><h3>{isUniversity ? "Rekomendasi universitas" : "Rekomendasi beasiswa"}</h3><p>Validasi setiap item berdasarkan sumber resmi sebelum LP dirilis. Anda juga dapat menambah, mengubah, atau menghapus rekomendasi.</p></div>
+        <div className="lp-recommendation-heading-actions"><span>{rows.length} item</span><button type="button" className="lp-add-recommendation-button" onClick={openAddForm}><Plus size={14} /> Tambah rekomendasi</button></div>
       </div>
-      <RecommendationTable rows={rows} type={type} />
+      <RecommendationTable rows={rows} type={type} onEdit={openEditForm} onDelete={handleDelete} onStatusChange={updateStatus} />
+      {formMode && <RecommendationForm type={type} mode={formMode} recommendation={editingRecommendation} onCancel={closeForm} onSubmit={handleFormSubmit} />}
     </section>
   );
 }
 
-function RecommendationTable({ rows, type }) {
+function RecommendationTable({ rows, type, onEdit, onDelete, onStatusChange }) {
   const isUniversity = type === "universities";
   return (
     <div className="lp-recommendation-table-wrapper">
       <table className="lp-table lp-review-recommendation-table">
         <caption className="sr-only">Daftar rekomendasi {isUniversity ? "universitas" : "beasiswa"} untuk learning plan ini</caption>
         <thead>
-          {isUniversity ? <tr><th>Universitas & program</th><th>Target</th><th>Fit score</th><th>Deadline</th><th>Status</th><th>Sumber</th></tr> : <tr><th>Beasiswa & provider</th><th>Coverage</th><th>Eligibility</th><th>Deadline</th><th>Status</th><th>Sumber</th></tr>}
+          {isUniversity ? <tr><th>Universitas & program</th><th>Target</th><th>Fit score</th><th>Deadline</th><th>Status</th><th>Sumber</th><th>Aksi</th></tr> : <tr><th>Beasiswa & provider</th><th>Coverage</th><th>Eligibility</th><th>Deadline</th><th>Status</th><th>Sumber</th><th>Aksi</th></tr>}
         </thead>
         <tbody>
           {rows.map((row) => <tr key={row.id}>
@@ -427,12 +532,90 @@ function RecommendationTable({ rows, type }) {
             </>}
             <td><RecommendationStatus status={row.status} /></td>
             <td><a className="lp-table-source-link" href={row.sourceUrl} target="_blank" rel="noreferrer">Buka sumber ↗</a></td>
+            <td>
+              <div className="lp-recommendation-actions">
+                {row.status !== "validated" && <button type="button" className="lp-row-action validate" onClick={() => onStatusChange(row, "validated")}><ShieldCheck size={13} /> Validasi</button>}
+                {row.status !== "needs-revision" && <button type="button" className="lp-row-action revise" onClick={() => onStatusChange(row, "needs-revision")}>Perlu revisi</button>}
+                {row.status !== "review" && <button type="button" className="lp-row-action reset" onClick={() => onStatusChange(row, "review")}>Buka ulang</button>}
+                <button type="button" className="lp-row-icon-action" aria-label={`Edit ${isUniversity ? row.university : row.name}`} title="Edit rekomendasi" onClick={() => onEdit(row)}><Pencil size={14} /></button>
+                <button type="button" className="lp-row-icon-action danger" aria-label={`Hapus ${isUniversity ? row.university : row.name}`} title="Hapus rekomendasi" onClick={() => onDelete(row)}><Trash2 size={14} /></button>
+              </div>
+            </td>
           </tr>)}
-          {rows.length === 0 && <tr className="lp-empty-row"><td colSpan={6}>Belum ada rekomendasi untuk LP ini.</td></tr>}
+          {rows.length === 0 && <tr className="lp-empty-row"><td colSpan={7}>Belum ada rekomendasi untuk LP ini. Tambahkan rekomendasi pertama untuk memulai review.</td></tr>}
         </tbody>
       </table>
     </div>
   );
+}
+
+const RECOMMENDATION_FORM_FIELDS = {
+  universities: [
+    { name: "university", label: "Nama universitas", type: "text", required: true },
+    { name: "program", label: "Program / jurusan", type: "text", required: true },
+    { name: "country", label: "Negara", type: "text", required: true },
+    { name: "degreeLevel", label: "Jenjang", type: "text", required: true },
+    { name: "intake", label: "Intake", type: "text", required: true },
+    { name: "fitScore", label: "Fit score (%)", type: "number", required: true, min: 0, max: 100 },
+    { name: "tuition", label: "Estimasi tuition", type: "text" },
+    { name: "deadline", label: "Deadline", type: "text", required: true },
+    { name: "sourceUrl", label: "URL sumber resmi", type: "url", required: true },
+    { name: "sourceCheckedAt", label: "Terakhir dicek", type: "text" },
+    { name: "notes", label: "Catatan validasi", type: "textarea" },
+  ],
+  scholarships: [
+    { name: "name", label: "Nama beasiswa", type: "text", required: true },
+    { name: "provider", label: "Provider", type: "text", required: true },
+    { name: "country", label: "Negara", type: "text", required: true },
+    { name: "level", label: "Jenjang", type: "text", required: true },
+    { name: "coverage", label: "Coverage", type: "text", required: true },
+    { name: "deadline", label: "Deadline", type: "text", required: true },
+    { name: "eligibility", label: "Eligibility", type: "textarea", required: true },
+    { name: "sourceUrl", label: "URL sumber resmi", type: "url", required: true },
+    { name: "sourceCheckedAt", label: "Terakhir dicek", type: "text" },
+    { name: "notes", label: "Catatan validasi", type: "textarea" },
+  ],
+};
+
+function RecommendationForm({ type, mode, recommendation, onCancel, onSubmit }) {
+  const fields = RECOMMENDATION_FORM_FIELDS[type];
+  const [form, setForm] = useState(() => getRecommendationFormValues(type, recommendation));
+  const [error, setError] = useState("");
+  const isUniversity = type === "universities";
+
+  function updateField(name, value) {
+    setForm((currentForm) => ({ ...currentForm, [name]: value }));
+  }
+
+  function submitForm(event) {
+    event.preventDefault();
+    const missingField = fields.find((field) => field.required && !String(form[field.name] ?? "").trim());
+    if (missingField) {
+      setError(`${missingField.label} wajib diisi.`);
+      return;
+    }
+    if (isUniversity && (Number(form.fitScore) < 0 || Number(form.fitScore) > 100)) {
+      setError("Fit score harus berada di antara 0 dan 100.");
+      return;
+    }
+    onSubmit({ ...form, ...(isUniversity ? { fitScore: Number(form.fitScore) } : {}) });
+  }
+
+  return (
+    <div className="lp-recommendation-form" role="dialog" aria-modal="true" aria-labelledby="recommendation-form-title">
+      <div className="lp-recommendation-form-header"><div><span className="lp-drawer-eyebrow">{mode === "edit" ? "EDIT REKOMENDASI" : "REKOMENDASI BARU"}</span><h4 id="recommendation-form-title">{mode === "edit" ? "Edit " : "Tambah "}{isUniversity ? "rekomendasi universitas" : "rekomendasi beasiswa"}</h4><p>Lengkapi data berdasarkan sumber resmi. Item baru otomatis berstatus menunggu validasi.</p></div><button type="button" className="lp-close-button" aria-label="Tutup form" onClick={onCancel}><X size={16} /></button></div>
+      <form className="lp-recommendation-form-grid" onSubmit={submitForm}>
+        {fields.map((field) => <label key={field.name} className={`lp-recommendation-form-field ${field.type === "textarea" ? "wide" : ""}`}><span>{field.label}{field.required ? " *" : ""}</span>{field.type === "textarea" ? <textarea rows={3} value={form[field.name] ?? ""} onChange={(event) => updateField(field.name, event.target.value)} /> : <input type={field.type} min={field.min} max={field.max} value={form[field.name] ?? ""} onChange={(event) => updateField(field.name, event.target.value)} />}</label>)}
+        {error && <p className="lp-form-error" role="alert">{error}</p>}
+        <div className="lp-recommendation-form-actions"><button type="button" className="lp-secondary-action" onClick={onCancel}>Batal</button><button type="submit" className="lp-primary-action"><Save size={14} /> Simpan rekomendasi</button></div>
+      </form>
+    </div>
+  );
+}
+
+function getRecommendationFormValues(type, recommendation) {
+  const fields = RECOMMENDATION_FORM_FIELDS[type];
+  return fields.reduce((values, field) => ({ ...values, [field.name]: recommendation?.[field.name] ?? "" }), {});
 }
 
 function ValidationCheck({ checked, onChange, label, detail }) {

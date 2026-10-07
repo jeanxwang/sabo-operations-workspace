@@ -1,4 +1,4 @@
-.lp-page { --lp-accent: #2457d6; --lp-accent-dark: #1742ad; --lp-soft: #eef4ff; }
+.lp-page { --lp-accent: #2457d6; --lp-accent-dark: #1742ad; --lp-soft: #eef4ff; --lp-accent-border: #b8cdf7; }
 .lp-content { padding: 34px 32px 48px; }
 .lp-review-content { min-height: calc(100vh - 72px); }
 .lp-back-link { display: inline-flex; align-items: center; margin: 0 0 16px; padding: 0; border: 0; background: transparent; color: var(--lp-accent-dark); cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; }
@@ -33,7 +33,7 @@
 .lp-recommendation-tabs button:hover, .lp-recommendation-tabs button.active { border-bottom-color: var(--lp-accent); color: var(--lp-accent-dark); }
 .lp-recommendation-tabs button span { min-width: 18px; padding: 2px 5px; border-radius: 999px; background: var(--lp-soft); color: var(--lp-accent-dark); font-size: 10px; text-align: center; }
 .lp-recommendation-table-wrapper { max-height: 390px; overflow: auto; border: 1px solid var(--line); border-radius: 9px; }
-.lp-review-recommendation-table { min-width: 900px; }
+.lp-review-recommendation-table { min-width: 1260px; }
 .lp-review-recommendation-table th { padding: 11px 13px; }
 .lp-review-recommendation-table thead th { position: sticky; top: 0; z-index: 1; box-shadow: 0 1px 0 var(--line); }
 .lp-review-recommendation-table td { padding: 12px 13px; }
@@ -41,6 +41,34 @@
 .lp-recommendation-eligibility { max-width: 220px; white-space: normal; line-height: 1.4; }
 .lp-table-source-link { color: var(--lp-accent-dark); font-size: 10px; font-weight: 700; text-decoration: none; white-space: nowrap; }
 .lp-table-source-link:hover { text-decoration: underline; }
+.lp-recommendation-heading-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+.lp-add-recommendation-button { display: inline-flex; align-items: center; gap: 5px; min-height: 30px; padding: 0 9px; border: 1px solid var(--lp-accent-border); border-radius: 7px; background: var(--lp-soft); color: var(--lp-accent-dark); cursor: pointer; font: inherit; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.lp-add-recommendation-button:hover { border-color: var(--lp-accent); background: #dfeaff; }
+.lp-recommendation-actions { display: flex; align-items: center; justify-content: flex-start; flex-wrap: wrap; gap: 5px; min-width: 270px; }
+.lp-row-action, .lp-row-icon-action { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-height: 26px; padding: 0 7px; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--muted); cursor: pointer; font: inherit; font-size: 9px; font-weight: 700; white-space: nowrap; }
+.lp-row-action:hover, .lp-row-icon-action:hover { border-color: var(--lp-accent-border); background: var(--lp-soft); color: var(--lp-accent-dark); }
+.lp-row-action.validate { border-color: #b6dfc9; color: #157347; }
+.lp-row-action.validate:hover { border-color: #159c63; background: #eefbf4; color: #117a4d; }
+.lp-row-action.revise { color: #b45309; }
+.lp-row-action.revise:hover { border-color: #f3c98a; background: #fff8ec; color: #92400e; }
+.lp-row-action.reset { color: var(--lp-accent-dark); }
+.lp-row-icon-action { width: 27px; padding: 0; }
+.lp-row-icon-action.danger { color: #b42318; }
+.lp-row-icon-action.danger:hover { border-color: #f2b8b3; background: #fff3f2; color: #9f1d16; }
+.lp-recommendation-form { margin-top: 14px; padding: 16px; border: 1px solid #cddcff; border-radius: 11px; background: #f7f9ff; }
+.lp-recommendation-form-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-bottom: 13px; border-bottom: 1px solid #dce6ff; }
+.lp-recommendation-form-header h4 { margin: 0; color: var(--ink); font-size: 14px; }
+.lp-recommendation-form-header p { max-width: 560px; margin: 4px 0 0; color: var(--muted); font-size: 10px; line-height: 1.45; }
+.lp-recommendation-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px 13px; padding-top: 14px; }
+.lp-recommendation-form-field { display: grid; gap: 5px; }
+.lp-recommendation-form-field.wide { grid-column: 1 / -1; }
+.lp-recommendation-form-field > span { color: var(--muted); font-size: 10px; font-weight: 700; }
+.lp-recommendation-form-field input, .lp-recommendation-form-field textarea { width: 100%; padding: 8px 9px; border: 1px solid var(--line); border-radius: 7px; background: #fff; color: var(--ink); font: inherit; font-size: 11px; outline: none; }
+.lp-recommendation-form-field input { height: 34px; }
+.lp-recommendation-form-field textarea { min-height: 66px; resize: vertical; line-height: 1.4; }
+.lp-recommendation-form-field input:focus, .lp-recommendation-form-field textarea:focus { border-color: var(--lp-accent); box-shadow: 0 0 0 3px rgba(36,87,214,.1); }
+.lp-form-error { grid-column: 1 / -1; margin: 0; padding: 8px 9px; border-radius: 7px; background: #fff3f2; color: #a32920; font-size: 10px; }
+.lp-recommendation-form-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; padding-top: 3px; }
 .lp-not-found { padding: 32px; }
 .lp-not-found h1 { margin: 0; font-size: 22px; }
 .lp-not-found p { margin: 8px 0 18px; color: var(--muted); font-size: 13px; }
@@ -193,7 +221,7 @@
 .lp-note-block ul { margin: 7px 0 0; padding-left: 17px; color: var(--ink); font-size: 11px; line-height: 1.6; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 @media (max-width: 1100px) { .lp-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 760px) { .lp-content { padding: 26px 20px 40px; } .lp-page-heading, .lp-toolbar, .lp-card-header { align-items: flex-start; flex-direction: column; } .lp-page-heading h1 { font-size: 27px; } .lp-search { width: 100%; min-width: 0; } .lp-filter-tabs { width: 100%; } }
+@media (max-width: 760px) { .lp-content { padding: 26px 20px 40px; } .lp-page-heading, .lp-toolbar, .lp-card-header { align-items: flex-start; flex-direction: column; } .lp-page-heading h1 { font-size: 27px; } .lp-search { width: 100%; min-width: 0; } .lp-filter-tabs { width: 100%; } .lp-recommendation-form-grid { grid-template-columns: 1fr; } .lp-recommendation-form-field.wide { grid-column: auto; } .lp-recommendation-heading-actions { width: 100%; justify-content: space-between; } }
 @media (max-width: 480px) { .lp-summary-grid { grid-template-columns: 1fr; } }
 
 /* LP review is a real route, so it must not inherit the modal/drawer treatment. */

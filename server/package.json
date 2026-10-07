@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "db:migrate": "node migrate.js",
+    "db:seed:scholarships": "node seed-scholarships.js",
+    "db:reset:prototype": "node reset-prototype-data.js"
   },
   "keywords": [],
   "author": "",
