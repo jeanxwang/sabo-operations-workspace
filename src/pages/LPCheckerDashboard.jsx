@@ -39,6 +39,7 @@ export default function LPCheckerDashboard({ user, onLogout }) {
   const navigate = useNavigate();
   const { lpId, lpTab = "diagnosing" } = useParams();
   const activeReviewTab = ["diagnosing", "scholarships", "universities"].includes(lpTab) ? lpTab : "diagnosing";
+  const displayName = getDisplayName(user?.name);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [lps, setLps] = useState(mockLpCreations);
@@ -144,9 +145,9 @@ export default function LPCheckerDashboard({ user, onLogout }) {
         <section className="lp-content">
           <div className="lp-page-heading fade-in-up" style={{ "--delay": "0ms" }}>
             <div>
-              <p className="lp-eyebrow">LEARNING PLAN</p>
-              <h1>LP Creation</h1>
-              <p>Lihat learning plan student yang dibuat setelah sesi onboarding dan diagnosing checklist.</p>
+              <p className="lp-eyebrow">LEARNING PLAN · LP CREATION</p>
+              <h1>Welcome back, {displayName}!</h1>
+              <p>Review dan validasi learning plan student yang dibuat setelah sesi onboarding dan diagnosing checklist.</p>
             </div>
             <div className="lp-read-only-note"><ShieldCheck size={16} /> Review & validasi</div>
           </div>
@@ -272,6 +273,12 @@ function FilterButton({ active, onClick, label, count }) {
 function LpStatus({ status }) {
   const config = LP_STATUS[status];
   return <span className={`lp-status ${config.tone}`}><span />{config.label}</span>;
+}
+
+function getDisplayName(name) {
+  if (!name) return "LP Checker Team";
+  const nameParts = name.trim().split(" ");
+  return nameParts[nameParts.length - 1];
 }
 
 function LpDetailDrawer({ lp, activeTab = "diagnosing", onClose, onUpdate, fullPage = false, scholarshipRecommendations, universityRecommendations, onAddRecommendation, onUpdateRecommendation, onDeleteRecommendation, onRecommendationStatusChange }) {
