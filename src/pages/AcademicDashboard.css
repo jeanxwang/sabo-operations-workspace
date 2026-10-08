@@ -417,3 +417,196 @@
     justify-content: space-between;
   }
 }
+
+/* Academic visual system: compact, information-dense, and review-oriented. */
+.academic-dashboard-page .dashboard-main,
+.academic-master-page .dashboard-main {
+  background: #f7f9fd;
+}
+.academic-dashboard-page .dashboard-content {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 28px 32px 44px;
+}
+.academic-dashboard-page .dashboard-heading {
+  margin-bottom: 20px;
+}
+.academic-dashboard-page .dashboard-heading h1 {
+  font-size: 26px;
+  letter-spacing: -0.04em;
+}
+.academic-stat-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.academic-stat-card {
+  min-height: 142px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(25, 54, 111, 0.045);
+}
+.academic-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-border);
+  box-shadow: 0 12px 26px rgba(36, 87, 214, 0.1);
+}
+.academic-stat-card h2 {
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.academic-stat-card > strong {
+  margin-bottom: 7px;
+  font-size: 34px;
+}
+.academic-stat-card p {
+  margin-bottom: 13px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.academic-stat-card .outline-button {
+  min-height: 34px;
+  padding: 0 11px;
+  border-radius: 7px;
+  font-size: 11px;
+}
+.academic-recent-section,
+.academic-verify-section {
+  margin-top: 18px;
+}
+.academic-recent-card,
+.academic-verify-card {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(25, 54, 111, 0.04);
+}
+.academic-recent-header,
+.academic-verify-header {
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.academic-recent-header h2,
+.academic-verify-header h2 {
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+.academic-recent-actions {
+  gap: 5px;
+}
+.academic-recent-actions .text-button {
+  min-height: 28px;
+  padding: 0 7px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+.academic-recent-actions .text-button:hover {
+  background: var(--accent-soft);
+}
+.academic-recent-columns {
+  gap: 16px;
+}
+.academic-recent-label {
+  margin-bottom: 7px;
+  font-size: 10px;
+}
+.academic-recent-list {
+  gap: 7px;
+}
+.academic-recent-list li {
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+.academic-recent-list strong {
+  font-size: 12px;
+}
+.academic-recent-list span {
+  font-size: 10px;
+}
+.academic-verify-count {
+  padding: 3px 9px;
+  border-width: 1px;
+  font-size: 10px;
+}
+.academic-verify-list {
+  gap: 8px;
+}
+.academic-verify-item {
+  align-items: center;
+  gap: 14px;
+  padding: 12px 13px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #fcfdff;
+}
+.academic-verify-item-info strong {
+  font-size: 13px;
+}
+.academic-verify-meta {
+  font-size: 10px;
+}
+.academic-verify-note {
+  margin-top: 5px;
+  font-size: 11px;
+}
+.academic-verify-change-trigger {
+  margin-top: 6px;
+  font-size: 10px;
+}
+.academic-verify-actions {
+  gap: 5px;
+}
+.academic-verify-actions .outline-button {
+  min-height: 30px;
+  padding: 0 9px;
+  border-radius: 6px;
+  font-size: 10px;
+}
+.academic-verify-actions .icon-round-button {
+  width: 28px;
+  height: 28px;
+}
+@media (max-width: 760px) {
+  .academic-dashboard-page .dashboard-content {
+    padding: 22px 18px 34px;
+  }
+  .academic-verify-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .academic-verify-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+.academic-dashboard-page .topbar,
+.academic-master-page .topbar {
+  height: 64px;
+  padding: 0 24px;
+  background: rgba(255, 255, 255, 0.92);
+}
+.academic-dashboard-page .breadcrumbs,
+.academic-master-page .breadcrumbs {
+  gap: 9px;
+  font-size: 12px;
+}
+.academic-dashboard-page .breadcrumb-separator,
+.academic-master-page .breadcrumb-separator {
+  font-size: 16px;
+}
+.academic-dashboard-page .topbar-actions button,
+.academic-dashboard-page .topbar-actions a,
+.academic-master-page .topbar-actions button,
+.academic-master-page .topbar-actions a {
+  width: 32px;
+  height: 32px;
+}

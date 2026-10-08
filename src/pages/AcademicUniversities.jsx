@@ -72,7 +72,7 @@ export default function AcademicUniversities({ user, onLogout }) {
   }
 
   return (
-    <main className="dashboard-page">
+    <main className={`dashboard-page ${isLpChecker ? "lp-master-page" : "academic-master-page"}`}>
       <AcademicSidebar user={user} onLogout={onLogout} />
 
       <section className="dashboard-main">
@@ -89,7 +89,11 @@ export default function AcademicUniversities({ user, onLogout }) {
 
         <section className="master-data-content fade-in-up" style={{ "--delay": "0ms" }}>
           <div className="master-data-header-row">
-            <h1>University &amp; Program ({universityApi.items.length})</h1>
+            <div>
+              <p className="master-data-eyebrow">Master Data Academic</p>
+              <h1>University &amp; Program <span className="master-data-count">{universityApi.items.length}</span></h1>
+              <p className="master-data-description">Daftar universitas dan program studi yang digunakan untuk rekomendasi learning plan.</p>
+            </div>
             {canManage && <button type="button" className="outline-button" onClick={openAddForm}>
               <Plus size={18} />
               Tambah Program

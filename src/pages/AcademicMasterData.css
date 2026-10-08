@@ -408,3 +408,148 @@
     grid-column: auto;
   }
 }
+
+/* Compact master-data treatment shared by University & Program and Scholarship. */
+.academic-master-page .dashboard-main {
+  background: #f7f9fd;
+}
+.academic-master-page .master-data-content {
+  max-width: none;
+  padding: 26px 30px 42px;
+}
+.academic-master-page .master-data-header-row {
+  align-items: flex-end;
+  margin-bottom: 18px;
+}
+.academic-master-page .master-data-header-row h1 {
+  font-size: 24px;
+  letter-spacing: -0.04em;
+}
+.master-data-count {
+  display: inline-flex;
+  align-items: center;
+  min-width: 26px;
+  height: 23px;
+  justify-content: center;
+  margin-left: 5px;
+  padding: 0 7px;
+  border: 1px solid var(--accent-border);
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  vertical-align: middle;
+}
+.academic-master-page .master-data-description {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.academic-master-page .master-data-header-row > .outline-button {
+  min-height: 34px;
+  padding: 0 11px;
+  border-radius: 7px;
+  font-size: 11px;
+}
+.academic-master-page .master-data-form {
+  margin-bottom: 16px;
+  padding: 17px;
+  border: 1px solid var(--accent-border);
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(25, 54, 111, 0.05);
+}
+.academic-master-page .master-data-form-header {
+  margin-bottom: 13px;
+  padding-bottom: 11px;
+  border-bottom: 1px solid var(--line);
+}
+.academic-master-page .master-data-form-header h3 {
+  font-size: 14px;
+}
+.academic-master-page .master-data-form-grid {
+  gap: 10px 12px;
+  margin-bottom: 13px;
+}
+.academic-master-page .master-data-form-grid label {
+  gap: 5px;
+  font-size: 10px;
+}
+.academic-master-page .master-data-form-grid input,
+.academic-master-page .master-data-form-grid select,
+.academic-master-page .master-data-form-grid textarea {
+  height: 35px;
+  padding: 0 9px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+.academic-master-page .master-data-form-grid textarea {
+  min-height: 70px;
+  padding: 8px 9px;
+}
+.academic-master-page .master-data-form-actions {
+  gap: 10px;
+}
+.academic-master-page .master-data-form-actions .outline-button {
+  min-height: 33px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+.academic-master-page .master-data-table-card {
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(25, 54, 111, 0.04);
+}
+.academic-master-page .master-data-table th {
+  height: 36px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--line);
+  background: #f4f7fc;
+  font-size: 10px;
+}
+.academic-master-page .master-data-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #edf0f6;
+  font-size: 12px;
+}
+.academic-master-page .master-data-table tbody tr:hover td {
+  background: #fbfcff;
+}
+.academic-master-page .master-data-table td strong {
+  font-size: 12px;
+}
+.academic-master-page .master-data-table .mono-cell {
+  font-size: 10px;
+}
+.academic-master-page .row-actions {
+  gap: 5px;
+}
+.academic-master-page .icon-round-button {
+  width: 27px;
+  height: 27px;
+  border-width: 1px;
+}
+.academic-master-page .scholarship-table th,
+.academic-master-page .scholarship-table td {
+  padding-left: 11px;
+  padding-right: 11px;
+}
+.academic-master-page .scholarship-table td {
+  height: 45px;
+  font-size: 11px;
+}
+.academic-master-page .scholarship-table td small,
+.academic-master-page .scholarship-name-cell span {
+  font-size: 10px;
+}
+@media (max-width: 760px) {
+  .academic-master-page .master-data-content {
+    padding: 22px 18px 34px;
+  }
+  .academic-master-page .master-data-header-row {
+    align-items: flex-start;
+  }
+}

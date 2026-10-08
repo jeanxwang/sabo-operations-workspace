@@ -82,7 +82,7 @@ export default function AcademicDashboard({ user, onLogout }) {
   const recentScholarship = scholarshipApi.items.slice(0, 3);
 
   return (
-    <main className="dashboard-page">
+    <main className="dashboard-page academic-dashboard-page">
       <AcademicSidebar user={user} onLogout={onLogout} />
 
       <section className="dashboard-main">

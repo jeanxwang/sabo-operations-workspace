@@ -472,3 +472,82 @@
     font-size: 46px;
   }
 }
+
+/* Compact Academic shell; selectors are scoped so other roles keep their layout. */
+.academic-dashboard-page .sidebar,
+.academic-master-page .sidebar {
+  background: #102657;
+}
+.academic-dashboard-page .sidebar-brand,
+.academic-master-page .sidebar-brand {
+  height: 64px;
+  gap: 10px;
+  padding: 0 22px;
+  font-size: 16px;
+}
+.academic-dashboard-page .sidebar-brand-logo,
+.academic-master-page .sidebar-brand-logo {
+  width: 28px;
+  height: 28px;
+}
+.academic-dashboard-page .sidebar-nav,
+.academic-master-page .sidebar-nav {
+  gap: 3px;
+  padding: 18px 10px;
+}
+.academic-dashboard-page .sidebar-link,
+.academic-master-page .sidebar-link {
+  min-height: 38px;
+  gap: 10px;
+  padding: 0 13px;
+  border-radius: 7px;
+  font-size: 13px;
+}
+.academic-dashboard-page .sidebar-link svg,
+.academic-master-page .sidebar-link svg {
+  width: 18px;
+  height: 18px;
+}
+.academic-dashboard-page .academic-sidebar-subnav .sidebar-link,
+.academic-master-page .academic-sidebar-subnav .sidebar-link {
+  min-height: 35px;
+  padding-left: 20px;
+  font-size: 12px;
+}
+.academic-dashboard-page .academic-sidebar-subnav .sidebar-link svg,
+.academic-master-page .academic-sidebar-subnav .sidebar-link svg {
+  width: 16px;
+  height: 16px;
+}
+.academic-dashboard-page .academic-sidebar-group-label,
+.academic-master-page .academic-sidebar-group-label {
+  padding: 7px 13px 5px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.academic-dashboard-page .academic-sidebar-divider,
+.academic-master-page .academic-sidebar-divider {
+  margin: 0 13px 3px;
+}
+.academic-dashboard-page .sidebar-profile,
+.academic-master-page .sidebar-profile {
+  min-height: 70px;
+  gap: 8px;
+  padding: 0 13px 0 16px;
+}
+.academic-dashboard-page .profile-avatar,
+.academic-master-page .profile-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.academic-dashboard-page .sidebar-profile strong,
+.academic-master-page .sidebar-profile strong {
+  font-size: 12px;
+}
+.academic-dashboard-page .sidebar-profile small,
+.academic-master-page .sidebar-profile small {
+  font-size: 10px;
+}

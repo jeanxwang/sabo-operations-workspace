@@ -169,7 +169,7 @@ export default function AcademicScholarships({ user, onLogout }) {
   }
 
   return (
-    <main className="dashboard-page">
+    <main className={`dashboard-page ${isLpChecker ? "lp-master-page" : "academic-master-page"}`}>
       <AcademicSidebar user={user} onLogout={onLogout} />
       <section className="dashboard-main">
         <header className="topbar">
@@ -185,7 +185,7 @@ export default function AcademicScholarships({ user, onLogout }) {
           <div className="master-data-header-row">
             <div>
               <p className="master-data-eyebrow">Master Data Academic</p>
-              <h1>Scholarship ({scholarshipApi.items.length})</h1>
+              <h1>Scholarship <span className="master-data-count">{scholarshipApi.items.length}</span></h1>
               <p className="master-data-description">Data inti untuk rekomendasi learning plan dan pengecekan deadline beasiswa.</p>
             </div>
             {canManage && <button type="button" className="outline-button" onClick={openAddForm}><Plus size={18} />Tambah Beasiswa</button>}
